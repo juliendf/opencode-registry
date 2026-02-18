@@ -1,0 +1,7 @@
+name: "Basic OpenCode Setup"
+description: "Essential agents and skills for getting started with OpenCode"
+components:
+  - plan-brainstorm
+  - build-general
+  - plan-code-review
+  - project-docs

@@ -1,0 +1,19 @@
+name: "Intermediate OpenCode Setup"
+description: "Extended collection for developers working on diverse projects"
+components:
+  # Primary agents
+  - plan-brainstorm
+  - plan-debug
+  - plan-code-review
+  - build-general
+  - build-backend
+  - build-frontend
+  
+  # Skills
+  - project-docs
+  - code-docs
+  - mcp-builder
+  
+  # Commands
+  - commit
+  - review

@@ -1,0 +1,29 @@
+name: "Advanced OpenCode Setup"
+description: "Complete OpenCode ecosystem with all agents, subagents, and skills"
+components:
+  # All primary agents
+  - plan-brainstorm
+  - plan-debug
+  - plan-code-review
+  - build-general
+  - build-backend
+  - build-frontend
+  - build-platform
+  - build-data
+  
+  # All skills
+  - project-docs
+  - code-docs
+  - mcp-builder
+  - meeting-insights-analyzer
+  - content-research-writer
+  - file-organizer
+  - work-on-ticket
+  
+  # All commands
+  - commit
+  - review
+  - documentation
+  - test
+  
+  # Note: Subagents are included automatically as they're in the agent/subagents directory
