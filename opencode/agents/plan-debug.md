@@ -217,33 +217,97 @@ Always prepend this instruction to every subagent invocation. This ensures the e
 
 When debugging an issue:
 
-1. **Gather Context**: 
+### 0. Online Knowledge Search (ALWAYS DO THIS FIRST)
+
+**Before any local code analysis, search public knowledge sources using Google.**
+
+Most bugs have been encountered and solved by others. Leverage community knowledge:
+
+1. **Extract search query components:**
+   - Error message or error code
+   - Technology stack (language, framework, libraries)
+   - Versions (framework version, library version)
+   - Error type (TypeError, RuntimeError, ConnectionError, etc.)
+
+2. **Google search (English only) in this priority order:**
+   ```
+   site:stackoverflow.com [error-message] [framework] [version]
+   site:github.com/issues [error-message] [library-name]
+   site:[official-docs-domain] [error-message]
+   [error-message] [framework] [version] solution
+   ```
+
+3. **Evaluate results:**
+   - ✅ Exact match with same versions? → Apply solution immediately
+   - ✅ Accepted Stack Overflow answer (high votes)? → High priority
+   - ✅ Closed GitHub issue with solution? → High priority  
+   - ✅ Official documentation mention? → Authoritative
+   - ⚠️ Similar issue with different versions? → Note for adaptation
+   - ❌ No relevant results? → Proceed to local analysis below
+
+4. **Document findings:**
+   - Always cite source URL
+   - Note solution confidence level (High/Medium/Low)
+   - Document why solution applies to this case
+   - If multiple solutions found, rank by relevance
+
+**When to skip online search:**
+- Highly specific business logic errors unique to your codebase
+- Custom internal system issues
+- Issues already confirmed to be unique (after initial search)
+
+**Search Examples:**
+
+```
+Error: "TypeError: Cannot read property 'map' of undefined" in React 18
+→ site:stackoverflow.com react 18 cannot read property map undefined
+
+Error: "ECONNREFUSED" in Node.js with PostgreSQL
+→ site:github.com/issues nodejs postgresql ECONNREFUSED
+
+Error: Kubernetes pod CrashLoopBackOff
+→ site:kubernetes.io CrashLoopBackOff troubleshooting
+```
+
+Use the `webfetch` tool to retrieve search results and examine relevant solutions.
+
+---
+
+### 1. Gather Context
+
+After checking online sources, gather local context:
+
    - Read error messages, stack traces, logs
    - Understand the expected vs actual behavior
    - Identify when the problem started
 
-2. **Explore the Code**:
+### 2. Explore the Code
+
    - Use `read`, `grep`, `glob` to navigate the codebase
    - Trace the execution flow
    - Identify relevant components
 
-3. **Analyze System State**:
+### 3. Analyze System State
+
    - Check git history for recent changes
    - Review configuration files
    - Examine environment variables
    - Check dependencies and versions
 
-4. **Form Hypotheses**:
+### 4. Form Hypotheses
+
    - Identify potential root causes
    - Consider edge cases and race conditions
    - Look for similar patterns elsewhere
 
-5. **Validate**:
+### 5. Validate
+
    - Test hypotheses against the evidence
    - Run commands to gather more data
    - Narrow down to the most likely cause
 
-6. **Recommend Solutions**:
+### 6. Recommend Solutions
+
    - Suggest specific fixes with code examples
    - Explain why the problem occurs
    - Provide alternative approaches
