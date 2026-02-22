@@ -9,7 +9,7 @@
 git clone https://github.com/yourusername/opencode-registry.git
 cd opencode-registry
 
-# Install the CLI
+# Install the CLI (must run from installer/ directory where pyproject.toml lives)
 cd installer
 pip install -e .
 ```
@@ -28,7 +28,7 @@ opencode-config list --type subagent
 opencode-config list --type skill
 
 # Show component details
-opencode-config info plan-brainstorm
+opencode-config info plan-design
 opencode-config info kubernetes-expert
 ```
 
@@ -63,7 +63,7 @@ opencode-config update --all --dry-run
 opencode-config update --all
 
 # Update specific component
-opencode-config update build-general
+    opencode-config update build-code
 
 # Sync database from disk
 opencode-config sync
@@ -104,7 +104,9 @@ opencode-config config --registry /path/to/registry
 |--------|-----------|-------------|
 | `basic` | 4 | Essential agents and skills for getting started |
 | `intermediate` | 10+ | Extended collection for common workflows |
-| `advanced` | 62 | Complete ecosystem with all components |
+| `advanced` | 55 | Complete ecosystem with all components |
+
+**Note:** Individual component installation is planned for a future release. Currently, use bundles to install components.
 
 ## 🎯 Common Workflows
 
@@ -190,10 +192,11 @@ opencode-config install --group basic
 
 | Type | Count | Location |
 |------|-------|----------|
-| **Agents** | 8 | `agents/*.md` |
-| **Subagents** | 43+ | `agent/subagents/**/*.md` |
-| **Skills** | 5+ | `skills/*/` |
-| **Commands** | 4 | `commands/*.md` |
+| **Primary Agents** | 7 | `agents/*.md` |
+| **Subagents** | 43 | `agents/subagents/**/*.md` |
+| **Skills** | 3 | `skills/*/` |
+| **Commands** | 2 | `commands/*.md` |
+| **Total** | **55** | — |
 
 ## ⚠️ Important Notes
 

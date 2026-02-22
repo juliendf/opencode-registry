@@ -63,8 +63,8 @@ All components use **semantic versioning** (semver): `MAJOR.MINOR.PATCH`
 
 ```yaml
 ---
-name: "Build General"
-description: "General-purpose development agent"
+name: "Build Code"
+description: "Full-stack coding agent"
 type: "agent"
 version: "1.2.0"  # ← Here
 author: "OpenCode Team"
@@ -81,7 +81,7 @@ name: "Git Commit Helper"
 description: "Intelligent commit message generation"
 type: "command"
 version: "1.0.1"  # ← Here
-agent: "build-general"
+agent: "build-code"
 ---
 ```
 
@@ -122,7 +122,7 @@ Updates Available:
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━┓
 ┃ Component       ┃ Installed ┃ Available ┃ Status ┃
 ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━┩
-│ build-general   │ 1.0.0     │ 1.2.0     │ UPDATE │
+│ build-code      │ 1.0.0     │ 1.2.0     │ UPDATE │
 │ mcp-builder     │ 1.5.0     │ 2.0.0     │ UPDATE │
 │ python-pro      │ 1.1.0     │ 1.1.0     │ OK     │
 └─────────────────┴───────────┴───────────┴────────┘
@@ -136,7 +136,7 @@ opencode-config update <component-id> --dry-run
 
 Example:
 ```bash
-opencode-config update build-general --dry-run
+opencode-config update build-code --dry-run
 ```
 
 ### View Installed Versions
@@ -153,7 +153,7 @@ Installed Components:
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ ID              ┃ Name      ┃ Version ┃ Installed ┃
 ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━┩
-│ build-general   │ Build...  │ 1.0.0   │ ✓         │
+│ build-code      │ Build...  │ 1.0.0   │ ✓         │
 │ mcp-builder     │ MCP...    │ 1.5.0   │ ✓         │
 └─────────────────┴───────────┴─────────┴───────────┘
 ```
@@ -181,7 +181,7 @@ opencode-config update <component-id>
 **Examples:**
 ```bash
 # Update general development agent
-opencode-config update build-general
+opencode-config update build-code
 
 # Update MCP builder skill
 opencode-config update mcp-builder
@@ -199,7 +199,7 @@ Always use `--dry-run` to preview changes first:
 opencode-config update --all --dry-run
 
 # Preview specific component update
-opencode-config update build-general --dry-run
+opencode-config update build-code --dry-run
 ```
 
 ### Update Workflow
@@ -216,7 +216,7 @@ Recommended workflow for updates:
 3. **Update selectively** or all at once:
    ```bash
    # Update specific components
-   opencode-config update build-general
+   opencode-config update build-code
    opencode-config update mcp-builder
    
    # Or update everything
@@ -277,7 +277,7 @@ For production environments, update components one at a time:
 
 ```bash
 # Update and test one component at a time
-opencode-config update build-general
+opencode-config update build-code
 # Test the updated component
 opencode-config update mcp-builder
 # Test again
@@ -361,13 +361,13 @@ $ opencode-config update --all --dry-run
 
 Updates Available:
 Component         Installed  Available  Status
-build-general     1.0.0      1.1.0      UPDATE (minor)
+build-code      1.0.0      1.1.0      UPDATE (minor)
 python-pro        1.2.0      1.2.1      UPDATE (patch)
 
 # Apply updates
 $ opencode-config update --all
 
-✓ Updated build-general: 1.0.0 → 1.1.0
+✓ Updated build-code: 1.0.0 → 1.1.0
 ✓ Updated python-pro: 1.2.0 → 1.2.1
 
 # Verify

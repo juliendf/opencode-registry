@@ -4,7 +4,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-> A central hub for OpenCode agents, subagents, skills, and commands with intelligent installation management.
+> A central hub for 55 OpenCode components: primary agents, specialized subagents, skills, and commands with intelligent installation management.
 
 [Features](#-what-is-opencode-registry) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](CONTRIBUTING.md)
 
@@ -29,12 +29,13 @@ OpenCode Registry provides a **curated, beautiful library** of OpenCode componen
 
 1. **Clone the registry:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/opencode-registry.git
+   git clone https://github.com/juliendf/opencode-registry.git
    cd opencode-registry
    ```
 
 2. **Install the CLI:**
    ```bash
+   # Navigate to installer directory (where setup files live)
    cd installer
    pip install -e .
    ```
@@ -48,7 +49,7 @@ OpenCode Registry provides a **curated, beautiful library** of OpenCode componen
    opencode-config install --group basic
    
    # Or install specific components
-   opencode-config install plan-brainstorm
+   opencode-config install plan-design
    ```
 
 #### For Developers
@@ -57,11 +58,12 @@ If you plan to contribute or modify the codebase:
 
 ```bash
 # Clone and navigate
-git clone https://github.com/YOUR_USERNAME/opencode-registry.git
-cd opencode-registry/installer
+git clone https://github.com/juliendf/opencode-registry.git
+cd opencode-registry
 
-# Install with development dependencies (pytest, black, ruff, etc.)
-pip install -e ".[dev]"
+# Navigate to installer directory and install with dev dependencies
+cd installer
+pip install -e ".[dev]"  # Includes pytest, black, ruff, mypy
 
 # Return to root and start developing
 cd ..
@@ -76,10 +78,10 @@ cd ..
 opencode-config list
 
 # Show component details
-opencode-config info plan-brainstorm
+opencode-config info plan-design
 
-# Install a component
-opencode-config install build-general
+# Install specific component (via bundle)
+opencode-config install --group intermediate
 
 # Install a bundle
 opencode-config install --group intermediate
@@ -97,35 +99,37 @@ opencode-config install --group basic --dry-run
 opencode-config uninstall --all
 ```
 
-## 📦 Available Components
+## 📦 Available Components (55 Total)
 
-### Primary Agents (8)
-- `plan-brainstorm` - Strategic planning and ideation
-- `plan-debug` - Read-only debugging and investigation
-- `plan-code-review` - Code quality and security review
-- `build-general` - General-purpose development agent
-- `build-backend` - Backend development specialist
-- `build-frontend` - Frontend development expert
-- `build-platform` - Infrastructure and DevOps
-- `build-data` - Data processing and analysis
+### Primary Agents (7)
+Core AI assistants for different development roles:
+- `ask-me-anything` - General Q&A for codebase, docs, concepts, and best practices
+- `build-code` - Full-stack coding agent (frontend, backend, data)
+- `build-infrastructure` - Infrastructure, DevOps, and cloud platforms
+- `debug` - Debugging agent that investigates issues and fixes them
+- `plan-design` - Product and feature planning, functional specs, user stories
+- `plan-architecture` - Technical architecture and system design
+- `review` - Code quality and security review
 
 ### Subagents (43)
-Organized in categories:
-- **01-core** - Backend, API, microservices, GraphQL, fullstack
-- **02-languages** - Python, TypeScript, Go, React, Bash, SQL, Vue
-- **03-infrastructure** - Kubernetes, Terraform, AWS, GCP, Azure, GitOps, Cloud
-- **04-quality-and-security** - Testing, security, performance, debugging
-- **05-data-ai** - ML, data engineering, AI, database optimization
-- **06-developer-experience** - CLI development, MCP, DX optimization
-- **07-specialized-domains** - Mobile, payments, technical writing
-- **09-meta-orchestration** - Workflow orchestration, context management
+Specialized experts organized by domain:
+- **01-core** (5) - Backend, API, microservices, GraphQL, fullstack
+- **02-languages** (7) - Python, TypeScript, Go, React, Bash, SQL, Vue
+- **03-infrastructure** (13) - Kubernetes, Terraform, AWS, GCP, Azure, GitOps, Cloud
+- **04-quality-and-security** (5) - Testing, security, performance, debugging
+- **05-data-ai** (5) - ML, data engineering, AI, database optimization
+- **06-developer-experience** (3) - CLI development, MCP, DX optimization
+- **07-specialized-domains** (3) - Mobile, payments, technical writing
+- **09-meta-orchestration** (2) - Workflow orchestration, context management
 
 ### Skills (3)
-- `project-docs` - Generate comprehensive project documentation
-- `mcp-builder` - Build high-quality MCP servers
+Multi-step workflows and processes:
 - `content-research-writer` - Research and write content with citations
+- `mcp-builder` - Build high-quality MCP servers
+- `project-docs` - Generate comprehensive project documentation
 
 ### Commands (2)
+Custom slash commands for common tasks:
 - `commit` - Git commit helper
 - `documentation` - Documentation review and updates
 
@@ -134,10 +138,12 @@ Organized in categories:
 Pre-configured groups for different use cases:
 
 - **basic** - Essential agents and skills (4 components)
-- **intermediate** - Extended collection (10+ components)
-- **advanced** - Complete ecosystem (all components)
+- **intermediate** - Extended collection (10+ components)  
+- **advanced** - Complete ecosystem (all 55 components)
 
 Install with: `opencode-config install --group <bundle-name>`
+
+**Note:** Currently, components can only be installed via bundles. Individual component installation is planned for a future release.
 
 ## 🛠️ How It Works
 
@@ -231,7 +237,7 @@ OpenCode Registry uses **individual component versioning** with semantic version
 opencode-config update --all --dry-run
 
 # Check specific component
-opencode-config update build-general --dry-run
+opencode-config update build-code --dry-run
 ```
 
 ### Updating Components
@@ -241,7 +247,7 @@ opencode-config update build-general --dry-run
 opencode-config update --all
 
 # Update specific component
-opencode-config update build-general
+opencode-config update build-code
 
 # View installed versions
 opencode-config list --installed
@@ -325,7 +331,7 @@ Built for the OpenCode community to make agent management effortless.
 Special thanks to:
 - **Anthropic** for the MCP Builder skill foundation
 - **ComposioHQ** for the Content Research Writer skill
-- All [contributors](https://github.com/YOUR_USERNAME/opencode-registry/graphs/contributors)
+- All [contributors](https://github.com/juliendf/opencode-registry/graphs/contributors)
 
 ## ⭐ Show Your Support
 

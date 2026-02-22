@@ -37,7 +37,7 @@ def config(list_config: bool, target: str, registry: str):
     if registry is not None:
         if registry.lower() == "auto":
             cfg.set("registry_path", None)
-            console.print(f"[green]✓[/green] Registry path set to auto-detect from current directory")
+            console.print("[green]✓[/green] Registry path set to auto-detect from current directory")
         else:
             cfg.set("registry_path", registry)
             console.print(f"[green]✓[/green] Registry path set to: {registry}")

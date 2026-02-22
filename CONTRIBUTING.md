@@ -15,8 +15,8 @@ Thank you for your interest in contributing to OpenCode Registry! This document 
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/opencode-registry.git
-   cd opencode-registry
+git clone https://github.com/juliendf/opencode-registry.git
+cd opencode-registry
    ```
 3. Create a branch for your changes:
    ```bash

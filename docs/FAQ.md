@@ -14,10 +14,18 @@ OpenCode Registry is a curated collection of AI agents, specialized subagents, s
 
 ### What's the difference between agents, subagents, skills, and commands?
 
-- **Agents** (8 total): Primary AI personas for different development roles (e.g., `build-general`, `build-backend`, `plan-code-review`)
-- **Subagents** (43 total): Specialized experts for specific technologies (e.g., `kubernetes-expert`, `react-specialist`, `python-pro`)
-- **Skills** (3 total): Complex multi-step workflows and processes (e.g., `mcp-builder`, `project-docs`, `content-research-writer`)
-- **Commands** (2 total): Custom slash commands for common tasks (e.g., `/commit`, `/documentation`)
+| Component Type | Count | Purpose | How to Use |
+|----------------|-------|---------|------------|
+| **Primary Agents** | 7 | Core AI personas for different development roles | Press **Tab** in OpenCode to switch agents |
+| **Subagents** | 43 | Specialized experts for specific technologies | Use **@mention** or invoked automatically by primary agents |
+| **Skills** | 3 | Complex multi-step workflows and processes | Loaded automatically by agents when needed |
+| **Commands** | 2 | Custom slash commands for common tasks | Type **/command** in OpenCode (e.g., `/commit`) |
+
+**Examples:**
+- **Primary Agent**: Switch to `build-code` agent for full-stack development
+- **Subagent**: `@python-pro optimize this function` for Python-specific help
+- **Skill**: Agent loads `mcp-builder` skill when you ask to create an MCP server
+- **Command**: Type `/commit` to generate an intelligent git commit message
 
 ### How much does it cost?
 
@@ -34,14 +42,14 @@ OpenCode Registry is **completely free and open-source** under the MIT License. 
 
 ### How do I install OpenCode Registry?
 
-**For regular users:**
+**Quick install (5 minutes):**
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/opencode-registry.git
+git clone https://github.com/juliendf/opencode-registry.git
 cd opencode-registry
 
-# 2. Install the CLI tool (must be done from installer/ directory)
+# 2. Install the CLI tool from installer directory (where pyproject.toml lives)
 cd installer
 pip install -e .
 
@@ -50,12 +58,16 @@ cd ..
 opencode-config install --group basic
 ```
 
-**For developers (with testing/linting tools):**
+**Developers (with testing/linting tools):**
 
 ```bash
-# Same as above, but use:
-pip install -e ".[dev]"
+# From installer/ directory
+cd installer
+pip install -e ".[dev]"  # Includes pytest, black, ruff, mypy
+cd ..
 ```
+
+**Why install from installer/ directory?** That's where `pyproject.toml` and `setup.py` live, which define the Python package and its dependencies.
 
 **Note:** The CLI automatically detects the registry location when you run it from the repository directory.
 
@@ -107,12 +119,13 @@ opencode-config config --registry /path/to/registry
 ### What's the difference between bundles?
 
 - **basic** (4 components): Essential agents for getting started
-  - `build-general`, `plan-brainstorm`, `plan-code-review`, `plan-debug`
+  - `build-code`, `plan-design`, `mcp-builder`, `project-docs`
   
-- **intermediate** (includes basic + 10+ more): Common specialized subagents
+- **intermediate** (10+ components): Basic + common specialized subagents
   - Adds: `python-pro`, `typescript-pro`, `react-specialist`, `backend-architect`, etc.
   
-- **advanced** (all 57 components): Complete library including all agents, subagents, skills, and commands
+- **advanced** (all 55 components): Complete library
+  - All 7 primary agents, 43 subagents, 3 skills, and 2 commands
 
 ### How do I see what components are available?
 
@@ -132,12 +145,15 @@ opencode-config info kubernetes-expert
 
 ### How do I install individual components?
 
-```bash
-# Install a specific agent
-opencode-config install build-backend
+**Note:** Individual component installation is planned for a future release. Currently, components are installed via bundles.
 
-# Install multiple components
-opencode-config install python-pro react-specialist kubernetes-expert
+**Workaround:**
+```bash
+# Find which bundle contains the component
+opencode-config list
+
+# Install the bundle containing it
+opencode-config install --group intermediate
 
 # Preview before installing (dry-run)
 opencode-config install --group intermediate --dry-run
@@ -162,15 +178,17 @@ opencode-config update --all --dry-run
 ### How do I uninstall components?
 
 ```bash
-# Uninstall specific component
-opencode-config uninstall build-backend
-
 # Uninstall all components
 opencode-config uninstall --all
 
-# Uninstall entire bundle
-opencode-config uninstall --group basic
+# Preview uninstall (dry-run)
+opencode-config uninstall --all --dry-run
+
+# Verify uninstallation
+opencode-config status
 ```
+
+**Note:** Selective uninstallation of individual components is planned for a future release. Currently, `uninstall` removes all installed components.
 
 ### Can I customize installed components?
 
@@ -282,9 +300,9 @@ The MIT license allows commercial and private use.
 
 ### How do I report bugs or request features?
 
-- **Bugs**: [GitHub Issues](https://github.com/YOUR_USERNAME/opencode-registry/issues)
-- **Feature Requests**: [GitHub Issues](https://github.com/YOUR_USERNAME/opencode-registry/issues) with `enhancement` label
-- **Questions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/opencode-registry/discussions)
+- **Bugs**: [GitHub Issues](https://github.com/juliendf/opencode-registry/issues)
+- **Feature Requests**: [GitHub Issues](https://github.com/juliendf/opencode-registry/issues) with `enhancement` label
+- **Questions**: [GitHub Discussions](https://github.com/juliendf/opencode-registry/discussions)
 
 ### Does this work offline?
 
@@ -346,7 +364,7 @@ We recommend:
 
 ```bash
 # 1. Everyone clones the same registry
-git clone https://github.com/YOUR_USERNAME/opencode-registry.git
+git clone https://github.com/juliendf/opencode-registry.git
 
 # 2. Everyone installs the same bundle
 opencode-config install --group intermediate
@@ -363,8 +381,8 @@ opencode-config install --group team-bundle
 - 📖 **Documentation**: Check our [complete documentation](../README.md)
 - 🚀 **Getting Started**: See [Getting Started Guide](GETTING-STARTED.md)
 - 🔧 **Troubleshooting**: See [Troubleshooting Guide](TROUBLESHOOTING.md)
-- 💬 **Community**: Join [GitHub Discussions](https://github.com/YOUR_USERNAME/opencode-registry/discussions)
-- 🐛 **Issues**: Report on [GitHub Issues](https://github.com/YOUR_USERNAME/opencode-registry/issues)
+- 💬 **Community**: Join [GitHub Discussions](https://github.com/juliendf/opencode-registry/discussions)
+- 🐛 **Issues**: Report on [GitHub Issues](https://github.com/juliendf/opencode-registry/issues)
 
 **Quick Links:**
 - [Architecture Overview](ARCHITECTURE.md)

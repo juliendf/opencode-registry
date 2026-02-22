@@ -109,9 +109,9 @@ def install(component_id: str, group: str, dry_run: bool, target: str):
         console.print("  opencode-config install --group advanced")
         console.print("  opencode-config install <component-id>\n")
         console.print("[dim]Available bundles:[/dim]")
-        console.print("  • basic         - Essential components (4 components)")
+        console.print("  • basic         - Essential components (5 components)")
         console.print("  • intermediate  - Common workflow components (10+ components)")
-        console.print("  • advanced      - Full component library (62 components)\n")
+        console.print("  • advanced      - Full component library (63 components)\n")
         console.print("[dim]Tip: Run 'opencode-config list' to see all available components[/dim]")
         return
 

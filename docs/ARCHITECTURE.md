@@ -8,7 +8,7 @@
 │                    OpenCode Registry                            │
 │                                                                 │
 │  GitHub Repo (Source of Truth)                                 │
-│  └─ 57 Components: Agents, Subagents, Skills, Commands         │
+│  └─ 55 Components: Primary Agents, Subagents, Skills, Commands │
 │                                                                 │
 └────────────────────────┬────────────────────────────────────────┘
                          │
@@ -22,17 +22,17 @@
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  opencode/          (Component Library)                  │  │
-│  │  ├── agents/        (8 primary agents)                   │  │
+│  │  ├── agents/        (7 primary agents)                   │  │
 │  │  │   └── subagents/ (43 specialized subagents)           │  │
 │  │  ├── skills/        (3 skills)                           │  │
-│  │  └── commands/      (3 commands)                         │  │
+│  │  └── commands/      (2 commands)                         │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  bundles/           (Bundle Definitions)                 │  │
 │  │  ├── basic.yaml     (4 essential components)             │  │
 │  │  ├── intermediate.yaml (10+ components)                  │  │
-│  │  └── advanced.yaml  (all 57 components)                  │  │
+│  │  └── advanced.yaml  (all 55 components)                  │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
@@ -56,8 +56,9 @@
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  agents/                                                  │  │
-│  │  ├── plan-brainstorm.md      → symlink to registry      │  │
-│  │  ├── build-general.md        → symlink to registry      │  │
+│  │  ├── plan-design.md           → symlink to registry      │  │
+│  │  ├── plan-architecture.md     → symlink to registry      │  │
+│  │  ├── build-code.md            → symlink to registry      │  │
 │  │  ├── cngmember.md           (user's custom agent)      │  │
 │  │  └── subagents/              → symlink to registry      │  │
 │  │      └── [43 subagents]                                 │  │
@@ -97,7 +98,7 @@
 │  │  installed.json                                          │  │
 │  │  {                                                       │  │
 │  │    "installed": {                                        │  │
-│  │      "agents": { ... },        (8 components)            │  │
+  │  │      "agents": { ... },        (5 components)            │  │
 │  │      "subagents": { ... },     (43 components)           │  │
 │  │      "skills": { ... },        (3 components)            │  │
 │  │      "commands": { ... }       (3 components)            │  │
@@ -220,7 +221,7 @@ User runs: opencode-config install --group basic
     ┌─────────────────────────────┐
     │  6. Show Results            │
     │  "✓ Bundle installed        │
-    │   60 components"            │
+    │   Components: 55"           │
     └─────────────────────────────┘
 ```
 

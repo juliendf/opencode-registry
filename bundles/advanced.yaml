@@ -2,14 +2,13 @@ name: "Advanced OpenCode Setup"
 description: "Complete OpenCode ecosystem with all agents, subagents, and skills"
 components:
   # All primary agents
-  - plan-brainstorm
-  - plan-debug
-  - plan-code-review
-  - build-general
-  - build-backend
-  - build-frontend
-  - build-platform
-  - build-data
+  - ask-me-anything
+  - plan-design
+  - plan-architecture
+  - debug
+  - review
+  - build-code
+  - build-infrastructure
   
   # All skills
   - project-docs
