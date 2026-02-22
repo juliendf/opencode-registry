@@ -132,7 +132,7 @@ opencode-config install my-agent
 
 2. **Use correct component ID:**
    - IDs are derived from filenames without extension
-   - `build-general.md` → `build-general`
+   - `build-code.md` → `build-code`
    - Skills use directory name: `mcp-builder/` → `mcp-builder`
 
 3. **Check for typos:**
@@ -189,7 +189,7 @@ All components show as up-to-date even after pulling latest changes
 
 2. **Check component versions in registry:**
    ```bash
-   grep "version:" opencode/agents/build-general.md
+    grep "version:" opencode/agents/build-code.md
    ```
 
 3. **Verify installed versions:**
@@ -336,7 +336,7 @@ WARNING! stowing agent would cause conflicts:
 2. **Remove conflicting files:**
    ```bash
    # Backup first!
-   mv ~/.config/opencode/agents/build-general.md ~/backup/
+    mv ~/.config/opencode/agents/build-code.md ~/backup/
    opencode-config install --group basic
    ```
 
@@ -494,7 +494,7 @@ Installation takes a long time even with dry-run
 If your issue isn't covered here:
 
 1. **Check existing issues:**
-   - [GitHub Issues](https://github.com/YOUR_USERNAME/opencode-registry/issues)
+   - [GitHub Issues](https://github.com/juliendf/opencode-registry/issues)
 
 2. **Enable verbose output:**
    ```bash

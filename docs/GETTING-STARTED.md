@@ -40,7 +40,7 @@ Before you begin, ensure you have:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/opencode-registry.git
+git clone https://github.com/juliendf/opencode-registry.git
 
 # Navigate into the directory
 cd opencode-registry
@@ -57,7 +57,7 @@ ls -la
 ### For Regular Users
 
 ```bash
-# Navigate to installer directory
+# Navigate to installer directory (contains setup.py/pyproject.toml)
 cd installer
 
 # Install the CLI tool
@@ -76,10 +76,10 @@ cd ..
 If you plan to contribute to the codebase:
 
 ```bash
-# Navigate to installer directory
+# Navigate to installer directory (contains setup.py/pyproject.toml)
 cd installer
 
-# Install with development dependencies (pytest, black, ruff, etc.)
+# Install with development dependencies (pytest, black, ruff, mypy, etc.)
 pip install -e ".[dev]"
 
 # Verify installation
@@ -115,17 +115,18 @@ opencode-config list --type skill      # Show only skills
 opencode-config list --type command    # Show only commands
 
 # Get details about a specific component
-opencode-config info build-general
+    opencode-config info build-code
 opencode-config info mcp-builder
 ```
 
 **Note:** The CLI automatically detects the registry location when run from the repository directory (including git worktrees).
 
 **What you'll see:**
-- 8 primary agents for different tasks
-- 43 specialized subagents
-- 3 skills for workflows
+- 7 primary agents for different development roles
+- 43 specialized subagents organized by domain
+- 3 skills for complex workflows
 - 2 commands for common operations
+- **Total: 55 components**
 
 ---
 
@@ -137,7 +138,7 @@ OpenCode Registry offers three installation bundles:
 |--------|-----------|----------|
 | **basic** | 4 essential | First-time users, minimal setup |
 | **intermediate** | 10+ components | Regular users, common workflows |
-| **advanced** | All 57 components | Power users, complete ecosystem |
+| **advanced** | All 55 components | Power users, complete ecosystem |
 
 **Preview a bundle before installing:**
 
@@ -202,7 +203,7 @@ opencode-config install --group intermediate
 opencode-config update --all --dry-run
 
 # Update specific component
-opencode-config update build-general
+opencode-config update build-code
 ```
 
 ---
@@ -234,12 +235,12 @@ Your System
 
 **What's the difference and when do you use each?**
 
-| Component | How You Use It | Who Calls It | Example |
-|-----------|---|---|---|
-| **Agent** | Press **Tab** to switch | You (in OpenCode) | Switch to `plan` agent for analysis |
-| **Subagent** | Use **@mention** or invoked automatically | Primary agents or you | `@general search for function` |
-| **Skill** | Loaded by agents automatically | Agents/subagents | Agent loads `git-release` skill when needed |
-| **Command** | Type **/** in OpenCode | You (in OpenCode) | `/test` to run test suite |
+| Component Type | Count | How You Use It | Who Calls It | Example |
+|----------------|-------|----------------|--------------|---------|
+| **Primary Agent** | 7 | Press **Tab** to switch | You (in OpenCode) | Switch to `build-code` agent |
+| **Subagent** | 43 | Use **@mention** or invoked automatically | Primary agents or you | `@python-pro optimize this code` |
+| **Skill** | 3 | Loaded by agents automatically | Agents/subagents | Agent loads `mcp-builder` skill when needed |
+| **Command** | 2 | Type **/** in OpenCode | You (in OpenCode) | `/commit` to create git commit |
 
 **In short:**
 - **Agents & Subagents** = AI assistants (Tab for primary, @ for specialized)
@@ -266,9 +267,11 @@ Your System
 
 ### Installing Individual Components
 
+**Note:** Currently, components are installed via bundles only. Individual component installation is planned for a future release.
+
 ```bash
-# Currently, components are installed via bundles
-# To get a specific component, install the bundle containing it
+# To install a specific component, use the bundle containing it
+opencode-config list  # Find which bundle contains the component
 opencode-config install --group intermediate
 ```
 
@@ -282,7 +285,7 @@ opencode-config update --all --dry-run
 opencode-config update --all
 
 # Update specific component
-opencode-config update build-general
+opencode-config update build-code
 ```
 
 ### Uninstalling Components
@@ -357,7 +360,7 @@ opencode-config status
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/YOUR_USERNAME/opencode-registry.git
+git clone https://github.com/juliendf/opencode-registry.git
 cd opencode-registry/installer
 pip install -e .
 
@@ -403,7 +406,7 @@ opencode-config install --group basic
 ## Getting Help
 
 - **Documentation**: Check docs/ directory
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/opencode-registry/issues)
+- **Issues**: [GitHub Issues](https://github.com/juliendf/opencode-registry/issues)
 - **Troubleshooting**: See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ---
@@ -411,7 +414,7 @@ opencode-config install --group basic
 **Ready to start?** Run these commands:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/opencode-registry.git
+git clone https://github.com/juliendf/opencode-registry.git
 cd opencode-registry/installer
 pip install -e .
 cd ..
