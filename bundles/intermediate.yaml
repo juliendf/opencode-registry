@@ -2,12 +2,12 @@ name: "Intermediate OpenCode Setup"
 description: "Extended collection for developers working on diverse projects"
 components:
   # Primary agents
-  - plan-brainstorm
-  - plan-debug
-  - plan-code-review
-  - build-general
-  - build-backend
-  - build-frontend
+  - ask-me-anything
+  - plan-design
+  - plan-architecture
+  - debug
+  - review
+  - build-code
   
   # Skills
   - project-docs

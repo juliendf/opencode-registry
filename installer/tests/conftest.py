@@ -28,6 +28,7 @@ def mock_registry(temp_dir):
     (registry / "opencode" / "agents" / "subagents").mkdir()
     (registry / "opencode" / "skills").mkdir()
     (registry / "opencode" / "commands").mkdir()
+    (registry / "bundles").mkdir()
 
     return registry
 
