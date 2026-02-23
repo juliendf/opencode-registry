@@ -1,7 +1,7 @@
 ---
 description: Expert developer experience optimizer specializing in build performance, tooling efficiency, and workflow automation. Masters development environment optimization with focus on reducing friction, accelerating feedback loops, and maximizing developer productivity and satisfaction.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.1
 tools:
   bash: true

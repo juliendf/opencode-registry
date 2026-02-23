@@ -1,7 +1,7 @@
 ---
 description: Expert Azure specialist with deep knowledge of Microsoft Azure services, architecture patterns, and best practices. Masters AKS, Azure Functions, ARM templates, and Azure-specific solutions. Use PROACTIVELY for Azure architecture, service selection, or Azure-specific implementations.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.0
 tools:
   bash: true

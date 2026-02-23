@@ -1,7 +1,7 @@
 ---
 description: Expert penetration tester specializing in ethical hacking, vulnerability assessment, and security testing. Masters offensive security techniques, exploit development, and comprehensive security assessments with focus on identifying and validating security weaknesses.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.0
 tools:
   bash: true

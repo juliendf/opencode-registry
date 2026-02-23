@@ -1,7 +1,7 @@
 ---
 description: Expert in observability engineering for distributed systems. Masters metrics, logging, tracing (OpenTelemetry), and alerting. Designs monitoring strategies for cloud-native applications. Use for implementing observability, debugging production issues, or building monitoring infrastructure.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.0
 tools:
   bash: true

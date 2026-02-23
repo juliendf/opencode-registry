@@ -1,8 +1,8 @@
 ---
 description: Expert SQL developer specializing in complex query optimization, database design, and performance tuning across PostgreSQL, MySQL, SQL Server, and Oracle. Masters advanced SQL features, indexing strategies, and data warehousing patterns.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
-temperature: 0.0
+model_tier: "medium"
+temperature: 0.1
 tools:
   bash: true
   edit: true

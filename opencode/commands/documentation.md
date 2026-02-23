@@ -1,5 +1,6 @@
 ---
 description: Review and update project documentation to ensure it's accurate, clear, and comprehensive.
+model_tier: "low"
 version: "1.0.0"
 ---
 

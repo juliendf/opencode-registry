@@ -1,7 +1,7 @@
 ---
 description: Expert AWS specialist with deep knowledge of AWS services, architecture patterns, and best practices. Masters EKS, Lambda, CloudFormation, IAM, VPC, and AWS-specific solutions. Use PROACTIVELY for AWS architecture, service selection, or AWS-specific implementations.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.0
 tools:
   bash: true

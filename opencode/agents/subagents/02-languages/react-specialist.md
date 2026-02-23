@@ -1,7 +1,7 @@
 ---
 description: Expert React specialist mastering React 18+ with modern patterns and ecosystem. Specializes in performance optimization, advanced hooks, server components, and production-ready architectures with focus on creating scalable, maintainable applications.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.1
 tools:
   bash: true

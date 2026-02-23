@@ -9,7 +9,7 @@ Quick reference for AI coding agents working with the OpenCode Registry codebase
 # Install CLI in development mode
 cd installer && pip install -e ".[dev]"
 
-# Run all tests (73 tests, >85% coverage)
+# Run all tests (143 tests, 100% pass rate)
 pytest tests/
 
 # Run single test file
@@ -39,9 +39,9 @@ opencode-config sync                      # Sync database
 ```
 installer/src/opencode_config/
 ├── cli.py              # Entry point, command registration
-├── config.py           # Config management (~/.opencode-registry/)
-├── commands/           # CLI command modules (install, list, etc.)
-└── utils/              # Shared utilities (manifest, version, stow)
+├── config.py           # Config management (~/.config/opencode/)
+├── commands/           # CLI command modules (install, list, models, etc.)
+└── utils/              # Shared utilities (manifest, version, copy, template)
 
 opencode/               # Component library
 ├── agents/             # Primary agents & subagents/
@@ -164,8 +164,9 @@ test: Add tests for version parsing
 
 **Config access:**
 ```python
-config = Config()  # Auto-loads ~/.opencode-registry/config.json
+config = Config()  # Auto-loads ~/.config/opencode/opencode-registry-config.json
 target = config.target_dir  # Returns Path object
+model_for_high = config.get_model_for_tier("high")  # Get tier config
 ```
 
 **Component structure:**
@@ -185,4 +186,7 @@ Edit `bundles/basic.yaml`, `intermediate.yaml`, or `advanced.yaml`
 - `utils/manifest.py` - Frontmatter parsing
 - `utils/version.py` - Semantic versioning
 - `utils/installed_db.py` - Installation tracking
+- `utils/copy.py` - File copy with template processing
+- `utils/template.py` - Model tier resolution
 - `commands/install.py` - Core install logic
+- `commands/models.py` - Model tier configuration

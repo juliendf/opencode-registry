@@ -21,6 +21,8 @@ class ComponentManifest:
     tags: List[str] = None
     dependencies: List[str] = None
     sources: List[Dict[str, str]] = None
+    model_tier: Optional[str] = None  # high, medium, low
+    model: Optional[str] = None       # resolved model string
 
     def __post_init__(self):
         if self.tags is None:
@@ -129,6 +131,8 @@ class ManifestParser:
                 tags=frontmatter.get("tags", []),
                 dependencies=frontmatter.get("dependencies", []),
                 sources=[{"path": str(md_file.name), "dest": f"{component_type}s/{md_file.name}"}],
+                model_tier=frontmatter.get("model_tier"),
+                model=frontmatter.get("model"),
             )
         else:
             # Create basic manifest if no frontmatter

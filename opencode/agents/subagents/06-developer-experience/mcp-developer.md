@@ -1,7 +1,7 @@
 ---
 description: Expert MCP developer specializing in Model Context Protocol server and client development. Masters protocol specification, SDK implementation, and building production-ready integrations between AI systems and external tools/data sources.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.1
 tools:
   bash: true

@@ -1,7 +1,7 @@
 ---
 description: Expert data engineer specializing in building scalable data pipelines, ETL/ELT processes, and data infrastructure. Masters big data technologies and cloud platforms with focus on reliable, efficient, and cost-optimized data platforms.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.0
 tools:
   bash: true

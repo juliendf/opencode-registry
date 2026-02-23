@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from ..config import Config
-from ..utils.stow import StowManager
+from ..utils.copy import CopyManager
 from ..utils.installed_db import InstalledDB
 from ..utils.manifest import ManifestParser
 from ..utils.version import is_newer_version
@@ -24,6 +24,8 @@ console = Console()
 )
 def update(component_id: str, all: bool, dry_run: bool):
     """Update installed components to latest available versions.
+
+    Re-copies files from registry and re-applies model tier configuration.
 
     COMPONENT_ID is the unique identifier for the component to update.
     """
@@ -54,7 +56,7 @@ def update(component_id: str, all: bool, dry_run: bool):
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
 
-    # Get all installed components
+    # Get all installed components from database
     installed = db.get_all_installed()
 
     if not installed:
@@ -68,7 +70,30 @@ def update(component_id: str, all: bool, dry_run: bool):
             console.print(f"[red]Error:[/red] Component '{component_id}' is not installed")
             return
 
-    # Check for updates
+    # Detect what's actually on disk
+    target_dir = Path(config.target_dir).expanduser()
+    copy_manager = CopyManager(registry_path, target_dir, config)
+    detected = copy_manager.detect_installed_components()
+
+    # Build set of component IDs actually present on disk
+    on_disk = set()
+    for comp_type, comp_ids in detected.items():
+        on_disk.update(comp_ids)
+
+    # Check for missing components (in DB but not on disk)
+    missing_components = []
+    for component in installed:
+        comp_id = component["id"]
+        if comp_id not in on_disk:
+            missing_components.append(
+                {
+                    "id": comp_id,
+                    "type": component["type"],
+                    "reason": "missing from disk",
+                }
+            )
+
+    # Check for version updates
     updates_available = []
 
     for component in installed:
@@ -87,7 +112,6 @@ def update(component_id: str, all: bool, dry_run: bool):
                 available_version = manifest.version
 
         elif comp_type == "subagent":
-            # Search in subagent directories
             subagent_dir = opencode_dir / "agents" / "subagents"
             for category_dir in subagent_dir.glob("*/"):
                 subagent_file = category_dir / f"{comp_id}.md"
@@ -121,86 +145,107 @@ def update(component_id: str, all: bool, dry_run: bool):
                         }
                     )
             except Exception:
-                # Version comparison failed, skip
                 pass
 
     # Display results
-    if not updates_available:
-        console.print("[green]✓[/green] All components are up to date!")
+    total_changes = len(missing_components) + len(updates_available)
+    
+    if total_changes == 0:
+        console.print("[green]✓[/green] All components are up to date and present!")
         return
 
-    # Show updates table
-    table = Table(title=f"Updates Available ({len(updates_available)})")
-    table.add_column("Component", style="cyan")
-    table.add_column("Type", style="magenta")
-    table.add_column("Installed", style="yellow")
-    table.add_column("Available", style="green")
+    # Show missing components
+    if missing_components:
+        console.print(f"[yellow]Missing Components ({len(missing_components)}):[/yellow]")
+        for m in missing_components:
+            console.print(f"  • {m['id']} ([dim]{m['type']}[/dim]) - {m['reason']}")
+        console.print()
 
-    for update in updates_available:
-        table.add_row(update["id"], update["type"], update["installed"], update["available"])
+    # Show version updates
+    if updates_available:
+        table = Table(title=f"Version Updates Available ({len(updates_available)})")
+        table.add_column("Component", style="cyan")
+        table.add_column("Type", style="magenta")
+        table.add_column("Installed", style="yellow")
+        table.add_column("Available", style="green")
 
-    console.print(table)
-    console.print()
+        for u in updates_available:
+            table.add_row(u["id"], u["type"], u["installed"], u["available"])
+
+        console.print(table)
+        console.print()
 
     if dry_run:
         console.print("[yellow]Dry run complete. No changes made.[/yellow]")
         return
 
-    # Perform update (reinstall entire opencode package)
-    console.print("[cyan]Updating components...[/cyan]\n")
+    # Perform update — re-copy and re-apply model tiers
+    console.print("[cyan]Updating components...[/cyan]")
+    console.print(
+        "[dim]Model tiers will be re-applied from current configuration[/dim]\n"
+    )
 
     target_dir = Path(config.target_dir).expanduser()
-    stow_manager = StowManager(registry_path, target_dir)
-    install_method = stow_manager.get_method()
+    copy_manager = CopyManager(registry_path, target_dir, config)
 
     with Progress(
         SpinnerColumn(), TextColumn("[progress.description]{task.description}")
     ) as progress:
         progress.add_task("Updating...", total=None)
 
-        # Uninstall and reinstall to pick up new versions
-        stow_manager.uninstall_package("opencode", dry_run=False)
-        success = stow_manager.install_package("opencode", dry_run=False)
+        # Uninstall then reinstall to pick up registry changes + re-apply model tiers
+        copy_manager.uninstall_package("opencode", dry_run=False)
+        success = copy_manager.install_package("opencode", dry_run=False)
 
         if success:
-            # Sync database with new versions
-            detected = stow_manager.detect_installed_components()
+            detected_after = copy_manager.detect_installed_components()
 
             # Collect component versions from registry
             component_versions = {}
-            for comp_type_key, comp_ids in detected.items():
+            for comp_type_key, comp_ids in detected_after.items():
                 comp_type = comp_type_key.rstrip("s")
-                for comp_id in comp_ids:
-                    # Get version from manifest
+                for cid in comp_ids:
                     if comp_type == "agent":
-                        agent_file = opencode_dir / "agents" / f"{comp_id}.md"
-                        if agent_file.exists():
-                            m = ManifestParser.create_from_md(agent_file, "agent")
-                            component_versions[comp_id] = m.version
+                        f = opencode_dir / "agents" / f"{cid}.md"
+                        if f.exists():
+                            component_versions[cid] = ManifestParser.create_from_md(
+                                f, "agent"
+                            ).version
                     elif comp_type == "subagent":
-                        subagent_dir = opencode_dir / "agents" / "subagents"
-                        for category_dir in subagent_dir.glob("*/"):
-                            subagent_file = category_dir / f"{comp_id}.md"
-                            if subagent_file.exists():
-                                m = ManifestParser.create_from_md(subagent_file, "subagent")
-                                component_versions[comp_id] = m.version
+                        for cat in (opencode_dir / "agents" / "subagents").glob("*/"):
+                            f = cat / f"{cid}.md"
+                            if f.exists():
+                                component_versions[cid] = ManifestParser.create_from_md(
+                                    f, "subagent"
+                                ).version
                                 break
                     elif comp_type == "skill":
-                        skill_file = opencode_dir / "skills" / comp_id / "SKILL.md"
-                        if skill_file.exists():
-                            m = ManifestParser.create_from_md(skill_file, "skill")
-                            component_versions[comp_id] = m.version
+                        f = opencode_dir / "skills" / cid / "SKILL.md"
+                        if f.exists():
+                            component_versions[cid] = ManifestParser.create_from_md(
+                                f, "skill"
+                            ).version
                     elif comp_type == "command":
-                        command_file = opencode_dir / "commands" / f"{comp_id}.md"
-                        if command_file.exists():
-                            m = ManifestParser.create_from_md(command_file, "command")
-                            component_versions[comp_id] = m.version
+                        f = opencode_dir / "commands" / f"{cid}.md"
+                        if f.exists():
+                            component_versions[cid] = ManifestParser.create_from_md(
+                                f, "command"
+                            ).version
 
-            db.sync_from_detected(detected, install_method, component_versions)
-            db.log_action("update", [u["id"] for u in updates_available], install_method, "success")
+            db.sync_from_detected(detected_after, "copy", component_versions)
+            
+            # Log all affected components
+            affected = [m["id"] for m in missing_components] + [u["id"] for u in updates_available]
+            db.log_action("update", affected, "copy", "success")
 
-            console.print(
-                f"\n[green]✓[/green] Successfully updated {len(updates_available)} component(s)!"
-            )
-        else:
-            console.print("\n[red]✗[/red] Update failed")
+    if success:
+        parts = []
+        if missing_components:
+            parts.append(f"restored {len(missing_components)} missing")
+        if updates_available:
+            parts.append(f"updated {len(updates_available)}")
+        
+        summary = " and ".join(parts) if parts else "updated 0"
+        console.print(f"[green]✓[/green] Successfully {summary} component(s)!")
+    else:
+        console.print("[red]✗[/red] Update failed")

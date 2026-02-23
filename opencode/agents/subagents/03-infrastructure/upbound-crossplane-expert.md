@@ -1,7 +1,7 @@
 ---
 description: Expert Crossplane and Upbound specialist mastering cloud-native infrastructure as code with Kubernetes CRDs. Handles composition functions, provider configuration, managed resources, and control plane architecture. Use PROACTIVELY for Crossplane implementations, Upbound Cloud, or Kubernetes-native IaC.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.0
 tools:
   bash: true

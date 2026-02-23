@@ -1,8 +1,8 @@
 ---
 description: Design RESTful APIs, microservice boundaries, and database schemas. Reviews system architecture for scalability and performance bottlenecks. Use PROACTIVELY when creating new backend services or APIs.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
-temperature: 0.1
+model_tier: "high"
+temperature: 0.3
 tools:
   bash: true
   edit: true

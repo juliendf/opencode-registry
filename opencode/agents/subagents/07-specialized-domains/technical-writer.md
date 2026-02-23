@@ -1,8 +1,8 @@
 ---
 description: Expert technical writer specializing in clear, accurate documentation and content creation. Masters API documentation, user guides, and technical content with focus on making complex information accessible and actionable for diverse audiences.
 mode: subagent
-model: github-copilot/claude-haiku-4.5
-temperature: 0.1
+model_tier: "low"
+temperature: 0.4
 tools:
   bash: true
   edit: true

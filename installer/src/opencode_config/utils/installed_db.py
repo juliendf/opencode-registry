@@ -13,7 +13,7 @@ class InstalledDB:
     """Manages the installed.json database."""
 
     def __init__(self, db_path: Optional[Path] = None):
-        self.db_path = db_path or (Path.home() / ".opencode-registry" / "installed.json")
+        self.db_path = db_path or (Path.home() / ".config" / "opencode" / "opencode-registry-installed.json")
         self.data = self._load()
 
     def _load(self) -> Dict[str, Any]:

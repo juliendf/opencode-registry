@@ -10,8 +10,13 @@ from typing import Dict, Any, Optional
 DEFAULT_CONFIG = {
     "target": "~/.config/opencode",
     "registry_path": None,  # Auto-detected or set by user
-    "install_method": "auto",  # auto, stow, symlink
+    "install_method": "copy",
     "log_level": "info",
+    "model_tiers": {
+        "high": None,
+        "medium": None,
+        "low": None,
+    },
 }
 
 
@@ -19,7 +24,7 @@ class Config:
     """Manages CLI configuration."""
 
     def __init__(self, config_file: Optional[Path] = None):
-        self.config_file = config_file or Path.home() / ".opencode-registry" / "config.json"
+        self.config_file = config_file or Path.home() / ".config" / "opencode" / "opencode-registry-config.json"
         self.data = self._load()
 
     def _load(self) -> Dict[str, Any]:
@@ -65,3 +70,38 @@ class Config:
                 return current
             current = current.parent
         return None
+
+    def get_model_for_tier(self, tier: str) -> Optional[str]:
+        """
+        Resolve tier name to model string.
+
+        Args:
+            tier: Tier name (high, medium, low)
+
+        Returns:
+            Model string or None if tier not found
+        """
+        model_tiers = self.get("model_tiers", {})
+        return model_tiers.get(tier)
+
+    def set_model_tier(self, tier: str, model: str):
+        """
+        Set model for a specific tier.
+
+        Args:
+            tier: Tier name (high, medium, low)
+            model: Model identifier string
+        """
+        if "model_tiers" not in self.data:
+            self.data["model_tiers"] = {}
+        self.data["model_tiers"][tier] = model
+        self.save()
+
+    def list_model_tiers(self) -> Dict[str, str]:
+        """
+        Get all configured model tiers.
+
+        Returns:
+            Dictionary mapping tier names to model strings
+        """
+        return self.get("model_tiers", DEFAULT_CONFIG["model_tiers"].copy())

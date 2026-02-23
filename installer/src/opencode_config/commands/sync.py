@@ -6,7 +6,7 @@ import click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from ..config import Config
-from ..utils.stow import StowManager
+from ..utils.copy import CopyManager
 from ..utils.installed_db import InstalledDB
 
 console = Console()
@@ -34,14 +34,14 @@ def sync(dry_run: bool):
 
     console.print(f"[dim]Scanning installed components in {target_dir}...[/dim]\n")
 
-    # Initialize StowManager and detect components
-    stow_manager = StowManager(registry_path, target_dir)
+    # Initialize CopyManager and detect components
+    copy_manager = CopyManager(registry_path, target_dir, config)
 
     with Progress(
         SpinnerColumn(), TextColumn("[progress.description]{task.description}")
     ) as progress:
         progress.add_task("Detecting installed components...", total=None)
-        detected = stow_manager.detect_installed_components()
+        detected = copy_manager.detect_installed_components()
 
     # Calculate totals
     total_agents = len(detected.get("agents", []))
@@ -63,8 +63,7 @@ def sync(dry_run: bool):
         return
 
     # Sync database
-    install_method = stow_manager.get_method()
-    db.sync_from_detected(detected, install_method)
+    db.sync_from_detected(detected, "copy")
 
     console.print("[green]✓[/green] Database synced successfully!")
     console.print("\n[dim]Use 'opencode-config status' to view installation details[/dim]")

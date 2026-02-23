@@ -1,7 +1,7 @@
 ---
 description: Distributed systems architect designing scalable microservice ecosystems. Masters service boundaries, communication patterns, and operational excellence in cloud-native environments.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.1
 tools:
   bash: true

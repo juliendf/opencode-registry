@@ -1,8 +1,8 @@
 ---
 description: Expert Go developer specializing in high-performance systems, concurrent programming, and cloud-native microservices. Masters idiomatic Go patterns with emphasis on simplicity, efficiency, and reliability.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
-temperature: 0.0
+model_tier: "medium"
+temperature: 0.1
 tools:
   bash: true
   edit: true
