@@ -69,28 +69,9 @@ Output:
 
 ## Mandatory Delegation
 
-**SCAN REQUEST FOR KEYWORDS** - Invoke the relevant subagent IMMEDIATELY when domain keywords are detected:
+**SCAN REQUEST FOR KEYWORDS** - See `_shared/delegation-rules.md` for the complete routing table and invocation format.
 
-| Domain Keywords | Subagent |
-|-----------------|----------|
-| REST API, API design, backend architecture | `subagents/01-core/backend-architect` |
-| microservices, service mesh, distributed systems | `subagents/01-core/microservices-architect` |
-| GraphQL, schema, resolvers | `subagents/01-core/graphql-architect` |
-| React, hooks, Next.js, Server Components | `subagents/02-languages/react-specialist` |
-| Vue, Nuxt, Composition API | `subagents/02-languages/vue-expert` |
-| TypeScript, Node.js, Express, NestJS | `subagents/02-languages/typescript-pro` |
-| Python, FastAPI, Django | `subagents/02-languages/python-pro` |
-| Go, Golang, goroutines | `subagents/02-languages/golang-pro` |
-| PostgreSQL, MySQL, MongoDB, database | `subagents/05-data-ai/database-optimizer` |
-| data engineering, ETL, pipeline, Spark | `subagents/05-data-ai/data-engineer` |
-| machine learning, ML, model | `subagents/05-data-ai/ml-engineer` |
-| security, OAuth, JWT, vulnerability, XSS | `subagents/04-quality-and-security/security-auditor` |
-| performance, latency, profiling | `subagents/04-quality-and-security/performance-engineer` |
-| testing, test coverage, e2e | `subagents/04-quality-and-security/test-automator` |
-
-**Full routing table**: See `_shared/delegation-rules.md`.
-
-**Infrastructure keywords** (kubectl, terraform, helm, argocd, AWS, GCP, Azure, Kubernetes, CI/CD): Delegate to `build-infrastructure` — do not attempt these yourself.
+**CRITICAL:** When domain keywords are detected, invoke the corresponding specialist subagent IMMEDIATELY using the standardized format from delegation-rules.md.
 
 ## Core Workflow
 

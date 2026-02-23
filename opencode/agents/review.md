@@ -68,20 +68,9 @@ Output:
 
 ## Mandatory Delegation
 
-**SCAN FOR DOMAIN KEYWORDS** - Invoke specialists for detailed code review:
+**SCAN FOR DOMAIN KEYWORDS** - See `_shared/delegation-rules.md` for the complete routing table and invocation format.
 
-| Domain Keywords | Subagent |
-|-----------------|----------|
-| Python, FastAPI, Django | `subagents/02-languages/python-pro` |
-| TypeScript, Node.js, React | `subagents/02-languages/typescript-pro` |
-| Go, Golang | `subagents/02-languages/golang-pro` |
-| Bash, shell script | `subagents/02-languages/bash-expert` |
-| SQL, database queries | `subagents/02-languages/sql-pro` |
-| API design, REST | `subagents/01-core/backend-architect` |
-| security, OAuth, JWT, vulnerability | `subagents/04-quality-and-security/security-auditor` |
-| performance, optimization, profiling | `subagents/04-quality-and-security/performance-engineer` |
-
-**Full routing**: See `_shared/delegation-rules.md`.
+**CRITICAL:** When domain keywords are detected, invoke the corresponding specialist subagent for detailed code review using the standardized format from delegation-rules.md.
 
 ## Communication Style
 

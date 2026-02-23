@@ -84,26 +84,9 @@ Output:
 
 ## Mandatory Delegation
 
-**SCAN FOR DOMAIN KEYWORDS** - Invoke specialists immediately:
+**SCAN FOR DOMAIN KEYWORDS** - See `_shared/delegation-rules.md` for the complete routing table and invocation format.
 
-| Domain Keywords | Subagent |
-|-----------------|----------|
-| AWS, EKS, Lambda, S3, EC2, IAM, CloudFormation | `subagents/03-infrastructure/aws-specialist` |
-| GCP, GKE, BigQuery, Cloud Run | `subagents/03-infrastructure/gcp-specialist` |
-| Azure, AKS, Cosmos DB | `subagents/03-infrastructure/azure-specialist` |
-| cloud architecture, multi-cloud, FinOps | `subagents/03-infrastructure/cloud-architect` |
-| Kubernetes, K8s, kubectl, helm, pods | `subagents/03-infrastructure/kubernetes-expert` |
-| Terraform, HCL, tfstate, OpenTofu | `subagents/03-infrastructure/terraform-expert` |
-| Crossplane, XRD, Upbound | `subagents/03-infrastructure/upbound-crossplane-expert` |
-| ArgoCD, Flux, GitOps | `subagents/03-infrastructure/gitops-specialist` |
-| CI/CD, GitHub Actions, pipeline | `subagents/03-infrastructure/deployment-engineer` |
-| networking, VPC, DNS, CDN, load balancer | `subagents/03-infrastructure/network-engineer` |
-| observability, Prometheus, Grafana, OpenTelemetry | `subagents/03-infrastructure/observability-engineer` |
-| SRE, SLO, reliability, on-call | `subagents/03-infrastructure/sre-engineer` |
-| platform engineering, IDP, developer portal | `subagents/03-infrastructure/platform-engineer` |
-| security, IAM, compliance, vulnerability | `subagents/04-quality-and-security/security-auditor` |
-
-**Full routing**: See `_shared/delegation-rules.md`.
+**CRITICAL:** When domain keywords are detected, invoke the corresponding specialist subagent IMMEDIATELY using the standardized format from delegation-rules.md.
 
 ## Communication Style
 

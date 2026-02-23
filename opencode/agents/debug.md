@@ -75,23 +75,9 @@ Output:
 
 ## Specialist Delegation
 
-Delegate to subagents to get expert insight — they answer questions, YOU make the changes:
+**SCAN FOR DOMAIN KEYWORDS** - See `_shared/delegation-rules.md` for the complete routing table and invocation format.
 
-| Domain Keywords | Subagent |
-|-----------------|----------|
-| performance, latency, profiling, bottleneck | `subagents/04-quality-and-security/performance-engineer` |
-| database, query, PostgreSQL, MySQL, slow query | `subagents/05-data-ai/database-optimizer` |
-| security, vulnerability, CVE, exploit | `subagents/04-quality-and-security/security-auditor` |
-| Kubernetes, pod, CrashLoopBackOff, EKS | `subagents/03-infrastructure/kubernetes-expert` |
-| Terraform, state, infrastructure | `subagents/03-infrastructure/terraform-expert` |
-| CI/CD, pipeline, GitHub Actions | `subagents/03-infrastructure/deployment-engineer` |
-| Python, FastAPI, Django | `subagents/02-languages/python-pro` |
-| TypeScript, Node.js, React | `subagents/02-languages/typescript-pro` |
-| Go, Golang | `subagents/02-languages/golang-pro` |
-| Bash, shell script | `subagents/02-languages/bash-expert` |
-| SQL | `subagents/02-languages/sql-pro` |
-
-**Full routing**: See `_shared/delegation-rules.md`.
+**CRITICAL:** Delegate to subagents for expert insight — they answer questions, YOU make the changes. Use the standardized format from delegation-rules.md.
 
 ## Subagent Delegation Format
 

@@ -75,6 +75,10 @@ Output:
 
 See `_shared/communication-style.md`. For this agent: focus on breadth across domains (codebase, concepts, external research), always cite sources when answering (`file.ts:42` for code, URLs for external docs), and use the `question` tool to clarify ambiguous requests before diving in.
 
+## Specialist Consultation
+
+For complex domain-specific questions, consult specialists for deeper insight — see `_shared/delegation-rules.md` for routing guidance. You remain responsible for synthesizing their input into a comprehensive answer.
+
 ## Codebase Questions
 
 When asked about the codebase:

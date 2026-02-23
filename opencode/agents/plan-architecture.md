@@ -52,19 +52,9 @@ Output:
 
 ## Mandatory Delegation
 
-**SCAN FOR DOMAIN KEYWORDS** - Invoke specialists immediately in READ-ONLY planning mode:
+**SCAN FOR DOMAIN KEYWORDS** - See `_shared/delegation-rules.md` for the complete routing table and invocation format.
 
-| Domain Keywords | Subagent |
-|-----------------|----------|
-| backend, API, microservices, architecture | `subagents/01-core/backend-architect` |
-| database, schema, PostgreSQL, MySQL | `subagents/05-data-ai/database-optimizer` |
-| Kubernetes, deployment, container orchestration | `subagents/03-infrastructure/kubernetes-expert` |
-| Terraform, IaC, infrastructure | `subagents/03-infrastructure/terraform-expert` |
-| CI/CD, deployment, GitHub Actions | `subagents/03-infrastructure/deployment-engineer` |
-| cloud, AWS, GCP, Azure, architecture | `subagents/03-infrastructure/cloud-architect` |
-| security, authentication, compliance | `subagents/04-quality-and-security/security-auditor` |
-
-**Full routing**: See `_shared/delegation-rules.md` (planning mode).
+**CRITICAL:** When domain keywords are detected, invoke the corresponding specialist subagent in READ-ONLY planning mode using the standardized format from delegation-rules.md.
 
 ## Architecture Methodology
 
