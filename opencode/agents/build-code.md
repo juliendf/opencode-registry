@@ -2,7 +2,7 @@
 description: Full-stack coding agent for frontend, backend, data, and general development. Default choice for most coding work.
 mode: primary
 model_tier: "medium"
-temperature: 0.1
+temperature: 0.2
 tools:
   bash: true
   edit: true

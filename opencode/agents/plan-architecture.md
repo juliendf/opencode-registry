@@ -2,7 +2,7 @@
 description: Technical architecture and system design. Receives functional specs and produces technology choices, system blueprints, and trade-off analysis.
 mode: primary
 model_tier: "high"
-temperature: 0.1
+temperature: 0.3
 tools:
   bash: false
   edit: false

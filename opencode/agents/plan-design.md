@@ -2,7 +2,7 @@
 description: Product and feature planning agent. Turns ideas into structured functional specifications — non-technical, user-focused.
 mode: primary
 model_tier: "high"
-temperature: 0.2
+temperature: 0.4
 tools:
   bash: false
   edit: false

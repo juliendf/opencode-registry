@@ -2,7 +2,7 @@
 description: Expert shell scripting specialist mastering Bash, shell automation, CLI tools, and DevOps scripting. Handles complex scripts, error handling, portability, and best practices. Use for automation scripts, init scripts, CI/CD scripting, or system administration tasks.
 mode: subagent
 model_tier: "medium"
-temperature: 0.0
+temperature: 0.1
 tools:
   bash: true
   edit: true

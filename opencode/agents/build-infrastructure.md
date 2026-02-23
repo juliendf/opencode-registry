@@ -2,7 +2,7 @@
 description: DevOps engineer for CI/CD, infrastructure, and cloud platforms. Masters automation and deployment.
 mode: primary
 model_tier: "high"
-temperature: 0.0
+temperature: 0.1
 tools:
   bash: true
   edit: true

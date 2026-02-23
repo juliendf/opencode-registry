@@ -2,7 +2,7 @@
 description: Debugging agent that investigates issues, identifies root causes, and fixes them.
 mode: primary
 model_tier: "medium"
-temperature: 0.0
+temperature: 0.1
 tools:
   bash: true
   edit: true

@@ -2,7 +2,7 @@
 description: Code quality and security expert. Reviews for best practices, vulnerabilities, and maintainability.
 mode: primary
 model_tier: "medium"
-temperature: 0.0
+temperature: 0.2
 tools:
   bash: true
   edit: false

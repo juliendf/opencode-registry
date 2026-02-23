@@ -2,7 +2,7 @@
 description: Ask anything — codebase, docs, concepts, best practices
 mode: primary
 model_tier: "low"
-temperature: 0.2
+temperature: 0.5
 tools:
   bash: true
   edit: false
