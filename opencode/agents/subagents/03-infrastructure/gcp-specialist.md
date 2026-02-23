@@ -1,7 +1,7 @@
 ---
 description: Expert GCP specialist with deep knowledge of Google Cloud services, architecture patterns, and best practices. Masters GKE, Cloud Run, Cloud Functions, and GCP-specific solutions. Use PROACTIVELY for GCP architecture, service selection, or GCP-specific implementations.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.0
 tools:
   bash: true

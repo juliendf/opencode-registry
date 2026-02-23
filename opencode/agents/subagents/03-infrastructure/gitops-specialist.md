@@ -1,7 +1,7 @@
 ---
 description: Expert GitOps specialist mastering ArgoCD, Flux, and declarative infrastructure delivery. Handles continuous deployment, sync policies, progressive delivery, and GitOps workflows. Use PROACTIVELY for GitOps implementations, ArgoCD/Flux setup, or declarative delivery pipelines.
 mode: subagent
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.0
 tools:
   bash: true

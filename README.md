@@ -16,7 +16,7 @@ OpenCode Registry provides a **curated, beautiful library** of OpenCode componen
 
 - 📚 **Central Component Library** - All OpenCode agents, skills, and commands in one place
 - 🛠️ **Smart Installer** - Intelligent CLI that handles installation complexity
-- 🔗 **Symlink Management** - Uses GNU Stow or fallback symlinks for clean installations
+- 🎯 **Model Tier System** - Configure models per complexity tier (high/medium/low)
 - 📦 **Bundle Support** - Install groups of components (basic, intermediate, advanced)
 - 🤖 **AI-Assisted Creation** - (Coming soon) Create new components with AI help
 - 🌐 **Web Gallery** - (Coming soon) Browse components with a beautiful interface
@@ -44,10 +44,13 @@ OpenCode Registry provides a **curated, beautiful library** of OpenCode componen
    ```bash
    # Return to repository root
    cd ..
-   
+
+   # Configure model tiers (first-time only)
+   opencode-config models --wizard
+
    # Install a bundle
    opencode-config install --group basic
-   
+
    # Or install specific components
    opencode-config install plan-design
    ```
@@ -80,8 +83,8 @@ opencode-config list
 # Show component details
 opencode-config info plan-design
 
-# Install specific component (via bundle)
-opencode-config install --group intermediate
+# Configure model tiers
+opencode-config models --wizard
 
 # Install a bundle
 opencode-config install --group intermediate
@@ -138,7 +141,7 @@ Custom slash commands for common tasks:
 Pre-configured groups for different use cases:
 
 - **basic** - Essential agents and skills (4 components)
-- **intermediate** - Extended collection (10+ components)  
+- **intermediate** - Extended collection (10+ components)
 - **advanced** - Complete ecosystem (all 55 components)
 
 Install with: `opencode-config install --group <bundle-name>`
@@ -147,17 +150,18 @@ Install with: `opencode-config install --group <bundle-name>`
 
 ## 🛠️ How It Works
 
-OpenCode Registry uses **GNU Stow** (with symlink fallback) to manage component installation:
+OpenCode Registry uses **file copying with template processing** to manage component installation:
 
-1. Components live in the `opencode/` directory
-2. The CLI creates symlinks in `~/.config/opencode/`
-3. Changes in the registry automatically reflect in your config
-4. Installation state is tracked in `~/.opencode-registry/installed.json`
+1. Components live in the `opencode/` directory with `model_tier:` placeholders
+2. The CLI copies files to `~/.config/opencode/` and resolves model tiers to actual model names
+3. Each component gets the correct `model:` field based on your tier configuration
+4. Installation state is tracked in `~/.config/opencode/opencode-registry-installed.json`
 
-### Installation Methods
+### Installation Flow
 
-- **Stow** (preferred): Uses GNU Stow for elegant symlink management
-- **Symlink** (fallback): Manual symlink creation if stow is not available
+- **Copy**: Files are copied (not symlinked) from registry to target directory
+- **Template Processing**: `model_tier: high` is replaced with `model: github-copilot/claude-sonnet-4.5`
+- **Model Tiers**: Configure once with `opencode-config models`, applied to every install/update
 
 ## 📋 Requirements
 
@@ -182,18 +186,15 @@ The CLI automatically installs these when you run `pip install -e .`:
 - **rich** ≥13.0.0 - Terminal output
 - **requests** ≥2.31.0 - HTTP client
 
-### Optional
-
-- **GNU Stow** - For elegant symlink management (recommended but not required)
-  - macOS: `brew install stow`
-  - Ubuntu/Debian: `sudo apt-get install stow`
-  - Without it: CLI automatically falls back to manual symlinks
-
 ## 🔧 Configuration
 
 ```bash
 # View current configuration
 opencode-config config --list
+
+# Configure model tiers
+opencode-config models --wizard
+opencode-config models --set high "github-copilot/claude-sonnet-4.5"
 
 # Set custom target directory
 opencode-config config --target /custom/path
@@ -205,20 +206,19 @@ opencode-config config --registry /path/to/registry
 opencode-config config --registry auto
 ```
 
-Configuration is stored in `~/.opencode-registry/config.json`
+Configuration is stored in `~/.config/opencode/opencode-registry-config.json`
 
 **Registry Path Auto-Detection:** By default, the CLI automatically detects the registry location when you run commands from within the repository directory. This is especially useful when working with git worktrees.
 
 ## 📊 Installation Tracking
 
-All installations are tracked in `~/.opencode-registry/installed.json`:
+All installations are tracked in `~/.config/opencode/opencode-registry-installed.json`:
 
 - What components are installed
 - When they were installed
-- How they were installed (stow vs symlink)
 - Installation logs and history
 
-The database automatically syncs when you install components. If you manually modify symlinks or need to rebuild the tracking database, use:
+The database automatically syncs when you install components. If you manually modify files or need to rebuild the tracking database, use:
 
 ```bash
 opencode-config sync

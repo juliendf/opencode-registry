@@ -1,7 +1,7 @@
 ---
 description: Full-stack coding agent for frontend, backend, data, and general development. Default choice for most coding work.
 mode: primary
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.1
 tools:
   bash: true

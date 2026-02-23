@@ -1,7 +1,7 @@
 ---
 description: DevOps engineer for CI/CD, infrastructure, and cloud platforms. Masters automation and deployment.
 mode: primary
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.0
 tools:
   bash: true

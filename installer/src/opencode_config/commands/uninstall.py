@@ -6,7 +6,7 @@ import click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from ..config import Config
-from ..utils.stow import StowManager
+from ..utils.copy import CopyManager
 from ..utils.installed_db import InstalledDB
 
 console = Console()
@@ -32,11 +32,9 @@ def uninstall(component_id: str, group: str, uninstall_all: bool, dry_run: bool)
     # Determine target directory
     target_dir = config.target_dir
 
-    # Initialize StowManager
-    stow_manager = StowManager(registry_path, target_dir)
-    install_method = stow_manager.get_method()
+    # Initialize CopyManager
+    copy_manager = CopyManager(registry_path, target_dir, config)
 
-    console.print(f"[dim]Uninstallation method: {install_method}[/dim]")
     console.print(f"[dim]Target directory: {target_dir}[/dim]")
     console.print(f"[dim]Registry path: {registry_path}[/dim]\n")
 
@@ -58,24 +56,23 @@ def uninstall(component_id: str, group: str, uninstall_all: bool, dry_run: bool)
         ) as progress:
             progress.add_task("Uninstalling all components...", total=None)
 
-            success = stow_manager.uninstall_package("opencode", dry_run=dry_run)
+            success = copy_manager.uninstall_package("opencode", dry_run=dry_run)
 
-            if success:
-                if not dry_run:
-                    # Clear the database
-                    db.data["installed"] = {
-                        "agents": {},
-                        "subagents": {},
-                        "skills": {},
-                        "commands": {},
-                    }
-                    db.data["bundles"] = {}
-                    db.log_action("uninstall", ["all"], install_method, "success")
-                    db.save()
+            if success and not dry_run:
+                db.data["installed"] = {
+                    "agents": {},
+                    "subagents": {},
+                    "skills": {},
+                    "commands": {},
+                }
+                db.data["bundles"] = {}
+                db.log_action("uninstall", ["all"], "copy", "success")
+                db.save()
 
-                console.print("\n[green]✓[/green] All components uninstalled successfully!")
-            else:
-                console.print("\n[red]✗[/red] Failed to uninstall components")
+        if success:
+            console.print("[green]✓[/green] All components uninstalled successfully!")
+        else:
+            console.print("[red]✗[/red] Failed to uninstall components")
 
         return
 
@@ -96,17 +93,17 @@ def uninstall(component_id: str, group: str, uninstall_all: bool, dry_run: bool)
         ) as progress:
             progress.add_task(f"Uninstalling bundle '{group}'...", total=None)
 
-            success = stow_manager.uninstall_package("opencode", dry_run=dry_run)
+            success = copy_manager.uninstall_package("opencode", dry_run=dry_run)
 
-            if success:
-                if not dry_run:
-                    db.data["bundles"].pop(group, None)
-                    db.log_action("uninstall", [group], install_method, "success")
-                    db.save()
+            if success and not dry_run:
+                db.data["bundles"].pop(group, None)
+                db.log_action("uninstall", [group], "copy", "success")
+                db.save()
 
-                console.print(f"\n[green]✓[/green] Bundle '{group}' uninstalled successfully!")
-            else:
-                console.print(f"\n[red]✗[/red] Failed to uninstall bundle '{group}'")
+        if success:
+            console.print(f"[green]✓[/green] Bundle '{group}' uninstalled successfully!")
+        else:
+            console.print(f"[red]✗[/red] Failed to uninstall bundle '{group}'")
 
         return
 

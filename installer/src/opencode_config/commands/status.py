@@ -8,7 +8,6 @@ from rich.table import Table
 from rich.panel import Panel
 from ..config import Config
 from ..utils.installed_db import InstalledDB
-from ..utils.stow import StowManager
 
 console = Console()
 
@@ -20,29 +19,36 @@ def status(details: bool):
     config = Config()
     db = InstalledDB()
 
-    # Get configuration
-    target_dir = config.target_dir
-    registry_path = config.registry_path or config.detect_registry_path()
-
     # Display system info
-    info_text = f"""
-**Installation Method:** {db.data.get('installMethod', 'unknown')}
-**Target Directory:** {db.data.get('targetDirectory', 'unknown')}
-**Registry Path:** {db.data.get('registry', {}).get('path', 'unknown')}
-**Last Updated:** {db.data.get('lastUpdated', 'unknown')}
-"""
+    info_text = (
+        f"**Installation Method:** {db.data.get('installMethod', 'copy')}\n"
+        f"**Target Directory:** {db.data.get('targetDirectory', 'unknown')}\n"
+        f"**Registry Path:** {db.data.get('registry', {}).get('path', 'unknown')}\n"
+        f"**Last Updated:** {db.data.get('lastUpdated', 'unknown')}"
+    )
 
     console.print(Panel(info_text.strip(), title="Installation Info", border_style="blue"))
+
+    # Show model tiers
+    tiers = config.list_model_tiers()
+    tier_table = Table(title="Model Tiers", show_header=True)
+    tier_table.add_column("Tier", style="cyan", width=10)
+    tier_table.add_column("Model", style="green")
+
+    for tier in ["high", "medium", "low"]:
+        tier_table.add_row(tier, tiers.get(tier, "[dim]not configured[/dim]"))
+
+    console.print(tier_table)
 
     # Get installed components
     installed = db.get_all_installed()
 
     if not installed:
         console.print("\n[yellow]No components installed yet.[/yellow]")
-        console.print("\n[dim]Use 'opencode-config install <component>' to get started[/dim]")
+        console.print("\n[dim]Use 'opencode-config install --group basic' to get started[/dim]")
         return
 
-    # Create table
+    # Create components table
     table = Table(title=f"\nInstalled Components ({len(installed)})")
     table.add_column("ID", style="cyan", no_wrap=True)
     table.add_column("Type", style="magenta")
@@ -61,7 +67,7 @@ def status(details: bool):
         ]
 
         if details:
-            row.append(comp.get("installMethod", "unknown"))
+            row.append(comp.get("installMethod", "copy"))
 
         table.add_row(*row)
 
@@ -76,13 +82,5 @@ def status(details: bool):
                 f"  • {bundle_name} ({len(bundle_info.get('components', []))} components)"
             )
 
-    # Verify symlinks if registry path is available
-    if registry_path and target_dir.exists():
-        stow_manager = StowManager(registry_path, target_dir)
-        broken = stow_manager.verify_symlinks()
-
-        if broken:
-            console.print(f"\n[yellow]⚠ Warning:[/yellow] {len(broken)} broken symlink(s) found")
-            console.print("[dim]Run 'opencode-config clean' to remove them[/dim]")
-
-    console.print("\n[dim]Use 'opencode-config list' to see available components[/dim]")
+    console.print("\n[dim]Use 'opencode-config models --list' to configure model tiers[/dim]")
+    console.print("[dim]Use 'opencode-config list' to see available components[/dim]")

@@ -1,6 +1,6 @@
 ---
 description: Create well-formatted commits with conventional commit messages
-model: github-copilot/claude-haiku-4.5
+model_tier: "low"
 version: "1.0.0"
 ---
 

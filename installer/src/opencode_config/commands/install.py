@@ -7,10 +7,63 @@ from pathlib import Path
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from ..config import Config
-from ..utils.stow import StowManager
+from ..utils.copy import CopyManager
 from ..utils.installed_db import InstalledDB
+from .models import run_wizard
 
 console = Console()
+
+TIERS = ["high", "medium", "low"]
+
+
+def _check_model_tiers(config: Config, db: InstalledDB) -> bool:
+    """
+    Ensure all model tiers are configured before installing.
+
+    - First run (nothing installed yet): launch the interactive wizard automatically.
+    - Subsequent runs with missing tiers: print the commands to fix it and abort.
+
+    Returns True if all tiers are configured and install can proceed.
+    """
+    missing = [t for t in TIERS if not config.get_model_for_tier(t)]
+    if not missing:
+        return True
+
+    is_first_run = not db.get_all_installed()
+
+    if is_first_run:
+        console.print(
+            "[cyan]Welcome![/cyan] Before installing, let's configure which models "
+            "to use for each complexity tier.\n"
+        )
+        run_wizard(config)
+        # Re-check after wizard
+        missing = [t for t in TIERS if not config.get_model_for_tier(t)]
+        if not missing:
+            console.print()
+            return True
+        # User skipped some — fall through to error below
+
+    console.print("[yellow]Model tiers are not fully configured.[/yellow]")
+    console.print(
+        "Components use tiers ([cyan]high[/cyan] / [cyan]medium[/cyan] / [cyan]low[/cyan]) "
+        "to select a model. Run the following to configure them:\n"
+    )
+    console.print("[dim]Browse available models at https://models.dev/ or run 'opencode models'[/dim]\n")
+    examples = {
+        "high":   "github-copilot/claude-sonnet-4.5",
+        "medium": "github-copilot/claude-sonnet-4",
+        "low":    "github-copilot/claude-haiku-4.5",
+    }
+    for tier in missing:
+        console.print(
+            f"  opencode-config models --set {tier} [dim]{examples[tier]}[/dim]"
+        )
+    console.print(
+        "\n[dim]Or configure all tiers at once:[/dim]"
+        "\n  opencode-config models --wizard"
+    )
+    return False
 
 
 @click.command()
@@ -18,7 +71,8 @@ console = Console()
 @click.option("--group", "-g", help="Install a bundle/group (e.g., basic, intermediate)")
 @click.option("--dry-run", "-n", is_flag=True, help="Preview changes without installing")
 @click.option("--target", "-t", help="Custom installation target directory")
-def install(component_id: str, group: str, dry_run: bool, target: str):
+@click.option("--model", "-m", help="Override model for component installation")
+def install(component_id: str, group: str, dry_run: bool, target: str, model: str):
     """Install a component or bundle."""
     config = Config()
     db = InstalledDB()
@@ -33,6 +87,11 @@ def install(component_id: str, group: str, dry_run: bool, target: str):
         console.print("[dim]Tip: Set registry path with 'opencode-config config --registry /path/to/registry'[/dim]")
         return
 
+    # Check model tiers are configured (skip if user supplies --model override)
+    if not model and not dry_run:
+        if not _check_model_tiers(config, db):
+            return
+
     # Only save registry path if it was explicitly set by user, not auto-detected
     # This allows auto-detection to work with git worktrees
 
@@ -44,13 +103,16 @@ def install(component_id: str, group: str, dry_run: bool, target: str):
     if not dry_run:
         target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Initialize StowManager
-    stow_manager = StowManager(registry_path, target_dir)
-    install_method = stow_manager.get_method()
+    # Initialize CopyManager
+    copy_manager = CopyManager(registry_path, target_dir, config)
+    install_method = "copy"
 
     console.print(f"[dim]Installation method: {install_method}[/dim]")
     console.print(f"[dim]Target directory: {target_dir}[/dim]")
-    console.print(f"[dim]Registry path: {registry_path}[/dim]\n")
+    console.print(f"[dim]Registry path: {registry_path}[/dim]")
+    if model:
+        console.print(f"[dim]Model override: {model}[/dim]")
+    console.print()
 
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
@@ -79,24 +141,25 @@ def install(component_id: str, group: str, dry_run: bool, target: str):
         ) as progress:
             progress.add_task(f"Installing bundle '{group}'...", total=None)
 
-            success = stow_manager.install_package("opencode", dry_run=dry_run)
+            success = copy_manager.install_package("opencode", dry_run=dry_run, model_override=model)
 
-            if success:
-                if not dry_run:
-                    db.set_install_method(install_method)
-                    db.set_target_directory(str(target_dir))
-                    db.set_registry_path(str(registry_path))
-                    db.add_bundle(group, components)
+            if success and not dry_run:
+                db.set_install_method(install_method)
+                db.set_target_directory(str(target_dir))
+                db.set_registry_path(str(registry_path))
+                db.add_bundle(group, components)
 
-                    # Detect and sync actual installed components
-                    detected = stow_manager.detect_installed_components()
-                    db.sync_from_detected(detected, install_method)
+                # Detect and sync actual installed components
+                detected = copy_manager.detect_installed_components()
+                db.sync_from_detected(detected, install_method)
 
-                    db.log_action("install", [group], install_method, "success")
+                db.log_action("install", [group], install_method, "success")
 
-                console.print(f"\n[green]✓[/green] Bundle '{group}' installed successfully!")
-            else:
-                console.print(f"\n[red]✗[/red] Failed to install bundle '{group}'")
+        # Print result after spinner has stopped
+        if success:
+            console.print(f"[green]✓[/green] Bundle '{group}' installed successfully!")
+        else:
+            console.print(f"[red]✗[/red] Failed to install bundle '{group}'")
 
         return
 
@@ -131,21 +194,22 @@ def install(component_id: str, group: str, dry_run: bool, target: str):
     ) as progress:
         progress.add_task(f"Installing '{component_id}'...", total=None)
 
-        success = stow_manager.install_package("opencode", dry_run=dry_run)
+        success = copy_manager.install_package("opencode", dry_run=dry_run, model_override=model)
 
-        if success:
-            if not dry_run:
-                db.set_install_method(install_method)
-                db.set_target_directory(str(target_dir))
-                db.set_registry_path(str(registry_path))
+        if success and not dry_run:
+            db.set_install_method(install_method)
+            db.set_target_directory(str(target_dir))
+            db.set_registry_path(str(registry_path))
 
-                # Detect and sync actual installed components
-                detected = stow_manager.detect_installed_components()
-                db.sync_from_detected(detected, install_method)
+            # Detect and sync actual installed components
+            detected = copy_manager.detect_installed_components()
+            db.sync_from_detected(detected, install_method)
 
-                db.log_action("install", [component_id], install_method, "success")
+            db.log_action("install", [component_id], install_method, "success")
 
-            console.print(f"\n[green]✓[/green] Component '{component_id}' installed successfully!")
-            console.print(f"\n[dim]Installed to: {target_dir}[/dim]")
-        else:
-            console.print(f"\n[red]✗[/red] Failed to install component '{component_id}'")
+    # Print result after spinner has stopped
+    if success:
+        console.print(f"[green]✓[/green] Component '{component_id}' installed successfully!")
+        console.print(f"[dim]Installed to: {target_dir}[/dim]")
+    else:
+        console.print(f"[red]✗[/red] Failed to install component '{component_id}'")

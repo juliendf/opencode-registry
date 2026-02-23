@@ -45,6 +45,27 @@ opencode-config install --group advanced
 
 # Install to custom location
 opencode-config install --group basic --target /custom/path
+
+# Install with explicit model override (all components use this model)
+opencode-config install --group basic --model "github-copilot/claude-sonnet-4.5"
+```
+
+### Model Tiers
+
+```bash
+# Show current tier configuration
+opencode-config models --list
+
+# Set a specific tier
+opencode-config models --set high "github-copilot/claude-sonnet-4.5"
+opencode-config models --set medium "github-copilot/claude-sonnet-4"
+opencode-config models --set low "github-copilot/claude-haiku-4.5"
+
+# Interactive wizard
+opencode-config models --wizard
+
+# Reset to defaults
+opencode-config models --reset
 ```
 
 ### Check Status & Updates
@@ -184,8 +205,8 @@ opencode-config install --group basic
 | Item | Location |
 |------|----------|
 | **Installed components** | `~/.config/opencode/` |
-| **Configuration** | `~/.opencode-registry/config.json` |
-| **Installation database** | `~/.opencode-registry/installed.json` |
+| **Configuration** | `~/.config/opencode/opencode-registry-config.json` |
+| **Installation database** | `~/.config/opencode/opencode-registry-installed.json` |
 | **Registry path** | Auto-detected or set via config |
 
 ## 🔧 Component Types
@@ -200,17 +221,15 @@ opencode-config install --group basic
 
 ## ⚠️ Important Notes
 
-1. **Merge-friendly:** Installation adds to existing `~/.config/opencode/` without overwriting your custom files
+1. **Copy-based installation:** Files are copied (not symlinked) into `~/.config/opencode/` from the registry
 
-2. **Live symlinks:** Installed components are symlinked to the registry, so updates to registry files reflect immediately
+2. **Model tiers:** Configure once with `opencode-config models --wizard`, then every install/update applies the right model automatically
 
-3. **Dry-run first:** Always use `--dry-run` to preview changes before installing/uninstalling
+3. **Live updates:** Re-run `opencode-config update --all` after changing tier config to update all installed files
 
-4. **Sync available:** If database gets out of sync, run `opencode-config sync` to rebuild it
+4. **Dry-run first:** Always use `--dry-run` to preview changes before installing/uninstalling
 
-5. **Stow vs Symlink:** 
-   - Stow (preferred): Uses GNU Stow for elegant symlink management
-   - Symlink (fallback): Manual symlinks if stow not available
+5. **Sync available:** If database gets out of sync, run `opencode-config sync` to rebuild it
 
 ## 🆘 Help
 

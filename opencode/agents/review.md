@@ -1,7 +1,7 @@
 ---
 description: Code quality and security expert. Reviews for best practices, vulnerabilities, and maintainability.
 mode: primary
-model: github-copilot/claude-sonnet-4.5
+model_tier: "medium"
 temperature: 0.0
 tools:
   bash: true

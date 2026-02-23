@@ -1,7 +1,7 @@
 ---
 description: Technical architecture and system design. Receives functional specs and produces technology choices, system blueprints, and trade-off analysis.
 mode: primary
-model: github-copilot/claude-sonnet-4.5
+model_tier: "high"
 temperature: 0.1
 tools:
   bash: false

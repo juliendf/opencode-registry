@@ -29,149 +29,41 @@
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │  bundles/           (Bundle Definitions)                 │  │
-│  │  ├── basic.yaml     (4 essential components)             │  │
-│  │  ├── intermediate.yaml (10+ components)                  │  │
-│  │  └── advanced.yaml  (all 55 components)                  │  │
+│  │  installer/         (CLI Tool)                           │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │  CopyManager                                       │  │  │
+│  │  │  - Install/uninstall packages                      │  │  │
+│  │  │  - Detect installed components                     │  │  │
+│  │  │  - Process model_tier templates                    │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
+│  │                                                          │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │  TemplateEngine                                    │  │  │
+│  │  │  - Resolve model tiers                             │  │  │
+│  │  │  - Process {{tier:X}} patterns                     │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
+│  │                                                          │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │  InstalledDB                                       │  │  │
+│  │  │  - Track components                                │  │  │
+│  │  │  - Sync from disk                                  │  │  │
+│  │  │  - Log actions                                     │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
+│  │                                                          │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │  ManifestParser                                    │  │  │
+│  │  │  - Parse YAML frontmatter                          │  │  │
+│  │  │  - Extract metadata                                │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
+│  │                                                          │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │  Config                                            │  │  │
+│  │  │  - Manage settings                                 │  │  │
+│  │  │  - Auto-detect paths                               │  │  │
+│  │  │  - Model tier configuration                        │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
 │  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  installer/         (Python CLI Tool)                    │  │
-│  │  └── src/opencode_config/                                │  │
-│  │      ├── cli.py                                          │  │
-│  │      ├── commands/  (8 command modules)                  │  │
-│  │      └── utils/     (core utilities)                     │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         │ opencode-config install
-                         │ (via GNU Stow or symlinks)
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│              Target Installation Directory                      │
-│              ~/.config/opencode/                                │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  agents/                                                  │  │
-│  │  ├── plan-design.md           → symlink to registry      │  │
-│  │  ├── plan-architecture.md     → symlink to registry      │  │
-│  │  ├── build-code.md            → symlink to registry      │  │
-│  │  ├── cngmember.md           (user's custom agent)      │  │
-│  │  └── subagents/              → symlink to registry      │  │
-│  │      └── [43 subagents]                                 │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  skills/                                                  │  │
-│  │  ├── project-docs/           → symlink to registry      │  │
-│  │  ├── mcp-builder/            → symlink to registry      │  │
-│  │  └── proofread-skills/       (user's custom skill)      │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  commands/                    → symlink to registry      │  │
-│  │  └── [3 commands]                                        │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
-                         │
-                         │ Tracked by
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│              Installation Database                              │
-│              ~/.opencode-registry/                              │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  config.json                                             │  │
-│  │  {                                                       │  │
-│  │    "target_dir": "~/.config/opencode",                   │  │
-│  │    "registry_path": "~/Documents/.../opencode-registry"  │  │
-│  │  }                                                       │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  installed.json                                          │  │
-│  │  {                                                       │  │
-│  │    "installed": {                                        │  │
-  │  │      "agents": { ... },        (5 components)            │  │
-│  │      "subagents": { ... },     (43 components)           │  │
-│  │      "skills": { ... },        (3 components)            │  │
-│  │      "commands": { ... }       (3 components)            │  │
-│  │    },                                                    │  │
-│  │    "bundles": { "basic": {...} },                        │  │
-│  │    "logs": { ... }                                       │  │
-│  │  }                                                       │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-## Component Flow
-
-```
-┌─────────────┐
-│   User      │
-│  Terminal   │
-└──────┬──────┘
-       │
-       │ opencode-config list
-       │ opencode-config install --group basic
-       │ opencode-config status
-       │
-       ▼
-┌─────────────────────────────────────────┐
-│         CLI Commands                    │
-│                                         │
-│  ┌──────────┐  ┌──────────┐            │
-│  │  list    │  │  info    │            │
-│  └──────────┘  └──────────┘            │
-│                                         │
-│  ┌──────────┐  ┌──────────┐            │
-│  │ install  │  │  status  │            │
-│  └──────────┘  └──────────┘            │
-│                                         │
-│  ┌──────────┐  ┌──────────┐            │
-│  │  sync    │  │ uninstall│            │
-│  └──────────┘  └──────────┘            │
-└────────┬────────────────────────────────┘
-         │
-         │ Uses
-         │
-         ▼
-┌─────────────────────────────────────────┐
-│         Core Utilities                  │
-│                                         │
-│  ┌──────────────────────────────────┐   │
-│  │  StowManager                     │   │
-│  │  - Install/uninstall packages    │   │
-│  │  - Detect installed components   │   │
-│  │  - Verify symlinks               │   │
-│  └──────────────────────────────────┘   │
-│                                         │
-│  ┌──────────────────────────────────┐   │
-│  │  InstalledDB                     │   │
-│  │  - Track components              │   │
-│  │  - Sync from disk                │   │
-│  │  - Log actions                   │   │
-│  └──────────────────────────────────┘   │
-│                                         │
-│  ┌──────────────────────────────────┐   │
-│  │  ManifestParser                  │   │
-│  │  - Parse YAML frontmatter        │   │
-│  │  - Extract metadata              │   │
-│  └──────────────────────────────────┘   │
-│                                         │
-│  ┌──────────────────────────────────┐   │
-│  │  Config                          │   │
-│  │  - Manage settings               │   │
-│  │  - Auto-detect paths             │   │
-│  └──────────────────────────────────┘   │
-└─────────────────────────────────────────┘
 ```
 
 ## Installation Flow
@@ -194,23 +86,32 @@ User runs: opencode-config install --group basic
                │
                ▼
     ┌─────────────────────────────┐
-    │  3. Run Stow                │
-    │  stow --dir registry        │
-    │       --target ~/.config    │
-    │       opencode              │
+    │  3. Resolve Model Tiers     │
+    │  config model_tiers         │
+    │  - high → claude-sonnet-4.5 │
+    │  - medium → claude-sonnet-4 │
+    │  - low → claude-haiku-4.5   │
     └──────────┬──────────────────┘
                │
                ▼
     ┌─────────────────────────────┐
-    │  4. Detect Components       │
+    │  4. Copy & Process Files    │
+    │  CopyManager copies each    │
+    │  file; model_tier: replaced │
+    │  with model: <resolved>     │
+    └──────────┬──────────────────┘
+               │
+               ▼
+    ┌─────────────────────────────┐
+    │  5. Detect Components       │
     │  Scan ~/.config/opencode/   │
-    │  - Find symlinks            │
+    │  - Find copied .md files    │
     │  - Count by type            │
     └──────────┬──────────────────┘
                │
                ▼
     ┌─────────────────────────────┐
-    │  5. Update Database         │
+    │  6. Update Database         │
     │  installed.json             │
     │  - Add components           │
     │  - Add bundle               │
@@ -219,7 +120,7 @@ User runs: opencode-config install --group basic
                │
                ▼
     ┌─────────────────────────────┐
-    │  6. Show Results            │
+    │  7. Show Results            │
     │  "✓ Bundle installed        │
     │   Components: 55"           │
     └─────────────────────────────┘
@@ -256,8 +157,8 @@ User runs: opencode-config sync
                ▼
     ┌─────────────────────────────┐
     │  3. Filter Registry Items   │
-    │  Only count symlinks that   │
-    │  point to registry          │
+    │  Only count files that      │
+    │  came from registry         │
     └──────────┬──────────────────┘
                │
                ▼
@@ -283,23 +184,23 @@ User runs: opencode-config sync
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Registry   │────▶│   Stow       │────▶│   Target     │
-│   Components │     │   Symlinks   │     │   Directory  │
-└──────────────┘     └──────────────┘     └───────┬──────┘
-                                                   │
-                                                   │
-                                                   ▼
-                                          ┌──────────────┐
-                                          │   Database   │
-                                          │   Tracking   │
-                                          └──────────────┘
-                                                   │
-                                                   │
-                                                   ▼
-                                          ┌──────────────┐
-                                          │   Status     │
-                                          │   Display    │
-                                          └──────────────┘
+│   Registry   │────▶│  CopyManager │────▶│   Target     │
+│   Components │     │  + Template  │     │   Directory  │
+└──────────────┘     │  Engine      │     └───────┬──────┘
+                     └──────────────┘             │
+                                                  │
+                                                  ▼
+                                         ┌──────────────┐
+                                         │   Database   │
+                                         │   Tracking   │
+                                         └──────────────┘
+                                                  │
+                                                  │
+                                                  ▼
+                                         ┌──────────────┐
+                                         │   Status     │
+                                         │   Display    │
+                                         └──────────────┘
 ```
 
 ## Technology Stack
@@ -339,10 +240,10 @@ User runs: opencode-config sync
 ┌─────────────────────────────────────────────────────────┐
 │                  Installation Layer                     │
 │                                                         │
-│  ┌──────────────────┐        ┌──────────────────┐      │
-│  │   GNU Stow       │        │   Symlinks       │      │
-│  │   (preferred)    │   OR   │   (fallback)     │      │
-│  └──────────────────┘        └──────────────────┘      │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │   CopyManager + TemplateEngine                   │   │
+│  │   (file copy with model tier resolution)         │   │
+│  └──────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -351,7 +252,7 @@ User runs: opencode-config sync
 │                                                         │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │  ~/.config/opencode/    (Target)                 │   │
-│  │  ~/.opencode-registry/  (Database)               │   │
+│  │  ~/.config/opencode/opencode-registry-*.json     │   │
 │  │  ~/Documents/.../opencode-registry (Source)      │   │
 │  └──────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
@@ -378,7 +279,7 @@ User runs: opencode-config sync
       │
       ▼
 ┌────────────┐
-│ INSTALLED  │  (Symlinked to ~/.config/opencode/)
+│ INSTALLED  │  (Copied to ~/.config/opencode/, model: resolved)
 └─────┬──────┘
       │
       │ Tracked in installed.json
@@ -392,7 +293,7 @@ User runs: opencode-config sync
       │
       ▼
 ┌────────────┐
-│  REMOVED   │  (Symlink deleted, database updated)
+│  REMOVED   │  (File deleted, database updated)
 └────────────┘
 ```
 
@@ -408,10 +309,11 @@ User runs: opencode-config sync
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────┐
-│                  Symlink Isolation                      │
+│                  Copy Isolation                         │
 │                                                         │
-│  Symlinks point FROM target TO source                   │
-│  Breaking symlinks only affects target, not source      │
+│  Files are copied FROM registry TO target               │
+│  Registry source files are never touched                │
+│  Deleting installed files only affects target           │
 └─────────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -437,6 +339,7 @@ User runs: opencode-config sync
 
 1. **Source of Truth:** GitHub registry, never modified locally
 2. **Merge-Friendly:** Coexists with user's custom components
-3. **Reversible:** Everything can be uninstalled cleanly
-4. **Transparent:** Database shows exactly what's installed
-5. **Safe:** Dry-run mode for all operations
+3. **Model-Aware:** Each component's model tier is resolved at install time
+4. **Reversible:** Everything can be uninstalled cleanly
+5. **Transparent:** Database shows exactly what's installed
+6. **Safe:** Dry-run mode for all operations

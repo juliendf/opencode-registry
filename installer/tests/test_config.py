@@ -101,3 +101,62 @@ class TestConfig:
         config.set("registry_path", registry_path)
 
         assert config.get("registry_path") == registry_path
+
+    def test_default_model_tiers(self, temp_dir):
+        """Test default model tiers are set."""
+        config_file = temp_dir / "config.json"
+        config = Config(config_file)
+
+        tiers = config.list_model_tiers()
+        assert "high" in tiers
+        assert "medium" in tiers
+        assert "low" in tiers
+
+    def test_get_model_for_tier(self, temp_dir):
+        """Test getting model for a tier."""
+        config_file = temp_dir / "config.json"
+        config = Config(config_file)
+
+        # Tiers start unconfigured; set one explicitly
+        config.set_model_tier("high", "github-copilot/claude-sonnet-4.5")
+        high_model = config.get_model_for_tier("high")
+        assert high_model is not None
+        assert "claude" in high_model.lower() or "sonnet" in high_model.lower()
+
+    def test_set_model_tier(self, temp_dir):
+        """Test setting model for a tier."""
+        config_file = temp_dir / "config.json"
+        config = Config(config_file)
+
+        config.set_model_tier("high", "custom-model-high")
+        assert config.get_model_for_tier("high") == "custom-model-high"
+
+    def test_set_model_tier_persists(self, temp_dir):
+        """Test model tier changes persist."""
+        config_file = temp_dir / "config.json"
+
+        config1 = Config(config_file)
+        config1.set_model_tier("medium", "custom-medium")
+
+        config2 = Config(config_file)
+        assert config2.get_model_for_tier("medium") == "custom-medium"
+
+    def test_list_model_tiers(self, temp_dir):
+        """Test listing all model tiers."""
+        config_file = temp_dir / "config.json"
+        config = Config(config_file)
+
+        tiers = config.list_model_tiers()
+        assert isinstance(tiers, dict)
+        assert len(tiers) >= 3
+        assert "high" in tiers
+        assert "medium" in tiers
+        assert "low" in tiers
+
+    def test_get_model_for_invalid_tier(self, temp_dir):
+        """Test getting model for invalid tier returns None."""
+        config_file = temp_dir / "config.json"
+        config = Config(config_file)
+
+        result = config.get_model_for_tier("invalid")
+        assert result is None

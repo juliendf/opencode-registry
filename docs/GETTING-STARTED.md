@@ -22,18 +22,6 @@ Before you begin, ensure you have:
   git --version
   ```
 
-- (Optional) **GNU Stow** for better symlink management
-  ```bash
-  # macOS
-  brew install stow
-  
-  # Ubuntu/Debian
-  sudo apt-get install stow
-  
-  # Check installation
-  stow --version
-  ```
-
 ---
 
 ## Step 1: Clone the Repository
@@ -91,7 +79,7 @@ cd ..
 
 **Expected output:**
 ```
-opencode-config, version 0.1.0
+opencode-config, version 0.2.0
 ```
 
 **Troubleshooting:**
@@ -151,20 +139,32 @@ opencode-config install --group basic --dry-run
 
 ## Step 5: Install Your First Bundle
 
+### First-Run Experience
+
+When installing for the first time, you'll be guided through model tier configuration:
+
 ```bash
 # Install the basic bundle
 opencode-config install --group basic
 
-# Expected output:
-# ✓ Bundle 'basic' installed successfully
-# Components: 4
-# - Agents: 2
-# - Skills: 2
+# You'll see:
+# Welcome! Before installing, let's configure which models to use for each 
+# complexity tier.
+#
+# Model Tier Configuration Wizard
+# ...
 ```
 
+The wizard helps you configure which model to use for each complexity tier:
+- **High tier** - Complex reasoning (architecture, design planning)
+- **Medium tier** - General coding (implementation, code review)
+- **Low tier** - Simple tasks (documentation, commit messages)
+
 **What just happened?**
-- Components were symlinked to `~/.config/opencode/`
-- Installation was tracked in `~/.opencode-registry/installed.json`
+- Model tiers were configured in `~/.config/opencode/opencode-registry-config.json`
+- Component files were **copied** to `~/.config/opencode/` with your model tier configuration applied
+- Each component's `model_tier:` frontmatter was resolved to the correct `model:` for your setup
+- Installation was tracked in `~/.config/opencode/opencode-registry-installed.json`
 - You can now use these components with OpenCode
 
 ---
@@ -182,18 +182,38 @@ opencode-config status --details
 opencode-config list --installed
 
 # Verify files on disk
-ls -la ~/.config/opencode/agents/
-ls -la ~/.config/opencode/skills/
+ls ~/.config/opencode/agents/
+ls ~/.config/opencode/skills/
 ```
 
 **You should see:**
-- Symlinks pointing to the registry
-- Components marked as installed
-- Timestamps showing when installed
+- Copied `.md` files with correct `model:` values written in
+- Components marked as installed with timestamps
 
 ---
 
-## Step 7: Try Installing More Components
+## Step 7: Configure Model Tiers (Optional)
+
+If you skipped the wizard or want to change models later:
+
+```bash
+# Interactive wizard - configure all three tiers
+opencode-config models --wizard
+
+# Or set individually
+opencode-config models --set high "github-copilot/claude-sonnet-4.5"
+opencode-config models --set medium "github-copilot/claude-sonnet-4"
+opencode-config models --set low "github-copilot/claude-haiku-4.5"
+
+# View current configuration
+opencode-config models --list
+```
+
+After changing tiers, re-run `opencode-config update --all` to apply the new models to all installed files.
+
+---
+
+## Step 8: Try Installing More Components
 
 ```bash
 # Upgrade to intermediate bundle
@@ -208,7 +228,7 @@ opencode-config update build-code
 
 ---
 
-## Step 8: Understanding the Setup
+## Step 9: Understanding the Setup
 
 ### Directory Structure
 
@@ -221,14 +241,12 @@ Your System
 │   │   └── commands/
 │   └── installer/                    # The CLI tool
 │
-├── ~/.config/opencode/               # Installation target (symlinks)
-│   ├── agents/         → points to registry
-│   ├── skills/         → points to registry
-│   └── commands/       → points to registry
-│
-└── ~/.opencode-registry/             # Configuration & tracking
-    ├── config.json                   # Your settings
-    └── installed.json                # What's installed
+├── ~/.config/opencode/               # Installation target (copied files)
+│   ├── agents/         copied from registry, model resolved
+│   ├── skills/         copied from registry
+│   └── commands/       copied from registry
+│   ├── opencode-registry-config.json     # Your settings + model tiers
+│   └── opencode-registry-installed.json  # What's installed
 ```
 
 ### Component Types Explained
@@ -254,10 +272,11 @@ Your System
 ### How It Works
 
 1. **Registry (Read-Only)**: The `opencode-registry/` directory contains all components
-2. **Installation**: CLI creates symlinks from `~/.config/opencode/` to the registry
+2. **Installation**: CLI **copies** files from the registry to `~/.config/opencode/`, resolving `model_tier:` to the correct `model:` value
 3. **Tracking**: Database tracks what's installed and when
-4. **Updates**: Pull latest changes from git, then run `update` command
-5. **Auto-Detection**: Registry path is automatically detected from your current directory
+4. **Model Tiers**: First install triggers wizard; subsequent installs use saved config
+5. **Updates**: Pull latest changes from git, then run `update --all` — model tier config is re-applied automatically
+6. **Auto-Detection**: Registry path is automatically detected from your current directory
 
 **Git Worktree Support:** The CLI works seamlessly with git worktrees. When you run commands from a worktree, it automatically detects the correct registry location without requiring manual configuration updates.
 
@@ -383,7 +402,7 @@ opencode-config status
 # 2. Sync database
 opencode-config sync
 
-# 3. Verify symlinks
+# 3. Verify files
 ls -la ~/.config/opencode/agents/
 
 # 4. Reinstall if needed

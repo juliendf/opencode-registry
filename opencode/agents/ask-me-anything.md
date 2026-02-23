@@ -1,7 +1,7 @@
 ---
 description: Ask anything — codebase, docs, concepts, best practices
 mode: primary
-model: github-copilot/claude-haiku-4.5
+model_tier: "low"
 temperature: 0.2
 tools:
   bash: true

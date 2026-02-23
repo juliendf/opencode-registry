@@ -201,3 +201,97 @@ class TestManifestParser:
 
         errors = ManifestParser.validate(manifest)
         assert len(errors) == 4  # All required fields missing + invalid type
+
+
+class TestManifestModelTier:
+    """Test model_tier and model field parsing in manifest."""
+
+    def test_create_from_md_with_model_tier(self, temp_dir, mock_registry):
+        """Test creating manifest from agent with model_tier frontmatter."""
+        agent_file = mock_registry / "opencode" / "agents" / "tiered-agent.md"
+        agent_file.write_text(
+            """---
+name: "Tiered Agent"
+description: "An agent with model tier"
+type: "agent"
+version: "1.0.0"
+model: "claude-opus-4-5"
+model_tier: "high"
+---
+
+# Tiered Agent
+"""
+        )
+        manifest = ManifestParser.create_from_md(agent_file, "agent")
+
+        assert manifest.model_tier == "high"
+        assert manifest.model == "claude-opus-4-5"
+
+    def test_create_from_md_model_tier_only(self, temp_dir, mock_registry):
+        """Test creating manifest from agent with only model_tier (no model)."""
+        agent_file = mock_registry / "opencode" / "agents" / "tier-only-agent.md"
+        agent_file.write_text(
+            """---
+name: "Tier Only Agent"
+description: "An agent with only model_tier"
+type: "agent"
+version: "1.0.0"
+model_tier: "medium"
+---
+
+# Tier Only Agent
+"""
+        )
+        manifest = ManifestParser.create_from_md(agent_file, "agent")
+
+        assert manifest.model_tier == "medium"
+        assert manifest.model is None
+
+    def test_create_from_md_no_model_fields(self, mock_agent_md):
+        """Test manifest from agent without any model fields defaults to None."""
+        manifest = ManifestParser.create_from_md(mock_agent_md, "agent")
+
+        assert manifest.model_tier is None
+        assert manifest.model is None
+
+    def test_create_from_md_low_tier(self, temp_dir, mock_registry):
+        """Test creating manifest with low model tier."""
+        agent_file = mock_registry / "opencode" / "agents" / "low-tier-agent.md"
+        agent_file.write_text(
+            """---
+name: "Low Tier Agent"
+description: "An agent with low tier"
+type: "agent"
+version: "1.0.0"
+model_tier: "low"
+---
+
+# Low Tier Agent
+"""
+        )
+        manifest = ManifestParser.create_from_md(agent_file, "agent")
+
+        assert manifest.model_tier == "low"
+
+    def test_component_manifest_defaults_model_fields(self):
+        """Test that ComponentManifest defaults model and model_tier to None."""
+        manifest = ComponentManifest(
+            id="test", type="agent", name="Test", description="A test"
+        )
+
+        assert manifest.model_tier is None
+        assert manifest.model is None
+
+    def test_component_manifest_with_model_fields(self):
+        """Test creating ComponentManifest with explicit model fields."""
+        manifest = ComponentManifest(
+            id="test",
+            type="agent",
+            name="Test",
+            description="A test",
+            model_tier="high",
+            model="claude-opus-4-5",
+        )
+
+        assert manifest.model_tier == "high"
+        assert manifest.model == "claude-opus-4-5"
