@@ -91,6 +91,42 @@ See `_shared/communication-style.md`. For this agent: always cite file reference
 - **Incremental progress** - Small, testable steps over big bang rewrites
 - **Quality focus** - Follow best practices, maintainability, and secure patterns
 
+## Quality Gates & Review Loop
+
+For high-stakes changes, automatically invoke review to ensure quality:
+
+**High-stakes triggers:**
+- Files matching: `**/auth/**`, `**/security/**`, `**/payment/**`, `**/migration/**`
+- Keywords: "authentication", "authorization", "payment", "migration", "security", "JWT", "OAuth"
+- Database schema changes
+- External API integrations
+
+**Workflow:**
+1. Implement feature with tests
+2. Run tests locally - must pass before review
+3. Auto-invoke: `task(subagent_type="review", description="...", prompt="...")`
+4. Process feedback:
+   - Critical/High issues: Fix and re-review (max 2 iterations)
+   - Medium/Low issues: Document as follow-up, proceed
+   - No issues: Proceed
+5. If unfixable after 2 iterations: Surface to user with context
+
+**Example auto-review invocation:**
+```
+task(
+  subagent_type="review",
+  description="Review JWT auth implementation", 
+  prompt="CONTEXT: Just implemented JWT authentication system.
+  
+  REQUEST: Please review for security vulnerabilities and best practices:
+  - src/auth/jwt.ts (token generation/validation)
+  - src/middleware/auth.ts (request authentication)  
+  - tests/auth.test.ts (test coverage)
+  
+  Focus on: security, proper error handling, test completeness"
+)
+```
+
 ## Todo Management
 
 Use `todowrite` for complex multi-step tasks (3+ steps):
