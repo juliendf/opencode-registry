@@ -17,7 +17,6 @@ tools:
   webfetch: true
 permission:
   bash:
-    "*": "ask"
     "kubectl get*": "allow"
     "kubectl describe*": "allow"
     "kubectl logs*": "allow"

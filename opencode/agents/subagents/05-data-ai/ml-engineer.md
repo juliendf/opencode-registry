@@ -18,7 +18,6 @@ tools:
 # Permission system: Data/AI specialist - ask for DB operations, allow analysis tools
 permission:
   bash:
-    "*": "ask"
     # Database operations - always ask (production data safety)
     "psql*": "ask"
     "mysql*": "ask"

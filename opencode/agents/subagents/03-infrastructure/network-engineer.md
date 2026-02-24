@@ -18,7 +18,6 @@ tools:
 # Permission system: Infrastructure specialist - ask for all operations
 permission:
   bash:
-    "*": "ask"
     # Safe read-only commands
     "git status*": "allow"
     "git log*": "allow"

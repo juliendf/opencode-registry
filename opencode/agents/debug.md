@@ -18,7 +18,6 @@ tools:
   question: true
 permission:
   bash:
-    "*": "ask"
     "git status*": "allow"
     "git log*": "allow"
     "git diff*": "allow"

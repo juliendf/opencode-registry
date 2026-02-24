@@ -18,7 +18,6 @@ tools:
 # Permission system: Crossplane/kubectl-specific safety - allow reads, ask for writes
 permission:
   bash:
-    "*": "ask"
     # Kubectl read-only operations for Crossplane resources
     "kubectl get*": "allow"
     "kubectl describe*": "allow"

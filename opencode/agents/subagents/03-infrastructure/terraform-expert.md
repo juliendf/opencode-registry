@@ -18,7 +18,6 @@ tools:
 # Permission system: Terraform-specific safety - allow reads/plan, ask for apply/destroy
 permission:
   bash:
-    "*": "ask"
     # Terraform read-only operations allowed
     "terraform plan*": "allow"
     "terraform show*": "allow"

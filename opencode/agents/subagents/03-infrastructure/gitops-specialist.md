@@ -18,7 +18,6 @@ tools:
 # Permission system: GitOps-specific safety - allow reads, ask for sync/deploy
 permission:
   bash:
-    "*": "ask"
     # ArgoCD read-only operations
     "argocd app get*": "allow"
     "argocd app list*": "allow"
