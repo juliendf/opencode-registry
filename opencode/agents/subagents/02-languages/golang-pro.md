@@ -18,7 +18,6 @@ tools:
 # Permission system: Language specialist - ask for all operations
 permission:
   bash:
-    "*": "ask"
     # Language-specific tools allowed
     "npm*": "allow"
     "pip*": "allow"

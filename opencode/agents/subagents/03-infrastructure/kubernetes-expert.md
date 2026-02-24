@@ -18,7 +18,6 @@ tools:
 # Permission system: Kubernetes-specific safety - allow reads, ask for writes
 permission:
   bash:
-    "*": "ask"
     # Kubernetes read-only operations allowed
     "kubectl get*": "allow"
     "kubectl describe*": "allow"

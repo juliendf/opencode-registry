@@ -256,6 +256,7 @@ opencode-config status --help
 - [Full Documentation](../README.md)
 - [Versioning Guide](VERSIONING.md)
 - [Architecture](ARCHITECTURE.md)
+- [Permissions & Tools Guide](PERMISSIONS.md)
 - [Changelog](../CHANGELOG.md)
 - [Contributing](../CONTRIBUTING.md)
 - [Testing Guide](../installer/tests/README.md)

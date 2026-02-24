@@ -18,7 +18,6 @@ tools:
 # Permission system: Azure CLI safety - allow reads, ask for writes/deploys
 permission:
   bash:
-    "*": "ask"
     # Azure read-only operations
     "az *list*": "allow"
     "az *show*": "allow"

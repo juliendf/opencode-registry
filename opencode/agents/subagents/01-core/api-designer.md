@@ -18,7 +18,6 @@ tools:
 # Permission system: Specialist subagent - ask for all operations
 permission:
   bash:
-    "*": "ask"
     # Safe commands
     "git status*": "allow"
     "git log*": "allow"

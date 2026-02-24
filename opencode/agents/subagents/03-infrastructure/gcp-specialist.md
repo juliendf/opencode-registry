@@ -18,7 +18,6 @@ tools:
 # Permission system: GCP CLI safety - allow reads, ask for writes/deploys
 permission:
   bash:
-    "*": "ask"
     # GCP read-only operations
     "gcloud *list*": "allow"
     "gcloud *describe*": "allow"

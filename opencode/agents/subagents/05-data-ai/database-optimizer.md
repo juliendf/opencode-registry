@@ -18,7 +18,6 @@ tools:
 # Permission system: Database-specific safety - ask for all DB operations (production data)
 permission:
   bash:
-    "*": "ask"
     # Database operations - always ask (production data safety)
     "psql*": "ask"
     "mysql*": "ask"

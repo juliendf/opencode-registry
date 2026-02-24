@@ -18,7 +18,6 @@ tools:
 # Permission system: AWS CLI safety - allow reads, ask for writes/deploys
 permission:
   bash:
-    "*": "ask"
     # AWS read-only operations
     "aws *list*": "allow"
     "aws *describe*": "allow"
