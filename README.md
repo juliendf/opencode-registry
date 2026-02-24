@@ -282,6 +282,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ## 📚 Documentation
 
 - **[Getting Started](docs/GETTING-STARTED.md)** - Step-by-step beginner guide
+- **[Agent Selection Guide](docs/AGENT-GUIDE.md)** - Choose the right agent for your task
 - **[Quick Reference](docs/QUICKREF.md)** - One-page command cheat sheet
 - **[FAQ](docs/FAQ.md)** - Frequently asked questions
 - **[Versioning Guide](docs/VERSIONING.md)** - Component version management
