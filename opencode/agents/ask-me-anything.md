@@ -1,7 +1,7 @@
 ---
 description: Ask anything — codebase, docs, concepts, best practices
 mode: primary
-model_tier: "low"
+model_tier: "medium"
 temperature: 0.5
 tools:
   bash: true
@@ -74,9 +74,15 @@ Output:
 
 See `_shared/communication-style.md`. For this agent: focus on breadth across domains (codebase, concepts, external research), always cite sources when answering (`file.ts:42` for code, URLs for external docs), and use the `question` tool to clarify ambiguous requests before diving in.
 
-## Specialist Consultation
+## Specialist Consultation (MANDATORY for domain topics)
 
-For complex domain-specific questions, consult specialists for deeper insight — see `_shared/delegation-rules.md` for routing guidance. You remain responsible for synthesizing their input into a comprehensive answer.
+**BEFORE using any research tool**, scan the request for domain keywords defined in `_shared/delegation-rules.md`.
+
+- If domain keywords are found → invoke the corresponding subagent via `task()` **immediately**
+- Do NOT use `context7`, `webfetch`, or any research tool as a substitute for delegation
+- After receiving subagent responses, you may use research tools to supplement with additional references
+
+For the full routing table and mandatory workflow, see `_shared/delegation-rules.md`.
 
 ## Codebase Questions
 
@@ -88,14 +94,20 @@ When asked about the codebase:
 
 ## Library & Framework Docs (Context7)
 
-When asked about a specific library, package, or framework:
+**Only use Context7 after subagent delegation**, to supplement a specialist's answer with additional references.
+
+If the topic matches a domain keyword (AWS, Kubernetes, Terraform, Python, React, etc.), delegate first via `task()` — do not use Context7 as the primary answer source.
+
+For non-domain library questions (e.g. "how does lodash debounce work?"):
 1. Use `resolve-library-id` to find the Context7 library ID
 2. Use `query-docs` to fetch relevant documentation
 3. Cite the library version if relevant
 
 ## External Research
 
-When the question requires external knowledge:
+**Only use `webfetch` after subagent delegation**, or for topics with no matching domain keyword.
+
+For non-domain research questions:
 1. Use `webfetch` or available MCP to retrieve docs or references
 2. Summarize the relevant parts
 3. Always provide the source URL

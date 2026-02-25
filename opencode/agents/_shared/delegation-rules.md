@@ -35,6 +35,19 @@ This file defines the MANDATORY rules for when and how primary agents must deleg
 
 **ALLOWED**: High-level discussion, clarifying questions, and general planning that doesn't require deep domain expertise.
 
+## Rule 4: No Research Tools as Substitutes for Delegation
+
+**PROHIBITED**: Using `webfetch`, `context7_resolve-library-id`, `context7_query-docs`, `webfetch`, or any other research/documentation tool to answer a domain-specific question instead of delegating to the correct subagent.
+
+**WHY**: These tools let you fake delegation — you look up docs and answer directly, bypassing the specialist entirely. This violates the architecture.
+
+**The correct flow is always**:
+1. Detect domain keyword → call `task()` with the correct subagent
+2. Wait for subagent response
+3. Synthesize and reply
+
+Research tools (`context7`, `webfetch`) may only be used **after** subagent delegation, to supplement the specialist's answer with additional references — never as a replacement.
+
 </critical_rules>
 
 ---
@@ -138,20 +151,24 @@ Scan EVERY user request for these keywords. If found, delegate IMMEDIATELY.
 
 ## Stage 1: Domain Detection (REQUIRED - DO NOT SKIP)
 
-**BEFORE** formulating any response:
+**BEFORE formulating any response, BEFORE using any tool:**
 
 1. **Scan** the user's request for keywords from the Domain Routing Table above
 2. **Identify** all matching domains
-3. **Proceed to Stage 2** if any domains detected
+3. **Proceed to Stage 2** if any domains detected — do NOT use webfetch, context7, or any research tool first
 4. **Skip to Stage 3** only if NO domain keywords detected
 
+**STOP**: If you are about to call `context7_resolve-library-id`, `context7_query-docs`, or `webfetch` for a domain-keyword topic — stop. Call `task()` instead.
+
 ## Stage 2: Subagent Invocation (REQUIRED when domains detected)
+
+**CRITICAL**: The `subagent_type` value MUST be the **full path** exactly as shown in the Domain Routing Table. Never use a short name like `"aws-specialist"` — always use the full path like `"subagents/03-infrastructure/aws-specialist"`.
 
 For EACH detected domain:
 
 ```
 task(
-  subagent_type="[subagent-path-from-routing-table]",
+  subagent_type="subagents/03-infrastructure/aws-specialist",  // FULL PATH — copy exactly from the routing table
   description="[Brief description of the domain question]",
   prompt="CONTEXT: User is asking about [topic].
 
@@ -164,6 +181,8 @@ CONSTRAINTS:
 Please provide expert guidance on this topic."
 )
 ```
+
+**If the task() call fails or is rejected**: Do NOT fall back to webfetch or context7. Fix the `subagent_type` to use the correct full path from the routing table and retry.
 
 **For multiple domains**: Invoke ALL relevant subagents IN PARALLEL (multiple task() calls in the same response).
 
@@ -267,3 +286,48 @@ Failure to invoke subagents for domain-specific questions:
 - Should be considered a violation of agent responsibilities
 
 **When in doubt, DELEGATE.**
+
+---
+
+# Machine-Readable Keywords Registry
+
+For programmatic delegation detection (agents, tools, installers), refer to:
+**`_shared/domain-keywords.yaml`**
+
+This file provides:
+- **primary keywords:** High-confidence triggers (always delegate)
+- **fallback keywords:** Medium-confidence triggers (delegate if no primary match)
+- **anti-keywords:** Exclusions (don't delegate even if matched)
+- **priority order:** Tiebreaker when multiple domains match
+
+**Agents should use this file to:**
+1. Extract all keywords from the user request (case-insensitive, word boundaries)
+2. Match against primary keywords first
+3. Match against fallback keywords if no primary match
+4. Check anti-keywords to exclude false positives
+5. If multiple domains match, use the priority order: Security > Language > Infrastructure > Architecture > Testing > Database
+
+**Example agent logic:**
+```
+request = user_prompt.lower()
+matched_domains = []
+
+for domain, config in KEYWORDS_YAML.domains.items():
+    if any(keyword in request for keyword in config['primary']):
+        matched_domains.append((domain, 'primary'))
+    elif any(keyword in request for keyword in config['fallback']):
+        matched_domains.append((domain, 'fallback'))
+
+# Filter by anti-keywords
+matched_domains = [(d, c) for d, c in matched_domains 
+                   if not any(anti in request for anti in config['anti'])]
+
+# Sort by confidence (primary first) then by priority order
+matched_domains.sort(key=lambda x: (0 if x[1]=='primary' else 1, 
+                                    PRIORITY_ORDER.index(x[0])))
+
+# Invoke all matched subagents in parallel
+for domain, _ in matched_domains:
+    invoke_subagent(config['subagent'], ...)
+```
+
