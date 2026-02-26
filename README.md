@@ -162,6 +162,28 @@ OpenCode Registry uses **file copying with template processing** to manage compo
 - **Copy**: Files are copied (not symlinked) from registry to target directory
 - **Template Processing**: `model_tier: high` is replaced with `model: github-copilot/claude-sonnet-4.5`
 - **Model Tiers**: Configure once with `opencode-config models`, applied to every install/update
+ - **Model Tiers**: Configure once with `opencode-config models`, applied to every install/update
+
+## Model tiers
+
+The registry supports model tiers to control which model bundles are
+selected for development and testing. A new "free" tier is now
+available.
+
+When to use the free tier:
+- Local development, experimentation, or CI jobs with no paid model access.
+- Low-cost evaluation of components that do not require high-capacity models.
+- Teams needing a predictable, limited model configuration for testing.
+
+Set or reset the free tier (examples):
+
+```bash
+# Set model tier to free with a model ID
+opencode-config models set --tier free --model github-copilot/gpt-4o-mini
+
+# Reset the free tier to remove custom mapping
+opencode-config models reset --tier free
+```
 
 ## 📋 Requirements
 
