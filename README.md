@@ -4,7 +4,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-> A central hub for 55 OpenCode components: primary agents, specialized subagents, skills, and commands with intelligent installation management.
+> A central hub for 56 OpenCode components: primary agents, specialized subagents, skills, and commands with intelligent installation management.
 
 [Features](#-what-is-opencode-registry) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](CONTRIBUTING.md)
 
@@ -102,7 +102,7 @@ opencode-config install --group basic --dry-run
 opencode-config uninstall --all
 ```
 
-## 📦 Available Components (55 Total)
+## 📦 Available Components (56 Total)
 
 ### Primary Agents (7)
 Core AI assistants for different development roles:
@@ -142,7 +142,7 @@ Pre-configured groups for different use cases:
 
 - **basic** - Essential agents and skills (4 components)
 - **intermediate** - Extended collection (10+ components)
-- **advanced** - Complete ecosystem (all 55 components)
+- **advanced** - Complete ecosystem (all 56 components)
 
 Install with: `opencode-config install --group <bundle-name>`
 

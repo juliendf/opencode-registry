@@ -8,7 +8,7 @@
 │                    OpenCode Registry                            │
 │                                                                 │
 │  GitHub Repo (Source of Truth)                                 │
-│  └─ 55 Components: Primary Agents, Subagents, Skills, Commands │
+│  └─ 56 Components: Primary Agents, Subagents, Skills, Commands │
 │                                                                 │
 └────────────────────────┬────────────────────────────────────────┘
                          │
@@ -25,7 +25,7 @@
 │  │  ├── agents/        (7 primary agents)                   │  │
 │  │  │   └── subagents/ (43 specialized subagents)           │  │
 │  │  ├── skills/        (3 skills)                           │  │
-│  │  └── commands/      (2 commands)                         │  │
+│  │  └── commands/      (3 commands)                         │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
@@ -122,7 +122,7 @@ User runs: opencode-config install --group basic
     ┌─────────────────────────────┐
     │  7. Show Results            │
     │  "✓ Bundle installed        │
-    │   Components: 55"           │
+    │   Components: 56"           │
     └─────────────────────────────┘
 ```
 
