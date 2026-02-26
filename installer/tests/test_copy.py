@@ -28,11 +28,13 @@ def mock_config(temp_dir):
         "high": "github-copilot/claude-sonnet-4.5",
         "medium": "github-copilot/claude-sonnet-4",
         "low": "github-copilot/claude-haiku-4.5",
+        "free": "github-copilot/gpt-4o-mini",
     }
     config.get_model_for_tier.side_effect = lambda tier: {
         "high": "github-copilot/claude-sonnet-4.5",
         "medium": "github-copilot/claude-sonnet-4",
         "low": "github-copilot/claude-haiku-4.5",
+        "free": "github-copilot/gpt-4o-mini",
     }.get(tier)
     return config
 
@@ -281,6 +283,16 @@ class TestCopyAndProcessFile:
         copy_manager.install_package("opencode")
         content = (target_dir / "agents" / "low.md").read_text()
         assert "model: github-copilot/claude-haiku-4.5" in content
+
+    def test_free_tier_resolved(self, copy_manager, registry, target_dir):
+        agent = registry / "opencode" / "agents" / "free.md"
+        agent.write_text(
+            "---\nname: Free\ndescription: f\ntype: agent\nmodel_tier: free\n---\n# Free\n"
+        )
+        copy_manager.install_package("opencode")
+        content = (target_dir / "agents" / "free.md").read_text()
+        assert "model: github-copilot/gpt-4o-mini" in content
+        assert "model_tier" not in content
 
     def test_model_tier_replaced_unconditionally(self, copy_manager, registry, target_dir):
         """model_tier: is always replaced with model: regardless of other fields."""

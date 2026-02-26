@@ -118,8 +118,15 @@ name: "Component Name"
 description: "Brief description"
 type: "agent|subagent|skill|command"
 version: "1.0.0"
+model_tier: "free|low|medium|high"  # optional: tier to resolve model IDs
 ---
 ```
+
+Notes
+
+- `model_tier` is optional. If provided, the installer will resolve the
+  tier to the configured model ID for runtime usage. Valid values are
+  `high`, `medium`, `low`, and `free`.
 
 **Markdown style:**
 - ATX headers (`#`)

@@ -111,6 +111,7 @@ class TestConfig:
         assert "high" in tiers
         assert "medium" in tiers
         assert "low" in tiers
+        assert "free" in tiers
 
     def test_get_model_for_tier(self, temp_dir):
         """Test getting model for a tier."""
@@ -148,10 +149,11 @@ class TestConfig:
 
         tiers = config.list_model_tiers()
         assert isinstance(tiers, dict)
-        assert len(tiers) >= 3
+        assert len(tiers) >= 4
         assert "high" in tiers
         assert "medium" in tiers
         assert "low" in tiers
+        assert "free" in tiers
 
     def test_get_model_for_invalid_tier(self, temp_dir):
         """Test getting model for invalid tier returns None."""

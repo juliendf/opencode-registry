@@ -16,6 +16,7 @@ DEFAULT_CONFIG = {
         "high": None,
         "medium": None,
         "low": None,
+        "free": None,
     },
 }
 
@@ -31,7 +32,13 @@ class Config:
         """Load configuration from file or create default."""
         if self.config_file.exists():
             with open(self.config_file, "r") as f:
-                return {**DEFAULT_CONFIG, **json.load(f)}
+                loaded = json.load(f)
+            merged = {**DEFAULT_CONFIG, **loaded}
+            # Deep-merge model_tiers so new tiers are always present
+            default_tiers = DEFAULT_CONFIG["model_tiers"].copy()
+            default_tiers.update(loaded.get("model_tiers", {}))
+            merged["model_tiers"] = default_tiers
+            return merged
         return DEFAULT_CONFIG.copy()
 
     def save(self):

@@ -89,13 +89,19 @@ None.
 
 **Missing:** `subagents/03-infrastructure/kubernetes-expert`
 
-**Root Cause:** The prompt explicitly asked for an "EKS cluster" which is a Kubernetes workload, yet the agent failed to delegate to the `kubernetes-expert` subagent. The agent correctly identified Terraform and observability topics but missed the Kubernetes component despite "EKS" being in the prompt.
+**Root Cause:** The prompt explicitly asked for an "EKS cluster" which is a
+Kubernetes workload, yet the agent failed to delegate to the
+`kubernetes-expert` subagent. The agent correctly identified Terraform
+and observability topics but missed the Kubernetes component despite
+"EKS" being in the prompt.
 
 ---
 
 ## Test 7: Output-Based Validation
 
-Test 7 (`plan-design`) is an output-based test that validates the presence of required sections in the agent's response rather than subagent delegation.
+Test 7 (`plan-design`) is an output-based test that validates the
+presence of required sections in the agent's response rather than
+subagent delegation.
 
 **Expected keywords:**
 - Goal
@@ -113,32 +119,44 @@ Test 7 (`plan-design`) is an output-based test that validates the presence of re
 ### Immediate Actions
 
 1. **Fix Test 5 Failure**
-   - Update the `build-infrastructure` agent to recognize Kubernetes-related keywords:
-     - "EKS", "Kubernetes", "kubectl", "K8s", "container", "cluster", "node group", " Helm"
+   - Update the `build-infrastructure` agent to recognize Kubernetes-related
+     keywords:
+     - "EKS", "Kubernetes", "kubectl", "K8s", "container", "cluster",
+       "node group", " Helm"
    - Ensure delegation rules include these keywords for `kubernetes-expert`
 
 ### Future Improvements
 
 1. **Add Timeout Protection**
-   - Some tests took up to 178s. Consider adding a reasonable timeout to prevent hanging on complex requests.
+   - Some tests took up to 178s. Consider adding a reasonable timeout to
+     prevent hanging on complex requests.
 
 2. **Add Retry Logic**
    - For flaky network or external dependency issues, add retry capability.
 
 3. **Monitor Consistency**
-   - The failing test suggests delegation rules may need tuning. The agent correctly called terraform-expert for "Terraform modules" and observability-engineer for "Prometheus and Grafana" but missed kubernetes-expert for "EKS cluster".
+   - The failing test suggests delegation rules may need tuning. The agent
+     correctly called terraform-expert for "Terraform modules" and
+     observability-engineer for "Prometheus and Grafana" but missed
+     kubernetes-expert for "EKS cluster".
 
 ---
 
 ## Positive Observations
 
-- All delegation tests (Tests 1-4, 6) showed 100% subagent delegation accuracy.
-- Test 7 output-based test passed, confirming the agent can produce complete functional specs.
+- All delegation tests (Tests 1-4, 6) showed 100% subagent delegation
+  accuracy.
+- Test 7 output-based test passed, confirming the agent can produce
+  complete functional specs.
 - No unexpected subagent calls were made across any test.
-- The agent correctly identified and delegated to multiple specialists in parallel where appropriate.
+- The agent correctly identified and delegated to multiple specialists
+  in parallel where appropriate.
 
 ---
 
 ## Conclusion
 
-The delegation framework is working well with an 85.7% pass rate. The single failure is a clear gap in keyword detection for Kubernetes-related topics in the `build-infrastructure` agent. Fixing this will bring the test suite to 100% pass rate.
+The delegation framework is working well with an 85.7% pass rate. The
+single failure is a clear gap in keyword detection for Kubernetes-related
+topics in the `build-infrastructure` agent. Fixing this will bring the
+test suite to 100% pass rate.

@@ -16,6 +16,7 @@ def temp_config(tmp_path):
     config.set_model_tier("high", "test-model-high")
     config.set_model_tier("medium", "test-model-medium")
     config.set_model_tier("low", "test-model-low")
+    config.set_model_tier("free", "test-model-free")
     return config
 
 
@@ -40,6 +41,10 @@ def test_process_content_tier_replacement(temp_config):
     content = "model: {{tier:low}}"
     result = engine.process_content(content)
     assert result == "model: test-model-low"
+
+    content = "model: {{tier:free}}"
+    result = engine.process_content(content)
+    assert result == "model: test-model-free"
 
 
 def test_process_content_model_replacement(temp_config):
@@ -125,6 +130,7 @@ def test_resolve_model_tier_reference(temp_config):
     assert engine.resolve_model("high") == "test-model-high"
     assert engine.resolve_model("medium") == "test-model-medium"
     assert engine.resolve_model("low") == "test-model-low"
+    assert engine.resolve_model("free") == "test-model-free"
 
 
 def test_resolve_model_literal(temp_config):

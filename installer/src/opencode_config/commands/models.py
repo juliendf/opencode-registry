@@ -31,6 +31,7 @@ def models(list_tiers: bool, set_tier: tuple, wizard: bool, reset: bool):
     - high: Complex reasoning tasks (architecture, design planning)
     - medium: General coding tasks (implementation, code review)
     - low: Simple tasks (documentation, commit messages)
+    - free: Free/unlimited tasks (commit messages, basic formatting)
 
     Examples:
       opencode-config models --list
@@ -50,7 +51,7 @@ def models(list_tiers: bool, set_tier: tuple, wizard: bool, reset: bool):
         if Confirm.ask("[yellow]Reset all tiers to defaults (clears configuration)?[/yellow]"):
             from ..config import DEFAULT_CONFIG
 
-            for tier in ["high", "medium", "low"]:
+            for tier in ["high", "medium", "low", "free"]:
                 cfg.set_model_tier(tier, None)
             console.print("[green]✓[/green] Model tiers cleared")
             _display_tiers(cfg)
@@ -61,9 +62,9 @@ def models(list_tiers: bool, set_tier: tuple, wizard: bool, reset: bool):
     # Handle set
     if set_tier:
         tier_name, model = set_tier
-        if tier_name not in ["high", "medium", "low"]:
+        if tier_name not in ["high", "medium", "low", "free"]:
             console.print(
-                f"[red]Error:[/red] Invalid tier '{tier_name}'. Must be: high, medium, or low"
+                f"[red]Error:[/red] Invalid tier '{tier_name}'. Must be: high, medium, low, or free"
             )
             return
 
@@ -97,9 +98,10 @@ def _display_tiers(cfg: Config):
         "high": "Complex reasoning (architecture, design)",
         "medium": "General coding (implementation, review)",
         "low": "Simple tasks (docs, commits)",
+        "free": "Free/unlimited (commit messages, basic formatting)",
     }
 
-    for tier in ["high", "medium", "low"]:
+    for tier in ["high", "medium", "low", "free"]:
         model = tiers.get(tier, "[dim]not configured[/dim]")
         description = tier_descriptions.get(tier, "")
         table.add_row(tier, description, model)
@@ -133,6 +135,10 @@ def run_wizard(cfg: Config):
             "Low tier    - Simple tasks (documentation, commit messages)",
             current_tiers.get("low") or "",
         ),
+        "free": (
+            "Free tier   - Free/unlimited (commit messages, basic formatting)",
+            current_tiers.get("free") or "",
+        ),
     }
 
     new_config = {}
@@ -154,7 +160,7 @@ def run_wizard(cfg: Config):
     table.add_column("→", justify="center")
     table.add_column("New", style="green")
 
-    for tier in ["high", "medium", "low"]:
+    for tier in ["high", "medium", "low", "free"]:
         current = current_tiers.get(tier, "[not set]")
         new = new_config[tier]
         changed = "✓" if current != new else ""

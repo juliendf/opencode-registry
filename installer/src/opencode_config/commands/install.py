@@ -13,7 +13,7 @@ from .models import run_wizard
 
 console = Console()
 
-TIERS = ["high", "medium", "low"]
+TIERS = ["high", "medium", "low", "free"]
 
 
 def _check_model_tiers(config: Config, db: InstalledDB) -> bool:
@@ -46,7 +46,7 @@ def _check_model_tiers(config: Config, db: InstalledDB) -> bool:
 
     console.print("[yellow]Model tiers are not fully configured.[/yellow]")
     console.print(
-        "Components use tiers ([cyan]high[/cyan] / [cyan]medium[/cyan] / [cyan]low[/cyan]) "
+        "Components use tiers ([cyan]high[/cyan] / [cyan]medium[/cyan] / [cyan]low[/cyan] / [cyan]free[/cyan]) "
         "to select a model. Run the following to configure them:\n"
     )
     console.print("[dim]Browse available models at https://models.dev/ or run 'opencode models'[/dim]\n")
@@ -54,6 +54,7 @@ def _check_model_tiers(config: Config, db: InstalledDB) -> bool:
         "high":   "github-copilot/claude-sonnet-4.5",
         "medium": "github-copilot/claude-sonnet-4",
         "low":    "github-copilot/claude-haiku-4.5",
+        "free":   "github-copilot/gpt-4o-mini",
     }
     for tier in missing:
         console.print(

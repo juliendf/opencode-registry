@@ -116,7 +116,7 @@ class TemplateEngine:
             return self.config.get_model_for_tier("medium") or "github-copilot/claude-sonnet-4"
 
         # Check if it's a tier reference
-        if tier_or_model in ["high", "medium", "low"]:
+        if tier_or_model in ["high", "medium", "low", "free"]:
             model = self.config.get_model_for_tier(tier_or_model)
             if model:
                 return model

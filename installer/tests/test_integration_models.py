@@ -68,6 +68,7 @@ class TestConfigModelTierIntegration:
         assert "high" in tiers
         assert "medium" in tiers
         assert "low" in tiers
+        assert "free" in tiers
 
     def test_set_and_retrieve_tier(self, real_config):
         real_config.set_model_tier("high", "my-provider/my-model")
@@ -83,11 +84,12 @@ class TestConfigModelTierIntegration:
         assert real_config.get_model_for_tier("ultra") is None
 
     def test_all_three_tiers_resolve(self, real_config):
-        # Tiers start unconfigured; set all three before asserting
+        # Tiers start unconfigured; set all four before asserting
         real_config.set_model_tier("high", "github-copilot/claude-sonnet-4.5")
         real_config.set_model_tier("medium", "github-copilot/claude-4.0")
         real_config.set_model_tier("low", "github-copilot/claude-haiku-4.5")
-        for tier in ["high", "medium", "low"]:
+        real_config.set_model_tier("free", "github-copilot/gpt-4o-mini")
+        for tier in ["high", "medium", "low", "free"]:
             model = real_config.get_model_for_tier(tier)
             assert model is not None
             assert len(model) > 0
@@ -182,10 +184,12 @@ class TestFullInstallPipeline:
         real_config.set_model_tier("high", "provider/high-model")
         real_config.set_model_tier("medium", "provider/medium-model")
         real_config.set_model_tier("low", "provider/low-model")
+        real_config.set_model_tier("free", "provider/free-model")
 
         self._make_component(registry, "architect", "high")
         self._make_component(registry, "coder", "medium")
         self._make_component(registry, "documenter", "low")
+        self._make_component(registry, "committer", "free")
 
         cm = CopyManager(registry, target_dir, real_config)
         cm.install_package("opencode")
@@ -193,6 +197,7 @@ class TestFullInstallPipeline:
         assert "model: provider/high-model" in (target_dir / "agents" / "architect.md").read_text()
         assert "model: provider/medium-model" in (target_dir / "agents" / "coder.md").read_text()
         assert "model: provider/low-model" in (target_dir / "agents" / "documenter.md").read_text()
+        assert "model: provider/free-model" in (target_dir / "agents" / "committer.md").read_text()
 
 
 # ---------------------------------------------------------------------------
@@ -218,6 +223,7 @@ class TestModelsCommandIntegration:
         assert "high" in result.output
         assert "medium" in result.output
         assert "low" in result.output
+        assert "free" in result.output
 
     def test_set_tier_updates_config(self, config_file):
         config_file.parent.mkdir(parents=True, exist_ok=True)
