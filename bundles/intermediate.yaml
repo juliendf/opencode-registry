@@ -17,3 +17,4 @@ components:
   # Commands
   - commit
   - review
+  - kb

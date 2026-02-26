@@ -113,8 +113,8 @@ opencode-config info mcp-builder
 - 7 primary agents for different development roles
 - 43 specialized subagents organized by domain
 - 3 skills for complex workflows
-- 2 commands for common operations
-- **Total: 55 components**
+- 3 commands for common operations
+- **Total: 56 components**
 
 ---
 
@@ -126,7 +126,7 @@ OpenCode Registry offers three installation bundles:
 |--------|-----------|----------|
 | **basic** | 4 essential | First-time users, minimal setup |
 | **intermediate** | 10+ components | Regular users, common workflows |
-| **advanced** | All 55 components | Power users, complete ecosystem |
+| **advanced** | All 56 components | Power users, complete ecosystem |
 
 **Preview a bundle before installing:**
 

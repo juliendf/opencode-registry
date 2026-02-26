@@ -24,5 +24,6 @@ components:
   - review
   - documentation
   - test
+  - kb
   
   # Note: Subagents are included automatically as they're in the agent/subagents directory

@@ -124,8 +124,8 @@ opencode-config config --registry /path/to/registry
 - **intermediate** (10+ components): Basic + common specialized subagents
   - Adds: `python-pro`, `typescript-pro`, `react-specialist`, `backend-architect`, etc.
   
-- **advanced** (all 55 components): Complete library
-  - All 7 primary agents, 43 subagents, 3 skills, and 2 commands
+- **advanced** (all 56 components): Complete library
+  - All 7 primary agents, 43 subagents, 3 skills, and 3 commands
 
 ### How do I see what components are available?
 
