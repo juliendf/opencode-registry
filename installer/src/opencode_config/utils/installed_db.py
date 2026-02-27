@@ -151,7 +151,7 @@ class InstalledDB:
     def sync_from_detected(
         self,
         detected_components: Dict[str, List[str]],
-        install_method: str = "stow",
+        install_method: str = "copy",
         component_versions: Optional[Dict[str, str]] = None,
     ):
         """

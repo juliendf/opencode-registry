@@ -40,4 +40,4 @@ Place any configuration that should be shared across multiple agents in this dir
 
 ## Installation
 
-The installer automatically symlinks this directory to `~/.config/opencode/agents/_shared/` during installation.
+The installer automatically copies this directory to `~/.config/opencode/agents/_shared/` during installation.
