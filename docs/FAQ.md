@@ -1,391 +1,492 @@
 # Frequently Asked Questions (FAQ)
 
-## General Questions
+Common questions and troubleshooting guide.
+
+---
+
+## Quick Fixes
+
+Try these first:
+
+| Issue | Fix |
+|-------|-----|
+| Command not found | `pip install -e installer/` from registry |
+| No components found | Run from registry: `cd /path/to/opencode-registry` |
+| Database out of sync | `opencode-config sync` |
+| Permission denied | Don't use sudo - `chown -R $USER ~/.config/opencode/` |
+| Registry not found | `opencode-config config --registry auto` |
+| Something's wrong | Full reset: `uninstall --all && install --group basic` |
+
+---
+
+## Diagnostic Commands
+
+```bash
+# Check installation
+opencode-config --version
+
+# Check configuration
+opencode-config config --list
+
+# Check components
+opencode-config list | head -10
+
+# Check status
+opencode-config status
+
+# Sync database
+opencode-config sync
+```
+
+---
+
+## General
 
 ### What is OpenCode Registry?
 
-OpenCode Registry is a curated collection of AI agents, specialized subagents, skills (workflows), and custom commands designed to enhance AI-powered development workflows. It provides a CLI tool to easily install and manage these components in your development environment.
-
-### Who is this for?
-
-- **Developers** who want to enhance their AI coding assistants with specialized capabilities
-- **Teams** looking to standardize AI workflows across their organization
-- **AI enthusiasts** who want pre-built, production-ready agent configurations
+A curated collection of 56 AI agents, subagents, skills, and commands with a CLI tool to install and manage them.
 
 ### What's the difference between agents, subagents, skills, and commands?
 
-| Component Type | Count | Purpose | How to Use |
-|----------------|-------|---------|------------|
-| **Primary Agents** | 7 | Core AI personas for different development roles | Press **Tab** in OpenCode to switch agents |
-| **Subagents** | 43 | Specialized experts for specific technologies | Use **@mention** or invoked automatically by primary agents |
-| **Skills** | 3 | Complex multi-step workflows and processes | Loaded automatically by agents when needed |
-| **Commands** | 2 | Custom slash commands for common tasks | Type **/command** in OpenCode (e.g., `/commit`) |
-
-**Examples:**
-- **Primary Agent**: Switch to `build-code` agent for full-stack development
-- **Subagent**: `@python-pro optimize this function` for Python-specific help
-- **Skill**: Agent loads `mcp-builder` skill when you ask to create an MCP server
-- **Command**: Type `/commit` to generate an intelligent git commit message
+| Type | Use | How |
+|------|-----|-----|
+| **Primary Agents** | Core AI personas | Press **Tab** to switch |
+| **Subagents** | Specialized experts | Use **@mention** or auto-invoked |
+| **Skills** | Multi-step workflows | Loaded automatically |
+| **Commands** | Common tasks | Type **/command** |
 
 ### How much does it cost?
 
-OpenCode Registry is **completely free and open-source** under the MIT License. No subscriptions, no fees, no limits.
+Free and open-source under MIT License.
 
-## Installation & Setup
+---
 
-### What are the system requirements?
+## Installation
 
-- **Python 3.8+** (for the CLI tool)
-- **Git** (to clone the repository)
-- **GNU Stow** (optional, for symlink management - falls back to manual symlinks if not available)
-- Any operating system: macOS, Linux, or Windows (WSL)
+### What are the requirements?
 
-### How do I install OpenCode Registry?
+- **Python** 3.8+
+- **Git**
+- **OpenCode** 1.2.5+ - [Download](https://opencode.ai) or [OpenCode Zen](https://zen.opencode.ai)
 
-**Quick install (5 minutes):**
+### How do I install?
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/juliendf/opencode-registry.git
-cd opencode-registry
-
-# 2. Install the CLI tool from installer directory (where pyproject.toml lives)
-cd installer
+cd opencode-registry/installer
 pip install -e .
-
-# 3. Return to repository root and install components
 cd ..
 opencode-config install --group basic
 ```
 
-**Developers (with testing/linting tools):**
-
-```bash
-# From installer/ directory
-cd installer
-pip install -e ".[dev]"  # Includes pytest, black, ruff, mypy
-cd ..
-```
-
-**Why install from installer/ directory?** That's where `pyproject.toml` and `setup.py` live, which define the Python package and its dependencies.
-
-**Note:** The CLI automatically detects the registry location when you run it from the repository directory.
-
-See [Getting Started Guide](GETTING-STARTED.md) for detailed instructions.
+See [Getting Started](GETTING-STARTED.md) for detailed steps.
 
 ### Where are components installed?
 
-By default, components are symlinked to `~/.config/opencode/`:
+Files are **copied** to `~/.config/opencode/`:
 
 ```
 ~/.config/opencode/
-├── agents/          # Primary agents
-│   └── subagents/   # Specialized subagents
-├── skills/          # Workflow skills
-└── commands/        # Custom commands
+├── agents/
+├── skills/
+├── commands/
+├── opencode-registry-config.json
+└── opencode-registry-installed.json
 ```
-
-You can verify this with: `opencode-config status`
 
 ### Can I change the installation directory?
 
-Yes! Use the `--target` flag:
-
 ```bash
-opencode-config install --group basic --target /path/to/custom/directory
+# Per-install
+opencode-config install --group basic --target /path/to/directory
+
+# Permanent
+opencode-config config --target /path/to/directory
 ```
 
-Or set it permanently in your config:
+---
 
-```bash
-opencode-config config --target /path/to/custom/directory
-```
+## Usage
 
-You can also configure the registry path (though auto-detection is usually sufficient):
+### Which bundle should I start with?
 
-```bash
-# View current configuration
-opencode-config config --list
+- **basic** (4 components) - Essential agents
+- **intermediate** (10+) - Common workflows
+- **advanced** (56) - Everything
 
-# Enable auto-detection (default)
-opencode-config config --registry auto
-
-# Or set manually if needed
-opencode-config config --registry /path/to/registry
-```
-
-## Usage Questions
-
-### What's the difference between bundles?
-
-- **basic** (4 components): Essential agents for getting started
-  - `build-code`, `plan-design`, `mcp-builder`, `project-docs`
-  
-- **intermediate** (10+ components): Basic + common specialized subagents
-  - Adds: `python-pro`, `typescript-pro`, `react-specialist`, `backend-architect`, etc.
-  
-- **advanced** (all 56 components): Complete library
-  - All 7 primary agents, 43 subagents, 3 skills, and 3 commands
-
-### How do I see what components are available?
-
-```bash
-# List all components
-opencode-config list
-
-# Filter by type
-opencode-config list --type agent
-opencode-config list --type subagent
-opencode-config list --type skill
-opencode-config list --type command
-
-# Get detailed info about a specific component
-opencode-config info kubernetes-expert
-```
-
-### How do I install individual components?
-
-**Note:** Individual component installation is planned for a future release. Currently, components are installed via bundles.
-
-**Workaround:**
-```bash
-# Find which bundle contains the component
-opencode-config list
-
-# Install the bundle containing it
-opencode-config install --group intermediate
-
-# Preview before installing (dry-run)
-opencode-config install --group intermediate --dry-run
-```
+Start with `basic`, add more as needed.
 
 ### How do I update components?
 
 ```bash
 # Check for updates
-opencode-config status
+opencode-config update --all --dry-run
 
-# Update all components to latest versions
+# Update all
 opencode-config update --all
 
-# Update specific component
-opencode-config update python-pro
-
-# Preview updates without applying
-opencode-config update --all --dry-run
+# Update specific
+opencode-config update build-code
 ```
 
-### How do I uninstall components?
+### How do I uninstall?
 
 ```bash
-# Uninstall all components
 opencode-config uninstall --all
-
-# Preview uninstall (dry-run)
-opencode-config uninstall --all --dry-run
-
-# Verify uninstallation
-opencode-config status
 ```
 
-**Note:** Selective uninstallation of individual components is planned for a future release. Currently, `uninstall` removes all installed components.
+See [Quick Reference](QUICKREF.md) for all commands.
 
-### Can I customize installed components?
+---
 
-**Not directly!** Components are symlinked to the registry, so changes to installed files would affect the original registry.
+## Model Tiers
 
-**Best practice:**
-1. Create custom components in `~/.config/opencode/` (outside symlinked directories)
-2. Fork the repository and modify components there
-3. Contribute improvements back via pull requests!
+### What are model tiers?
+
+Configure which model to use for different complexity levels. Set once, applied to all components.
+
+### How do I configure model tiers?
+
+```bash
+# Interactive wizard
+opencode-config models --wizard
+
+# Or manually
+opencode-config models --set high "github-copilot/claude-sonnet-4.5"
+opencode-config models --set medium "github-copilot/claude-sonnet-4"
+opencode-config models --set low "github-copilot/claude-haiku-4.5"
+```
+
+### What's the "free" tier for?
+
+Testing, CI/CD, or environments without paid model access.
+
+---
 
 ## Troubleshooting
 
-### Command `opencode-config` not found
+### Problem: `pip install -e .` fails
 
-**Cause:** The CLI tool isn't installed or not in your PATH.
-
-**Solution:**
-```bash
-# Reinstall the CLI
-cd opencode-registry/installer
-pip install -e .
-
-# Verify installation
-which opencode-config
-opencode-config --version
+**Symptoms:**
+```
+ERROR: file:///path/to/opencode-registry does not appear to be a Python project
 ```
 
-### "Component not found" error
+**Solutions:**
 
-**Cause:** The component ID doesn't match available components.
+1. Ensure you're in the installer directory:
+   ```bash
+   cd opencode-registry/installer
+   pip install -e .
+   ```
 
-**Solution:**
+2. Check Python version:
+   ```bash
+   python --version  # Should be 3.8+
+   ```
+
+3. Upgrade pip:
+   ```bash
+   python -m pip install --upgrade pip
+   ```
+
+4. Install in virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   cd installer
+   pip install -e .
+   ```
+
+---
+
+### Problem: `opencode-config: command not found`
+
+**Solutions:**
+
+1. Check if installation succeeded:
+   ```bash
+   pip list | grep opencode
+   ```
+
+2. Check PATH:
+   ```bash
+   python -m site --user-base
+   ```
+
+3. Use python -m to run:
+   ```bash
+   python -m opencode_config.cli --help
+   ```
+
+4. Reinstall:
+   ```bash
+   cd installer
+   pip uninstall opencode-config
+   pip install -e .
+   ```
+
+---
+
+### Problem: Installation succeeds but no components visible
+
+**Symptoms:**
+`opencode-config list` shows "No components found"
+
+**Solutions:**
+
+1. Check registry path:
+   ```bash
+   opencode-config config --list
+   ```
+
+2. Set registry path:
+   ```bash
+   opencode-config config --registry /path/to/opencode-registry
+   ```
+
+3. Verify opencode directory exists:
+   ```bash
+   ls opencode/agents/
+   ```
+
+---
+
+### Problem: Component not found
+
+**Symptoms:**
+`opencode-config install my-agent` fails
+
+**Solutions:**
+
+1. Check component exists:
+   ```bash
+   opencode-config list | grep my-agent
+   ```
+
+2. Use correct component ID:
+   - `build-code.md` → `build-code`
+   - Skills: `mcp-builder/` → `mcp-builder`
+
+---
+
+### Problem: Component shows as installed but missing
+
+**Symptoms:**
+`status` shows installed but files not on disk
+
+**Solutions:**
+
+1. Sync database:
+   ```bash
+   opencode-config sync
+   ```
+
+2. Reinstall:
+   ```bash
+   opencode-config install --group basic
+   ```
+
+---
+
+### Problem: No updates found after pulling
+
+**Symptoms:**
+All components show up-to-date even after `git pull`
+
+**Solutions:**
+
+1. Pull latest:
+   ```bash
+   cd /path/to/opencode-registry
+   git pull origin main
+   ```
+
+2. Sync and check:
+   ```bash
+   opencode-config sync
+   opencode-config update --all --dry-run
+   ```
+
+---
+
+### Problem: Permission denied during update
+
+**Symptoms:**
+`PermissionError: [Errno 13] Permission denied`
+
+**Solutions:**
+
+1. Don't use sudo:
+   ```bash
+   # WRONG: sudo opencode-config update --all
+   # RIGHT: opencode-config update --all
+   ```
+
+2. Fix ownership:
+   ```bash
+   sudo chown -R $USER:$USER ~/.config/opencode/
+   ```
+
+---
+
+### Problem: Database out of sync
+
+**Symptoms:**
+`status` shows different than actual files
+
+**Solutions:**
+
+1. Run sync:
+   ```bash
+   opencode-config sync
+   ```
+
+2. Preview sync:
+   ```bash
+   opencode-config sync --dry-run
+   ```
+
+3. Manual rebuild:
+   ```bash
+   rm ~/.config/opencode/opencode-registry-installed.json
+   opencode-config sync
+   ```
+
+---
+
+### Problem: Database corrupted
+
+**Symptoms:**
+`json.decoder.JSONDecodeError: Expecting value`
+
+**Solutions:**
+
+1. Backup and rebuild:
+   ```bash
+   cp ~/.config/opencode/opencode-registry-installed.json ~/.config/opencode/opencode-registry-installed.json.bak
+   rm ~/.config/opencode/opencode-registry-installed.json
+   opencode-config sync
+   ```
+
+---
+
+### Problem: Registry not detected
+
+**Symptoms:**
+`Error: Could not find registry. Run from registry directory.`
+
+**Solutions:**
+
+1. Run from registry directory:
+   ```bash
+   cd /path/to/opencode-registry
+   opencode-config list
+   ```
+
+2. Enable auto-detection:
+   ```bash
+   opencode-config config --registry auto
+   ```
+
+3. Set path manually:
+   ```bash
+   opencode-config config --registry /path/to/opencode-registry
+   ```
+
+---
+
+### Problem: Git worktree - registry path breaks
+
+**Solutions:**
+
+1. Use auto-detection (recommended):
+   ```bash
+   opencode-config config --registry auto
+   cd /path/to/worktree
+   opencode-config list  # Works automatically!
+   ```
+
+2. Set path manually:
+   ```bash
+   opencode-config config --registry $(pwd)
+   ```
+
+---
+
+## Performance
+
+### `list` command is slow
+
+Normal for 60+ components (1-3 seconds). Use filters:
 ```bash
-# List all available components to find the correct ID
-opencode-config list
-
-# Check specific component details
-opencode-config info <component-id>
+opencode-config list --type agent
+opencode-config list --installed
 ```
 
-### Symlinks are broken after moving the registry
+### Installation is slow
 
-**Cause:** Symlinks point to absolute paths. Moving the registry breaks them.
-
-**Solution:**
+Normal for first-time install (copying 60+ files). Install smaller bundle:
 ```bash
-# Uninstall and reinstall from new location
-opencode-config uninstall --all
 opencode-config install --group basic
-```
-
-### Database shows installed but files are missing
-
-**Cause:** Manual file deletion or filesystem changes.
-
-**Solution:**
-```bash
-# Sync database with actual filesystem state
-opencode-config sync
-
-# Or reinstall
-opencode-config uninstall --all
-opencode-config install --group basic
-```
-
-For more troubleshooting help, see [Troubleshooting Guide](TROUBLESHOOTING.md).
-
-## Advanced Questions
-
-### Can I use this with multiple AI tools?
-
-Yes! The component files are just markdown with YAML frontmatter. They can be used with any AI coding assistant that supports custom configurations (Claude, Cursor, Windsurf, etc.).
-
-### How do versions work?
-
-Components use semantic versioning (e.g., `1.0.0`, `1.2.3`). The CLI tracks:
-- **Available version**: Latest version in the registry
-- **Installed version**: Version you have installed
-
-Use `opencode-config update` to upgrade to newer versions.
-
-See [Versioning Guide](VERSIONING.md) for details.
-
-### How do I contribute new components?
-
-We love contributions! Here's the quick process:
-
-1. Fork the repository
-2. Create your component in the appropriate directory:
-   - Agents: `opencode/agents/`
-   - Subagents: `opencode/agents/subagents/<category>/`
-   - Skills: `opencode/skills/<skill-name>/`
-   - Commands: `opencode/commands/`
-3. Add YAML frontmatter with metadata
-4. Test it locally with `opencode-config install your-component`
-5. Submit a pull request
-
-See [Contributing Guide](../CONTRIBUTING.md) for detailed instructions.
-
-### Can I create private/proprietary components?
-
-Absolutely! You have several options:
-
-1. **Fork the registry** and maintain your private components there
-2. **Create a separate directory** outside `~/.config/opencode/` and manually link components
-3. **Extend bundles** with your own `custom-bundle.yaml` file
-
-The MIT license allows commercial and private use.
-
-### How do I report bugs or request features?
-
-- **Bugs**: [GitHub Issues](https://github.com/juliendf/opencode-registry/issues)
-- **Feature Requests**: [GitHub Issues](https://github.com/juliendf/opencode-registry/issues) with `enhancement` label
-- **Questions**: [GitHub Discussions](https://github.com/juliendf/opencode-registry/discussions)
-
-### Does this work offline?
-
-**Partially:**
-- Once cloned and installed, the registry works fully offline
-- Updating requires internet to pull latest changes from GitHub
-- Some components (like MCP builder skill) may reference external resources
-
-### Does the CLI work with git worktrees?
-
-**Yes!** The CLI has built-in support for git worktrees through automatic registry path detection:
-
-```bash
-# Enable auto-detection (default)
-opencode-config config --registry auto
-
-# Now it works from any worktree
-git worktree add ../my-feature feature-branch
-cd ../my-feature
-opencode-config list  # Works automatically!
-```
-
-When auto-detection is enabled, the CLI finds the registry location based on your current directory, so you can freely switch between worktrees without updating configuration.
-
-### What's the project roadmap?
-
-See [CHANGELOG.md](../CHANGELOG.md) for planned features. Upcoming highlights:
-- Dependency management between components
-- Component testing framework
-- Web UI for browsing components
-- Auto-update notifications
-- Component templates generator
-
-## Best Practices
-
-### What bundle should I start with?
-
-- **New users**: Start with `basic` bundle (4 essential agents)
-- **Experienced developers**: Try `intermediate` (adds 10+ specialized subagents)
-- **Power users**: Install `advanced` (all 57 components)
-
-You can always add more components later!
-
-### How often should I update?
-
-We recommend:
-- **Weekly**: Run `opencode-config update --all --dry-run` to check for updates
-- **Before major projects**: Update to get latest improvements
-- **After issues**: Update if you encounter bugs (they may be fixed)
-
-### Should I commit installed components to git?
-
-**No!** The components in `~/.config/opencode/` are symlinks. Instead:
-- Commit your bundles configuration if you customize it
-- Document which components your team should install
-- Share the installation commands in your project's README
-
-### How do I share my setup with my team?
-
-```bash
-# 1. Everyone clones the same registry
-git clone https://github.com/juliendf/opencode-registry.git
-
-# 2. Everyone installs the same bundle
-opencode-config install --group intermediate
-
-# 3. Optional: Create a custom bundle for your team
-# Edit bundles/team-bundle.yaml with your specific components
-opencode-config install --group team-bundle
 ```
 
 ---
 
-## Still have questions?
+## Complete Reset
 
-- 📖 **Documentation**: Check our [complete documentation](../README.md)
-- 🚀 **Getting Started**: See [Getting Started Guide](GETTING-STARTED.md)
-- 🔧 **Troubleshooting**: See [Troubleshooting Guide](TROUBLESHOOTING.md)
-- 💬 **Community**: Join [GitHub Discussions](https://github.com/juliendf/opencode-registry/discussions)
-- 🐛 **Issues**: Report on [GitHub Issues](https://github.com/juliendf/opencode-registry/issues)
+If everything is broken:
 
-**Quick Links:**
-- [Architecture Overview](ARCHITECTURE.md)
-- [Versioning Guide](VERSIONING.md)
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Command Reference](QUICKREF.md)
+```bash
+# 1. Uninstall everything
+opencode-config uninstall --all
+
+# 2. Clear database
+rm -rf ~/.config/opencode/opencode-registry-*.json
+
+# 3. Reinstall
+cd /path/to/opencode-registry
+git pull
+opencode-config install --group basic
+
+# 4. Verify
+opencode-config status
+```
+
+---
+
+## Advanced
+
+### Does it work with git worktrees?
+
+Yes! Auto-detection finds the registry from your current directory.
+
+### How do versions work?
+
+Components use semantic versioning. See [Versioning Guide](VERSIONING.md).
+
+### Can I contribute?
+
+Yes! See [Contributing Guide](../CONTRIBUTING.md).
+
+1. Fork the repository
+2. Add component to appropriate directory
+3. Include YAML frontmatter
+4. Submit a pull request
+
+---
+
+## Getting More Help
+
+- [Getting Started](GETTING-STARTED.md) - Step-by-step tutorial
+- [Quick Reference](QUICKREF.md) - CLI command cheat sheet
+- [GitHub Issues](https://github.com/juliendf/opencode-registry/issues)
+- [GitHub Discussions](https://github.com/juliendf/opencode-registry/discussions)
+
+**When reporting issues, include:**
+```bash
+python --version
+opencode-config --version
+opencode-config config --list
+ls -la ~/.config/opencode/
+```

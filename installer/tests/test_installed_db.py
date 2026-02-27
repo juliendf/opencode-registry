@@ -39,19 +39,19 @@ class TestInstalledDB:
         """Test adding an agent component."""
         db = InstalledDB(temp_dir / "installed.json")
 
-        db.add_component("agent", "build-general", {"version": "1.0.0", "installMethod": "stow"})
+        db.add_component("agent", "build-general", {"version": "1.0.0", "installMethod": "copy"})
 
         assert "build-general" in db.data["installed"]["agents"]
         component = db.data["installed"]["agents"]["build-general"]
         assert component["version"] == "1.0.0"
-        assert component["installMethod"] == "stow"
+        assert component["installMethod"] == "copy"
         assert "installedAt" in component
 
     def test_add_component_skill(self, temp_dir):
         """Test adding a skill component."""
         db = InstalledDB(temp_dir / "installed.json")
 
-        db.add_component("skill", "mcp-builder", {"version": "2.0.0", "installMethod": "symlink"})
+        db.add_component("skill", "mcp-builder", {"version": "2.0.0", "installMethod": "copy"})
 
         assert "mcp-builder" in db.data["installed"]["skills"]
 
@@ -90,7 +90,7 @@ class TestInstalledDB:
         """Test getting component metadata."""
         db = InstalledDB(temp_dir / "installed.json")
 
-        db.add_component("agent", "test-agent", {"version": "1.5.0", "installMethod": "stow"})
+        db.add_component("agent", "test-agent", {"version": "1.5.0", "installMethod": "copy"})
 
         component = db.get_component("agent", "test-agent")
         assert component is not None
@@ -168,7 +168,7 @@ class TestInstalledDB:
         db.log_action(
             action="install",
             components=["agent1", "skill1"],
-            method="stow",
+            method="copy",
             status="success",
             duration="2.5s",
         )
@@ -177,7 +177,7 @@ class TestInstalledDB:
         assert len(logs) == 1
         assert logs[0]["action"] == "install"
         assert logs[0]["components"] == ["agent1", "skill1"]
-        assert logs[0]["method"] == "stow"
+        assert logs[0]["method"] == "copy"
         assert logs[0]["status"] == "success"
         assert logs[0]["duration"] == "2.5s"
         assert "timestamp" in logs[0]
@@ -198,11 +198,11 @@ class TestInstalledDB:
         """Test setting installation method."""
         db = InstalledDB(temp_dir / "installed.json")
 
-        db.set_install_method("stow")
-        assert db.data["installMethod"] == "stow"
+        db.set_install_method("copy")
+        assert db.data["installMethod"] == "copy"
 
-        db.set_install_method("symlink")
-        assert db.data["installMethod"] == "symlink"
+        db.set_install_method("copy")
+        assert db.data["installMethod"] == "copy"
 
     def test_set_target_directory(self, temp_dir):
         """Test setting target directory."""
@@ -228,7 +228,7 @@ class TestInstalledDB:
         # Sync with new detected components
         detected = {"agents": ["agent1", "agent2"], "skills": ["skill1"], "commands": []}
 
-        db.sync_from_detected(detected, "stow")
+        db.sync_from_detected(detected, "copy")
 
         # Old component should be gone
         assert "old-agent" not in db.data["installed"]["agents"]
@@ -249,7 +249,7 @@ class TestInstalledDB:
 
         versions = {"agent1": "1.5.0", "skill1": "2.0.0"}
 
-        db.sync_from_detected(detected, "stow", component_versions=versions)
+        db.sync_from_detected(detected, "copy", component_versions=versions)
 
         # Check versions were set correctly
         assert db.data["installed"]["agents"]["agent1"]["version"] == "1.5.0"
