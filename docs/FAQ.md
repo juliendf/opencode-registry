@@ -44,7 +44,7 @@ opencode-config sync
 
 ### What is OpenCode Registry?
 
-A curated collection of 56 AI agents, subagents, skills, and commands with a CLI tool to install and manage them.
+A curated collection of 59 AI agents, subagents, skills, and commands with a CLI tool to install and manage them.
 
 ### What's the difference between agents, subagents, skills, and commands?
 
@@ -110,9 +110,9 @@ opencode-config config --target /path/to/directory
 
 ### Which bundle should I start with?
 
-- **basic** (4 components) - Essential agents
+- **basic** (5 components) - Essential agents and a starter skill set
 - **intermediate** (10+) - Common workflows
-- **advanced** (56) - Everything
+- **advanced** (59) - Everything
 
 Start with `basic`, add more as needed.
 
@@ -266,7 +266,7 @@ ERROR: file:///path/to/opencode-registry does not appear to be a Python project
 
 2. Use correct component ID:
    - `build-code.md` → `build-code`
-   - Skills: `mcp-builder/` → `mcp-builder`
+   - Skills: `mcp-builder/` → `mcp-builder`, `proofreader/` → `proofreader`
 
 ---
 

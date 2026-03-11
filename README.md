@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-> Centralized library of 56 OpenCode components: agents, subagents, skills, and commands with intelligent installation management.
+> A centralized library of 59 OpenCode components — agents, subagents, skills, and commands — with intelligent installation management.
 
 [Quick Start](#quick-start) • [Documentation](#documentation) • [Contributing](CONTRIBUTING.md)
 
@@ -13,7 +13,7 @@
 
 A curated collection of OpenCode components with a smart CLI installer:
 
-- **56 ready-to-use components** - Agents, subagents, skills, and commands
+- **59 ready-to-use components** - Agents, subagents, skills, and commands
 - **Smart CLI** - Installation, updates, and tracking
 - **Model tier system** - Configure models per complexity (high/medium/low/free)
 - **Bundle support** - Install groups (basic/intermediate/advanced)
@@ -24,10 +24,10 @@ A curated collection of OpenCode components with a smart CLI installer:
 
 `opencode-registry` requires a working OpenCode setup:
 
-- **OpenCode installed**
-- **At least one usable model backend configured**
-- **Python 3.8+**
-- **Git**
+- **OpenCode is installed**
+- **At least one usable model backend is configured**
+- **Python 3.8+ is installed**
+- **Git is installed**
 
 ---
 
@@ -42,12 +42,12 @@ cd opencode-registry/installer && pip install -e .
 cd .. && opencode-config install --group basic
 
 # 3. Use with OpenCode
-# Press Tab in OpenCode to switch agents, @mention for subagents
+# Press Tab in OpenCode to switch agents; use @mention for subagents.
 ```
 
 **Expected output after install:**
 ```
-✓ Bundle installed: basic (4 components)
+✓ Bundle installed: basic (5 components)
 ```
 
 ---
@@ -76,13 +76,13 @@ cd .. && opencode-config install --group basic
 
 ---
 
-## Components (56 Total)
+## Components (59 Total)
 
 | Type | Count | Examples |
 |------|-------|----------|
 | **Primary Agents** | 7 | build-code, plan-design, debug, review |
 | **Subagents** | 43 | python-pro, kubernetes-expert, security-auditor |
-| **Skills** | 3 | mcp-builder, project-docs, content-research-writer |
+| **Skills** | 6 | mcp-builder, project-docs, content-research-writer, proofreader, second-opinion, working-with-helm-templates |
 | **Commands** | 3 | /commit, /documentation, /kb |
 
 ---
@@ -91,16 +91,16 @@ cd .. && opencode-config install --group basic
 
 | Bundle | Components | Best For |
 |--------|-----------|----------|
-| `basic` | 4 | Getting started |
+| `basic` | 5 | Getting started |
 | `intermediate` | 10+ | Common workflows |
-| `advanced` | 56 | Complete ecosystem |
+| `advanced` | 59 | Complete ecosystem |
 
 ---
 
 ## How It Works
 
-1. **Components** live in `opencode/` with `model_tier:` placeholders
-2. **Installation** copies files to `~/.config/opencode/` and resolves model tiers
+1. **Components** live in `opencode/`; model-aware components can use `model_tier:` placeholders
+2. **Installation** copies files to `~/.config/opencode/` and resolves model tiers where supported
 3. **Tracking** stores state in `~/.config/opencode/opencode-registry-installed.json`
 4. **Updates** re-apply your model tier config to new versions
 
@@ -128,7 +128,7 @@ opencode-config models --set low "github-copilot/claude-haiku-4.5"
 | [Agent Guide](docs/AGENT-GUIDE.md) | Choose the right agent |
 | [Permissions](docs/PERMISSIONS.md) | Configure agent autonomy and tools |
 | [Quick Reference](docs/QUICKREF.md) | CLI command cheat sheet |
-| [FAQ](docs/FAQ.md) | Common questions + troubleshooting |
+| [FAQ](docs/FAQ.md) | Common questions and troubleshooting |
 | [Versioning](docs/VERSIONING.md) | Component version management |
 
 ---
@@ -142,7 +142,7 @@ opencode-config config --list
 # Custom target directory
 opencode-config config --target /path/to/directory
 
-# Auto-detect registry (works with git worktrees)
+# Auto-detect the registry (works with Git worktrees)
 opencode-config config --registry auto
 ```
 

@@ -11,8 +11,9 @@ components:
   
   # Skills
   - project-docs
-  - code-docs
   - mcp-builder
+  - proofreader
+  - second-opinion
   
   # Commands
   - commit

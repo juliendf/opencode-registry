@@ -3,6 +3,7 @@ Template processing for model tier resolution.
 """
 
 import re
+from pathlib import PurePath
 from typing import Dict, Optional, Any
 from ..config import Config
 
@@ -136,5 +137,14 @@ class TemplateEngine:
         Returns:
             True if file should be processed
         """
-        # Only process markdown files (agents, skills, commands)
-        return file_path.endswith(".md")
+        path = PurePath(file_path)
+
+        if path.suffix != ".md":
+            return False
+
+        # Copy SKILL.md verbatim — OpenCode skills do not support
+        # model/model_tier metadata, so skip model rewriting.
+        if path.name == "SKILL.md" and "skills" in path.parts:
+            return False
+
+        return True

@@ -123,9 +123,9 @@ opencode-config config --registry /path/to/registry
 
 | Bundle | Components | Description |
 |--------|-----------|-------------|
-| `basic` | 4 | Essential agents and skills for getting started |
+| `basic` | 5 | Essential agents and skills for getting started |
 | `intermediate` | 10+ | Extended collection for common workflows |
-| `advanced` | 56 | Complete ecosystem with all components |
+| `advanced` | 59 | Complete ecosystem with all components |
 
 **Note:** Individual component installation is planned for a future release. Currently, use bundles to install components.
 
@@ -215,9 +215,9 @@ opencode-config install --group basic
 |------|-------|----------|
 | **Primary Agents** | 7 | `agents/*.md` |
 | **Subagents** | 43 | `agents/subagents/**/*.md` |
-| **Skills** | 3 | `skills/*/` |
+| **Skills** | 6 | `skills/*/` |
 | **Commands** | 3 | `commands/*.md` |
-| **Total** | **56** | — |
+| **Total** | **59** | — |
 
 ## ⚠️ Important Notes
 

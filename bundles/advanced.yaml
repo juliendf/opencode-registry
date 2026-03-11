@@ -12,12 +12,11 @@ components:
   
   # All skills
   - project-docs
-  - code-docs
   - mcp-builder
-  - meeting-insights-analyzer
   - content-research-writer
-  - file-organizer
-  - work-on-ticket
+  - proofreader
+  - second-opinion
+  - working-with-helm-templates
   
   # All commands
   - commit

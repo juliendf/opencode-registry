@@ -128,6 +128,17 @@ class TestInstallPackage:
         assert "model: github-copilot/gpt-5" in installed_content
         assert "model_tier" not in installed_content
 
+    def test_install_skill_does_not_rewrite_model_fields(self, copy_manager, registry, target_dir):
+        """Skill entrypoints should be copied without model/model_tier rewriting."""
+        skill = registry / "opencode" / "skills" / "my-skill" / "SKILL.md"
+        skill.write_text(
+            "---\nname: My Skill\ndescription: s\nmodel_tier: high\n---\nmodel: {{tier:high}}\n"
+        )
+        copy_manager.install_package("opencode")
+        installed_content = (target_dir / "skills" / "my-skill" / "SKILL.md").read_text()
+        assert "model_tier: high" in installed_content
+        assert "model: {{tier:high}}" in installed_content
+
     def test_install_dry_run_does_not_create_files(self, copy_manager, registry, target_dir):
         agent = registry / "opencode" / "agents" / "dryrun.md"
         agent.write_text(
@@ -304,6 +315,16 @@ class TestCopyAndProcessFile:
         content = (target_dir / "agents" / "tiered-only.md").read_text()
         # Installed file should have model: not model_tier:
         assert "model: github-copilot/claude-haiku-4.5" in content
+        assert "model_tier" not in content
+
+    def test_command_model_tier_still_resolved(self, copy_manager, registry, target_dir):
+        command = registry / "opencode" / "commands" / "review.md"
+        command.write_text(
+            "---\nname: Review\ndescription: r\ntype: command\nmodel_tier: medium\n---\n# Review\n"
+        )
+        copy_manager.install_package("opencode")
+        content = (target_dir / "commands" / "review.md").read_text()
+        assert "model: github-copilot/claude-sonnet-4" in content
         assert "model_tier" not in content
 
     def test_non_md_file_copied_without_processing(self, copy_manager, registry, target_dir):

@@ -161,9 +161,10 @@ def test_should_process_file(temp_config):
     """Test file processing determination."""
     engine = TemplateEngine(temp_config)
     
-    assert engine.should_process_file("agent.md") is True
-    assert engine.should_process_file("skill/SKILL.md") is True
-    assert engine.should_process_file("command.md") is True
+    assert engine.should_process_file("agents/agent.md") is True
+    assert engine.should_process_file("agents/subagents/01-core/helper.md") is True
+    assert engine.should_process_file("commands/command.md") is True
+    assert engine.should_process_file("skills/my-skill/SKILL.md") is False
     assert engine.should_process_file("readme.txt") is False
     assert engine.should_process_file("image.png") is False
 

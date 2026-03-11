@@ -219,9 +219,9 @@ class CopyManager:
         """
         Copy file and process templates if applicable.
 
-        Source files use ``model_tier: "high|medium|low"`` as a placeholder.
+        Model-aware markdown files can use ``model_tier`` as a placeholder.
         During install that line is replaced with ``model: <resolved-value>``
-        so the installed file is clean and opencode-compatible.
+        where supported so the installed file is clean and opencode-compatible.
 
         Args:
             source: Source file path
