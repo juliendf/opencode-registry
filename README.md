@@ -20,6 +20,17 @@ A curated collection of OpenCode components with a smart CLI installer:
 
 ---
 
+## Prerequisites
+
+`opencode-registry` requires a working OpenCode setup:
+
+- **OpenCode installed**
+- **At least one usable model backend configured**
+- **Python 3.8+**
+- **Git**
+
+---
+
 ## Quick Start
 
 ```bash

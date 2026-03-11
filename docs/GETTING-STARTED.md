@@ -4,13 +4,15 @@ A step-by-step guide to installing and using OpenCode Registry for the first tim
 
 ## Prerequisites
 
-Before you begin, ensure you have:
+`opencode-registry` requires a working OpenCode setup:
 
 - **OpenCode 1.2.5 or later** - The AI assistant platform
   - [Download from opencode.ai](https://opencode.ai)
   - Or use [OpenCode Zen (cloud version)](https://zen.opencode.ai)
   - See [installation guide](https://opencode.ai/docs/)
   - Check your version: `opencode --version`
+
+- **At least one usable model backend configured in OpenCode**
 
 - **Python 3.8 or higher** installed
   ```bash
