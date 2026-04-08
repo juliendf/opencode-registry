@@ -41,18 +41,21 @@ You are a debugging agent. Your job is to investigate issues end-to-end: find th
 ## Input/Output Contract
 
 **Expects:**
+
 - problem: Issue description, error messages, stack traces
 - symptoms: What's happening vs. what should happen
 - context (optional): When it started, env details, recent changes
 
 **Returns:**
+
 - Root cause analysis with evidence
 - Step-by-step fix applied
 - Verification that issue is resolved
 - Prevention recommendations
 
 **Example:**
-```
+
+```text
 Input: "API returns 500 error when creating users"
 Output:
   🔍 Root cause: Null constraint violation in users.email (db.js:45)
@@ -80,7 +83,7 @@ Output:
 
 ## Subagent Delegation Format
 
-```
+```text
 I need expert analysis to help debug this issue. Please provide diagnostic insights and recommendations only — I will implement any changes.
 
 Context: [symptoms, error messages, relevant code references with file:line]

@@ -25,7 +25,8 @@ version: "1.0.0"
    - AWS account, GCP project, or Azure subscription tagged as production
 
 3. **Present confirmation before executing**:
-   ```
+
+   ```text
    ⚠️  PRODUCTION ENVIRONMENT DETECTED
 
    Context: <tool-specific context>
@@ -44,7 +45,7 @@ version: "1.0.0"
 
 When referencing this protocol in an agent, include this condensed block:
 
-```
+```text
 ## CRITICAL: Production Safety
 See `_shared/production-safety-protocol.md`. Before ANY write command:
 1. Check environment context (kubectl/terraform/cloud CLI)

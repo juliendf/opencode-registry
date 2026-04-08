@@ -16,6 +16,7 @@ This file defines the MANDATORY rules for when and how primary agents must deleg
 ## Rule 1: Mandatory Domain Delegation
 
 **WHEN** a user request contains keywords from any domain listed in `<domain_routing>`:
+
 - You **MUST** invoke the corresponding subagent **IMMEDIATELY**
 - You **MUST NOT** attempt to answer domain-specific questions directly
 - You **MUST** wait for the subagent response before providing your answer
@@ -26,6 +27,7 @@ This file defines the MANDATORY rules for when and how primary agents must deleg
 ## Rule 2: Parallel Multi-Domain Invocation
 
 **WHEN** multiple domains are detected in a single request:
+
 - Invoke **ALL** relevant subagents **IN PARALLEL** using multiple `task()` calls
 - Synthesize all specialist responses into a cohesive answer
 
@@ -42,6 +44,7 @@ This file defines the MANDATORY rules for when and how primary agents must deleg
 **WHY**: These tools let you fake delegation — you look up docs and answer directly, bypassing the specialist entirely. This violates the architecture.
 
 **The correct flow is always**:
+
 1. Detect domain keyword → call `task()` with the correct subagent
 2. Wait for subagent response
 3. Synthesize and reply
@@ -117,11 +120,13 @@ Scan EVERY user request for these keywords. If found, delegate IMMEDIATELY.
 |--------|------------------|----------|
 | **Python** | Python, pip, poetry, uv, FastAPI, Django, Flask, async Python, pytest, pydantic, ruff, mypy | `subagents/02-languages/python-pro` |
 | **TypeScript** | TypeScript, Node.js, npm, yarn, pnpm, Express, NestJS, type system, generics, Deno, Bun | `subagents/02-languages/typescript-pro` |
-| **Go** | Golang, Go, goroutines, channels, go mod, Go modules, Go interfaces, Go concurrency | `subagents/02-languages/golang-pro` |
+| **Go** | Golang, goroutines, channels, go mod, Go modules, Go interfaces, Go concurrency | `subagents/02-languages/golang-pro` |
 | **Bash** | Bash, shell script, zsh, awk, sed, cron, shell automation, CLI scripting | `subagents/02-languages/bash-expert` |
 | **SQL** | SQL, PostgreSQL queries, MySQL queries, window functions, CTEs, stored procedures, query optimization | `subagents/02-languages/sql-pro` |
 | **React** | React, hooks, React components, Redux, Zustand, Next.js, RSC, Server Components, React Query | `subagents/02-languages/react-specialist` |
 | **Vue** | Vue, Vue 3, Nuxt, Composition API, Pinia, Vuex, Vue Router | `subagents/02-languages/vue-expert` |
+| **Java** | JVM, Spring, Spring Boot, Maven, Gradle, JPA, Hibernate, Jakarta EE, JUnit, Tomcat, Quarkus, Micronaut, GraalVM, virtual threads, Project Loom, records, sealed classes | `subagents/02-languages/java-pro` |
+| **.NET** | dotnet, C#, ASP.NET, ASP.NET Core, Entity Framework, EF Core, NuGet, Blazor, MAUI, minimal API, xUnit, SignalR, Dapper, .NET Aspire, Native AOT, gRPC .NET | `subagents/02-languages/dotnet-pro` |
 
 ## Specialized Domains (Priority: HIGH)
 
@@ -130,6 +135,7 @@ Scan EVERY user request for these keywords. If found, delegate IMMEDIATELY.
 | **Mobile** | mobile app, React Native, Flutter, iOS, Android, cross-platform, native app, mobile development | `subagents/07-specialized-domains/mobile-developer` |
 | **Payments** | payment integration, Stripe, PayPal, checkout, subscription billing, PCI compliance, payment gateway, webhooks payments | `subagents/07-specialized-domains/payment-integration` |
 | **Documentation** | technical writing, documentation, API docs, user guide, README, changelog, documentation strategy | `subagents/07-specialized-domains/technical-writer` |
+| **Reverse Engineering** | reverse engineering, reverse engineer, decompile, decompilation, disassemble, disassembly, ghidra, binary ninja, ida pro, radare2, frida, apktool, jadx, smali, binary analysis, malware analysis, firmware analysis, dex analysis | `subagents/07-specialized-domains/reverse-engineer` |
 | **MCP Development** | MCP, Model Context Protocol, MCP server, MCP client, tool development | `subagents/06-developer-experience/mcp-developer` |
 | **CLI Development** | CLI, command-line interface, terminal app, CLI tool, argument parsing, interactive CLI | `subagents/06-developer-experience/cli-developer` |
 | **Developer Experience** | developer experience, DX, build performance, tooling, workflow automation, dev environment | `subagents/06-developer-experience/dx-optimizer` |
@@ -166,7 +172,7 @@ Scan EVERY user request for these keywords. If found, delegate IMMEDIATELY.
 
 For EACH detected domain:
 
-```
+```text
 task(
   subagent_type="subagents/03-infrastructure/aws-specialist",  // FULL PATH — copy exactly from the routing table
   description="[Brief description of the domain question]",
@@ -209,7 +215,7 @@ User asks: "How should I set up EKS with proper IAM roles?"
 
 **Action**: Invoke AWS specialist IMMEDIATELY
 
-```
+```text
 task(
   subagent_type="subagents/03-infrastructure/aws-specialist",
   description="EKS IAM setup guidance",
@@ -229,14 +235,15 @@ Please provide:
 
 User asks: "Design a Kubernetes deployment for our Python API with PostgreSQL"
 
-**Detection**: 
+**Detection**:
+
 - "Kubernetes" → Kubernetes domain
 - "Python API" → Python domain  
 - "PostgreSQL" → Database domain
 
 **Action**: Invoke ALL THREE specialists in parallel
 
-```
+```text
 task(
   subagent_type="subagents/03-infrastructure/kubernetes-expert",
   description="K8s deployment design",
@@ -260,7 +267,7 @@ task(
 
 For planning agents, add READ-ONLY constraint:
 
-```
+```text
 task(
   subagent_type="subagents/03-infrastructure/aws-specialist",
   description="AWS architecture planning",
@@ -281,6 +288,7 @@ Please provide architectural recommendations only."
 **This file's rules are MANDATORY for all primary agents.**
 
 Failure to invoke subagents for domain-specific questions:
+
 - Results in suboptimal responses
 - Defeats the purpose of the specialist subagent hierarchy
 - Should be considered a violation of agent responsibilities
@@ -295,20 +303,23 @@ For programmatic delegation detection (agents, tools, installers), refer to:
 **`_shared/domain-keywords.yaml`**
 
 This file provides:
+
 - **primary keywords:** High-confidence triggers (always delegate)
 - **fallback keywords:** Medium-confidence triggers (delegate if no primary match)
 - **anti-keywords:** Exclusions (don't delegate even if matched)
 - **priority order:** Tiebreaker when multiple domains match
 
 **Agents should use this file to:**
+
 1. Extract all keywords from the user request (case-insensitive, word boundaries)
 2. Match against primary keywords first
 3. Match against fallback keywords if no primary match
 4. Check anti-keywords to exclude false positives
-5. If multiple domains match, use the priority order: Security > Language > Infrastructure > Architecture > Testing > Database
+5. If multiple domains match, use the priority order: Security > Language > Infrastructure > Architecture > Testing > Database > ReverseEngineering
 
 **Example agent logic:**
-```
+
+```text
 request = user_prompt.lower()
 matched_domains = []
 
@@ -330,4 +341,3 @@ matched_domains.sort(key=lambda x: (0 if x[1]=='primary' else 1,
 for domain, _ in matched_domains:
     invoke_subagent(config['subagent'], ...)
 ```
-

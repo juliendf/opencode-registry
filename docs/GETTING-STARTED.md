@@ -15,11 +15,13 @@ A step-by-step guide to installing and using OpenCode Registry for the first tim
 - **At least one usable model backend configured in OpenCode**
 
 - **Python 3.8 or higher** installed
+
   ```bash
   python --version  # Should show 3.8+
   ```
   
 - **Git** installed
+
   ```bash
   git --version
   ```
@@ -80,11 +82,13 @@ cd ..
 ```
 
 **Expected output:**
-```
+
+```bash
 opencode-config, version 0.2.0
 ```
 
 **Troubleshooting:**
+
 - If `command not found`: Ensure pip's bin directory is in your PATH
 - If pip fails: Try `python -m pip install -e .` (or `python -m pip install -e ".[dev]"` for developers)
 - If permission errors: Don't use `sudo`, use a virtual environment instead
@@ -112,11 +116,14 @@ opencode-config info mcp-builder
 **Note:** The CLI automatically detects the registry location when run from the repository directory (including git worktrees).
 
 **What you'll see:**
+
 - 7 primary agents for different development roles
-- 43 specialized subagents organized by domain
-- 6 skills for complex workflows
+- 46 specialized subagents organized by domain
+- 12 skills for complex workflows
 - 3 commands for common operations
-- **Total: 59 components**
+- 3 MCP server definitions (RagClaw, Context7, Brave Search)
+- 1 tool plugin (GitHub)
+- **Total: 72 components**
 
 ---
 
@@ -127,8 +134,8 @@ OpenCode Registry offers three installation bundles:
 | Bundle | Components | Best For |
 |--------|-----------|----------|
 | **basic** | 5 essential | First-time users, minimal setup |
-| **intermediate** | 10+ components | Regular users, common workflows |
-| **advanced** | All 59 components | Power users, complete ecosystem |
+| **intermediate** | 16+ components | Regular users, common workflows |
+| **advanced** | All 72 components | Power users, complete ecosystem |
 
 **Preview a bundle before installing:**
 
@@ -158,11 +165,13 @@ opencode-config install --group basic
 ```
 
 The wizard helps you configure which model to use for each complexity tier:
+
 - **High tier** - Complex reasoning (architecture, design planning)
 - **Medium tier** - General coding (implementation, code review)
 - **Low tier** - Simple tasks (documentation, commit messages)
 
 **What just happened?**
+
 - Model tiers were configured in `~/.config/opencode/opencode-registry-config.json`
 - Component files were **copied** to `~/.config/opencode/` with your model tier configuration applied
 - Model-aware component frontmatter was resolved for your setup where supported during installation
@@ -189,6 +198,7 @@ ls ~/.config/opencode/skills/
 ```
 
 **You should see:**
+
 - Copied `.md` files with correct `model:` values written in
 - Components marked as installed with timestamps
 
@@ -234,7 +244,7 @@ opencode-config update build-code
 
 ### Directory Structure
 
-```
+```python
 Your System
 ├── ~/opencode-registry/              # The registry (source)
 │   ├── opencode/                     # All components live here
@@ -258,11 +268,14 @@ Your System
 | Component Type | Count | How You Use It | Who Calls It | Example |
 |----------------|-------|----------------|--------------|---------|
 | **Primary Agent** | 7 | Press **Tab** to switch | You (in OpenCode) | Switch to `build-code` agent |
-| **Subagent** | 43 | Use **@mention** or invoked automatically | Primary agents or you | `@python-pro optimize this code` |
-| **Skill** | 6 | Loaded by agents automatically | Agents/subagents | Agent loads `mcp-builder` or `working-with-helm-templates` when needed |
+| **Subagent** | 46 | Use **@mention** or invoked automatically | Primary agents or you | `@python-pro optimize this code` |
+| **Skill** | 12 | Loaded by agents automatically | Agents/subagents | Agent loads `mcp-builder` skill when needed |
 | **Command** | 3 | Type **/** in OpenCode | You (in OpenCode) | `/commit` to create git commit |
+| **MCP Server** | 3 | Registered as MCP server | Agents or you | Context7 for live library docs |
+| **Tool** | 1 | Registered as OpenCode tool plugin | Agents or you | `github_pr` to manage pull requests |
 
 **In short:**
+
 - **Agents & Subagents** = AI assistants (Tab for primary, @ for specialized)
 - **Skills** = Reusable workflows (AI-driven, loaded automatically)
 - **Commands** = User shortcuts (you type /, instant execution)

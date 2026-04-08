@@ -14,14 +14,20 @@ Thank you for your interest in contributing to OpenCode Registry! This document 
 
 1. Fork the repository
 2. Clone your fork:
+
    ```bash
-git clone https://github.com/juliendf/opencode-registry.git
-cd opencode-registry
+
+   git clone <https://github.com/juliendf/opencode-registry.git>
+   cd opencode-registry
+
    ```
+
 3. Create a branch for your changes:
+
    ```bash
    git checkout -b feature/my-new-agent
    ```
+
 4. Make your changes
 5. Test your changes
 6. Commit and push
@@ -32,6 +38,7 @@ cd opencode-registry
 ### Directory Structure
 
 Components go in these directories:
+
 - **Agents:** `opencode/agents/`
 - **Subagents:** `opencode/agents/subagents/<category>/`
 - **Skills:** `opencode/skills/<skill-name>/`
@@ -59,13 +66,14 @@ Component content here...
 ### Categories for Subagents
 
 When adding subagents, use these categories:
+
 - `01-core` - Backend, API, microservices, GraphQL, fullstack
-- `02-languages` - Python, TypeScript, Go, React, Bash, SQL, Vue
-- `03-infrastructure` - Kubernetes, Terraform, AWS, GCP, Azure, GitOps
-- `04-quality-and-security` - Testing, security, performance, debugging
-- `05-data-ai` - ML, data engineering, AI, database optimization
+- `02-languages` - Python, TypeScript, Go, Java, .NET, React, Bash, SQL, Vue
+- `03-infrastructure` - Kubernetes, Terraform, Crossplane, AWS, GCP, Azure, GitOps, networking, observability, SRE
+- `04-quality-and-security` - Testing, security, penetration testing, performance, debugging
+- `05-data-ai` - ML, MLOps, data engineering, AI, database optimization
 - `06-developer-experience` - CLI development, MCP, DX optimization
-- `07-specialized-domains` - Mobile, payments, technical writing
+- `07-specialized-domains` - Mobile, payments, reverse engineering, technical writing
 - `09-meta-orchestration` - Workflow orchestration, context management
 
 ## 🧪 Testing Your Changes
@@ -94,7 +102,8 @@ opencode-config info your-component-id
 - Reference issues when applicable: "Fix #123"
 
 Examples:
-```
+
+```text
 Add kubernetes-expert subagent
 Fix typo in README
 Update install command to support dry-run
@@ -110,6 +119,7 @@ Update install command to support dry-run
 ## 🐛 Reporting Bugs
 
 When reporting bugs, include:
+
 - Operating system
 - Python version
 - Steps to reproduce
@@ -120,6 +130,7 @@ When reporting bugs, include:
 ## 💡 Suggesting Features
 
 When suggesting features:
+
 - Explain the use case
 - Describe the expected behavior
 - Consider how it fits with existing features
@@ -152,14 +163,16 @@ Brief description of changes
 
 ## 🎯 Component Quality Guidelines
 
-### Good Components Have:
+### Good Components Have
+
 - Clear, descriptive names
 - Comprehensive documentation
 - Proper YAML frontmatter
 - Examples of usage
 - Appropriate categorization
 
-### Avoid:
+### Avoid
+
 - Hardcoded personal paths
 - Sensitive information (API keys, tokens, etc.)
 - Overly specific configurations
@@ -168,6 +181,7 @@ Brief description of changes
 ## 🏷️ Versioning
 
 We follow [Semantic Versioning](https://semver.org/):
+
 - **MAJOR** version for incompatible changes
 - **MINOR** version for backward-compatible functionality
 - **PATCH** version for backward-compatible bug fixes
@@ -179,6 +193,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 ## 🙏 Recognition
 
 Contributors will be recognized in:
+
 - GitHub contributors list
 - Release notes (for significant contributions)
 - Project acknowledgments
@@ -192,17 +207,20 @@ Contributors will be recognized in:
 ## 🎨 Style Guide
 
 ### Markdown
+
 - Use ATX-style headers (`#` not underlines)
 - Include blank lines between sections
 - Use code fences with language identifiers
 
 ### Python Code
+
 - Follow PEP 8
 - Use type hints where appropriate
 - Include docstrings for functions/classes
 - Maximum line length: 100 characters
 
 ### YAML
+
 - Use 2-space indentation
 - Quote strings with special characters
 - Keep it simple and readable
@@ -210,6 +228,7 @@ Contributors will be recognized in:
 ## 🚦 Component Review Criteria
 
 Before accepting a component, we check:
+
 1. **Functionality** - Does it work as described?
 2. **Quality** - Is it well-documented and tested?
 3. **Originality** - Does it duplicate existing components?

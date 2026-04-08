@@ -42,14 +42,14 @@ This skill acts as your writing partner, helping you research, outline, draft, a
 
 Create a dedicated folder for your article:
 
-```
+```bash
 mkdir ~/writing/my-article-title
 cd ~/writing/my-article-title
 ```
 
 Create your draft file:
 
-```
+```text
 touch article-draft.md
 ```
 
@@ -59,31 +59,31 @@ Open Claude Code from this directory and start writing.
 
 1. **Start with an outline**:
 
-```
+```text
 Help me create an outline for an article about [topic]
 ```
 
-2. **Research and add citations**:
+1. **Research and add citations**:
 
-```
+```text
 Research [specific topic] and add citations to my outline
 ```
 
-3. **Improve the hook**:
+1. **Improve the hook**:
 
-```
+```text
 Here's my introduction. Help me make the hook more compelling.
 ```
 
-4. **Get section feedback**:
+1. **Get section feedback**:
 
-```
+```text
 I just finished the "Why This Matters" section. Review it and give feedback.
 ```
 
-5. **Refine and polish**:
+1. **Refine and polish**:
 
-```
+```text
 Review the full draft for flow, clarity, and consistency.
 ```
 
@@ -520,7 +520,7 @@ Ready for the next section!
 
 Recommended structure for writing projects:
 
-```
+```text
 ~/writing/article-name/
 ├── outline.md          # Your outline
 ├── research.md         # All research and citations

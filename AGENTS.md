@@ -5,6 +5,7 @@ Quick reference for AI coding agents working with the OpenCode Registry codebase
 ## Essential Commands
 
 ### Build & Test
+
 ```bash
 # Install CLI in development mode
 cd installer && pip install -e ".[dev]"
@@ -23,9 +24,16 @@ pytest tests/ --cov=opencode_config --cov-report=html
 
 # Format & lint
 black src/ && ruff check --fix src/
+
+# Markdown lint (on demand)
+markdownlint-cli2 "**/*.md"
+
+# Markdown lint with auto-fix
+markdownlint-cli2 --fix "**/*.md"
 ```
 
 ### CLI Usage
+
 ```bash
 opencode-config list                      # List components
 opencode-config install --group basic     # Install bundle
@@ -36,7 +44,7 @@ opencode-config sync                      # Sync database
 
 ## Project Structure
 
-```
+```bash
 installer/src/opencode_config/
 ├── cli.py              # Entry point, command registration
 ├── config.py           # Config management
@@ -56,12 +64,14 @@ opencode/               # Component library
 **Imports:** standard → third-party → local
 
 **Naming:**
+
 - `PascalCase` for classes
 - `snake_case` for functions/methods
 - `UPPER_SNAKE_CASE` for constants
 - `_private` for internal methods
 
 **Type hints required:**
+
 ```python
 def parse_frontmatter(md_file: Path) -> Optional[Dict[str, Any]]:
     """Parse YAML frontmatter from markdown file."""
@@ -69,6 +79,7 @@ def parse_frontmatter(md_file: Path) -> Optional[Dict[str, Any]]:
 ```
 
 **Error handling - use specific exceptions:**
+
 ```python
 if not path.exists():
     raise FileNotFoundError(f"File not found: {path}")
@@ -77,12 +88,14 @@ if not path.exists():
 ## Architecture Patterns
 
 ### CLI Commands
+
 - One module per command in `commands/`
 - Use Click decorators for args
 - Use Rich for console output
 - Keep logic thin, delegate to utils
 
 ### Configuration
+
 - Centralized in `config.py`
 - Auto-detect registry path (looks for `opencode/` and `bundles/` directories)
 - Store in `~/.config/opencode/opencode-registry-config.json`
@@ -90,17 +103,20 @@ if not path.exists():
 - **Git worktree support**: Auto-detection works seamlessly
 
 ### Installation Tracking
+
 - Track in `~/.config/opencode/opencode-registry-installed.json`
 - Record timestamp, method (copy), status
 - Provide `sync` to rebuild from filesystem
 
 ### Component Discovery
+
 - Scan `opencode/` directory structure
 - Parse YAML frontmatter for metadata
 
 ## Component Files
 
 **YAML frontmatter (required):**
+
 ```yaml
 ---
 name: "Component Name"
@@ -112,9 +128,11 @@ model_tier: "free|low|medium|high"
 ```
 
 **Notes:**
+
 - `model_tier` is optional. Valid values: `high`, `medium`, `low`, `free`
 
 **Markdown style:**
+
 - ATX headers (`#`)
 - Code fences with language
 - 2-space indent for YAML
@@ -130,7 +148,7 @@ model_tier: "free|low|medium|high"
 
 ## Commit Format
 
-```
+```text
 <type>: <description>
 
 feat: Add selective component uninstall
@@ -151,6 +169,7 @@ docs: Update README with new commands
 ## Key Patterns
 
 **Config access:**
+
 ```python
 config = Config()
 target = config.target_dir
@@ -158,7 +177,8 @@ model_for_high = config.get_model_for_tier("high")
 ```
 
 **Component structure:**
-```
+
+```bash
 opencode/agents/my-agent.md
 opencode/agents/subagents/01-core/
 opencode/skills/skill-name/SKILL.md

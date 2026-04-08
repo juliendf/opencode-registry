@@ -54,7 +54,7 @@ class CopyManager:
         # Ensure base directories exist
         if not dry_run:
             self.target_dir.mkdir(parents=True, exist_ok=True)
-            base_dirs = ["agents", "skills", "commands"]
+            base_dirs = ["agents", "skills", "commands", "tools"]
             for base_dir in base_dirs:
                 (self.target_dir / base_dir).mkdir(parents=True, exist_ok=True)
 
@@ -152,7 +152,7 @@ class CopyManager:
         Returns:
             Dictionary mapping component types to lists of component IDs
         """
-        installed = {"agents": [], "subagents": [], "skills": [], "commands": []}
+        installed = {"agents": [], "subagents": [], "skills": [], "commands": [], "tools": []}
 
         if not self.target_dir.exists():
             return installed
@@ -191,6 +191,16 @@ class CopyManager:
             for item in command_dir.iterdir():
                 if item.is_file() and item.suffix == ".md" and not item.name.startswith("."):
                     installed["commands"].append(item.stem)
+
+        # Check tools directory
+        tools_dir = self.target_dir / "tools"
+        if tools_dir.exists():
+            for item in tools_dir.iterdir():
+                if item.is_dir() and not item.name.startswith("."):
+                    # Check if main tool file exists (.ts or .js)
+                    tool_files = list(item.glob("*.ts")) + list(item.glob("*.js"))
+                    if tool_files:
+                        installed["tools"].append(item.name)
 
         return installed
 

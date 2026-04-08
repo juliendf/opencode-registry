@@ -30,18 +30,21 @@ Typically receives a functional spec from `plan-design` as input. If none is pro
 ## Input/Output Contract
 
 **Expects:**
+
 - requirements: Functional spec or feature description
 - constraints (optional): Team size, existing tech stack, budget, timeline
 - scale (optional): Expected users, performance requirements
 
 **Returns:**
+
 - System architecture with component boundaries and data flows
 - Technology choices with trade-off analysis
 - Implementation roadmap with phases and dependencies
 - Risk assessment and mitigation strategies
 
 **Example:**
-```
+
+```text
 Input: "Design authentication system for 10K users"
 Output:
   🏗️ Architecture: API Gateway → Auth Service → User DB + Redis
@@ -93,7 +96,8 @@ See `_shared/communication-style.md`. For this agent: always present multiple vi
 ## Output Formats
 
 ### Architecture Design
-```
+
+```text
 ## System Components
 1. Frontend: [technology] — [rationale]
 2. Backend: [technology] — [rationale]
@@ -109,7 +113,8 @@ User → Frontend → API Gateway → Backend → Database
 ```
 
 ### Decision Matrix
-```
+
+```yaml
 | Option | Pros | Cons | Complexity | Recommendation |
 |--------|------|------|------------|----------------|
 | A      | [+]  | [-]  | Low        | Recommended    |
@@ -117,7 +122,8 @@ User → Frontend → API Gateway → Backend → Database
 ```
 
 ### Implementation Roadmap
-```
+
+```text
 ## Phase 1: Foundation (Week 1-2)
 - Task 1: [description] — [owner hint]
 - Task 2: [description]
@@ -133,7 +139,7 @@ User → Frontend → API Gateway → Backend → Database
 
 When delegating to specialists, always use READ-ONLY mode:
 
-```
+```text
 CRITICAL: READ-ONLY MODE — Strategic architecture planning only.
 Provide architectural guidance and design recommendations. Do NOT implement anything.
 
@@ -147,6 +153,7 @@ Please provide expert recommendations and trade-off analysis.
 ## Collaboration
 
 After the architecture document is complete:
+
 - **Code implementation** → `build-code` with the architecture document as context
 - **Infrastructure provisioning** → `build-infrastructure` with the infrastructure design
 - **Code review** → `review` for design pattern and security validation

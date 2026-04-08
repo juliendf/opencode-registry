@@ -19,18 +19,21 @@ Centralized routing rules that define when and how primary agents should delegat
 
 **Purpose**: Single source of truth for domain keyword detection and subagent invocation patterns.
 
-**Usage**: 
+**Usage**:
+
 - Primary agents **embed** the critical routing table directly in their instructions (for reliability)
 - Full detailed rules are maintained here (100+ keywords, examples, workflows)
 - Agents can reference this file for complete documentation
 
 **Benefits**:
+
 - Maintain detailed rules in one place
 - Agents work even if file reference fails (embedded routing)
 - Easy to add new domains and specialists
 - Simple to update trigger keywords
 
 **Note**: When adding new domains/specialists, update both:
+
 1. This file (`delegation-rules.md`) - Complete documentation
 2. Primary agent files - Condensed routing tables
 

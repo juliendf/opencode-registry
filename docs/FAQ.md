@@ -44,7 +44,7 @@ opencode-config sync
 
 ### What is OpenCode Registry?
 
-A curated collection of 59 AI agents, subagents, skills, and commands with a CLI tool to install and manage them.
+A curated collection of 72 AI agents, subagents, skills, commands, MCP servers, and tools with a CLI tool to install and manage them.
 
 ### What's the difference between agents, subagents, skills, and commands?
 
@@ -85,7 +85,7 @@ See [Getting Started](GETTING-STARTED.md) for detailed steps.
 
 Files are **copied** to `~/.config/opencode/`:
 
-```
+```bash
 ~/.config/opencode/
 ├── agents/
 ├── skills/
@@ -111,8 +111,8 @@ opencode-config config --target /path/to/directory
 ### Which bundle should I start with?
 
 - **basic** (5 components) - Essential agents and a starter skill set
-- **intermediate** (10+) - Common workflows
-- **advanced** (59) - Everything
+- **intermediate** (16+) - Common workflows
+- **advanced** (72) - Everything
 
 Start with `basic`, add more as needed.
 
@@ -168,29 +168,34 @@ Testing, CI/CD, or environments without paid model access.
 ### Problem: `pip install -e .` fails
 
 **Symptoms:**
-```
+
+```bash
 ERROR: file:///path/to/opencode-registry does not appear to be a Python project
 ```
 
 **Solutions:**
 
 1. Ensure you're in the installer directory:
+
    ```bash
    cd opencode-registry/installer
    pip install -e .
    ```
 
 2. Check Python version:
+
    ```bash
    python --version  # Should be 3.8+
    ```
 
 3. Upgrade pip:
+
    ```bash
    python -m pip install --upgrade pip
    ```
 
 4. Install in virtual environment:
+
    ```bash
    python -m venv venv
    source venv/bin/activate
@@ -205,21 +210,25 @@ ERROR: file:///path/to/opencode-registry does not appear to be a Python project
 **Solutions:**
 
 1. Check if installation succeeded:
+
    ```bash
    pip list | grep opencode
    ```
 
 2. Check PATH:
+
    ```bash
    python -m site --user-base
    ```
 
 3. Use python -m to run:
+
    ```bash
    python -m opencode_config.cli --help
    ```
 
 4. Reinstall:
+
    ```bash
    cd installer
    pip uninstall opencode-config
@@ -236,16 +245,19 @@ ERROR: file:///path/to/opencode-registry does not appear to be a Python project
 **Solutions:**
 
 1. Check registry path:
+
    ```bash
    opencode-config config --list
    ```
 
 2. Set registry path:
+
    ```bash
    opencode-config config --registry /path/to/opencode-registry
    ```
 
 3. Verify opencode directory exists:
+
    ```bash
    ls opencode/agents/
    ```
@@ -260,6 +272,7 @@ ERROR: file:///path/to/opencode-registry does not appear to be a Python project
 **Solutions:**
 
 1. Check component exists:
+
    ```bash
    opencode-config list | grep my-agent
    ```
@@ -278,11 +291,13 @@ ERROR: file:///path/to/opencode-registry does not appear to be a Python project
 **Solutions:**
 
 1. Sync database:
+
    ```bash
    opencode-config sync
    ```
 
 2. Reinstall:
+
    ```bash
    opencode-config install --group basic
    ```
@@ -297,12 +312,14 @@ All components show up-to-date even after `git pull`
 **Solutions:**
 
 1. Pull latest:
+
    ```bash
    cd /path/to/opencode-registry
    git pull origin main
    ```
 
 2. Sync and check:
+
    ```bash
    opencode-config sync
    opencode-config update --all --dry-run
@@ -318,12 +335,14 @@ All components show up-to-date even after `git pull`
 **Solutions:**
 
 1. Don't use sudo:
+
    ```bash
    # WRONG: sudo opencode-config update --all
    # RIGHT: opencode-config update --all
    ```
 
 2. Fix ownership:
+
    ```bash
    sudo chown -R $USER:$USER ~/.config/opencode/
    ```
@@ -338,16 +357,19 @@ All components show up-to-date even after `git pull`
 **Solutions:**
 
 1. Run sync:
+
    ```bash
    opencode-config sync
    ```
 
 2. Preview sync:
+
    ```bash
    opencode-config sync --dry-run
    ```
 
 3. Manual rebuild:
+
    ```bash
    rm ~/.config/opencode/opencode-registry-installed.json
    opencode-config sync
@@ -363,6 +385,7 @@ All components show up-to-date even after `git pull`
 **Solutions:**
 
 1. Backup and rebuild:
+
    ```bash
    cp ~/.config/opencode/opencode-registry-installed.json ~/.config/opencode/opencode-registry-installed.json.bak
    rm ~/.config/opencode/opencode-registry-installed.json
@@ -379,17 +402,20 @@ All components show up-to-date even after `git pull`
 **Solutions:**
 
 1. Run from registry directory:
+
    ```bash
    cd /path/to/opencode-registry
    opencode-config list
    ```
 
 2. Enable auto-detection:
+
    ```bash
    opencode-config config --registry auto
    ```
 
 3. Set path manually:
+
    ```bash
    opencode-config config --registry /path/to/opencode-registry
    ```
@@ -401,6 +427,7 @@ All components show up-to-date even after `git pull`
 **Solutions:**
 
 1. Use auto-detection (recommended):
+
    ```bash
    opencode-config config --registry auto
    cd /path/to/worktree
@@ -408,6 +435,7 @@ All components show up-to-date even after `git pull`
    ```
 
 2. Set path manually:
+
    ```bash
    opencode-config config --registry $(pwd)
    ```
@@ -419,6 +447,7 @@ All components show up-to-date even after `git pull`
 ### `list` command is slow
 
 Normal for 60+ components (1-3 seconds). Use filters:
+
 ```bash
 opencode-config list --type agent
 opencode-config list --installed
@@ -427,6 +456,7 @@ opencode-config list --installed
 ### Installation is slow
 
 Normal for first-time install (copying 60+ files). Install smaller bundle:
+
 ```bash
 opencode-config install --group basic
 ```
@@ -484,6 +514,7 @@ Yes! See [Contributing Guide](../CONTRIBUTING.md).
 - [GitHub Discussions](https://github.com/juliendf/opencode-registry/discussions)
 
 **When reporting issues, include:**
+
 ```bash
 python --version
 opencode-config --version

@@ -12,10 +12,15 @@ components:
   # Skills
   - project-docs
   - mcp-builder
+  - grill-me
+  - kb-search
+  - web-search
   - proofreader
   - second-opinion
   
   # Commands
   - commit
-  - review
   - kb
+  
+  # Tools
+  - github

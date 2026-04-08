@@ -6,14 +6,14 @@ How OpenCode permission system works in this registry, and how to configure agen
 
 OpenCode has **two levels** of permission configuration:
 
-```
+```bash
 ~/.config/opencode/opencode.json   ← Global (your machine)
 opencode/agents/<agent>.md         ← Agent-level (frontmatter)
 ```
 
 **Critical rule:** Agent-level permissions **override** global config entirely for that agent. They do not merge — the last matching pattern wins within a given scope.
 
-```
+```text
 Global:  "grep *": "allow"
 Agent:   "*": "ask"           ← This wins. grep will ask.
 
@@ -201,6 +201,7 @@ A comprehensive read-only allowlist for `~/.config/opencode/opencode.json`:
 Only add bash rules to an agent when the agent has **domain-specific dangerous operations** that the global config doesn't cover.
 
 **Good — agent-specific safety rule:**
+
 ```yaml
 permission:
   bash:
@@ -209,6 +210,7 @@ permission:
 ```
 
 **Bad — blocks global read-only config:**
+
 ```yaml
 permission:
   bash:
@@ -217,6 +219,7 @@ permission:
 ```
 
 **Bad — duplicating what global config already covers:**
+
 ```yaml
 permission:
   bash:
@@ -231,11 +234,13 @@ permission:
 If an agent keeps asking for permission on read-only commands:
 
 **1. Check if agent has `"*": "ask"` in its bash section:**
+
 ```bash
 grep -r '"*": "ask"' opencode/agents/
 ```
 
 **2. Remove the wildcard, keep specific rules:**
+
 ```yaml
 # Before
 permission:
@@ -250,6 +255,7 @@ permission:
 ```
 
 **3. Verify your global config is valid JSON:**
+
 ```bash
 python3 -m json.tool ~/.config/opencode/opencode.json
 ```
@@ -257,6 +263,7 @@ python3 -m json.tool ~/.config/opencode/opencode.json
 **4. Confirm the command pattern matches:**
 
 OpenCode uses glob pattern matching with **last rule wins** semantics:
+
 ```json
 "git *": "allow",
 "git push *": "ask"    ← This wins for git push (more specific, defined last)

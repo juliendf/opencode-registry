@@ -1,0 +1,24 @@
+{
+  "name": "opencode-registry-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for autodiscovery and management of OpenCode registry components",
+  "type": "module",
+  "bin": {
+    "opencode-registry-mcp": "./src/cli.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/cli.ts",
+    "build": "bun build src/cli.ts --outdir dist --target node",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "commander": "^14.0.0",
+    "gray-matter": "^4.0.3",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.14",
+    "typescript": "^5.8.3"
+  }
+}

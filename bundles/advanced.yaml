@@ -1,5 +1,5 @@
 name: "Advanced OpenCode Setup"
-description: "Complete OpenCode ecosystem with all agents, subagents, and skills"
+description: "Complete OpenCode ecosystem with all agents, subagents, skills, and tools"
 components:
   # All primary agents
   - ask-me-anything
@@ -14,15 +14,22 @@ components:
   - project-docs
   - mcp-builder
   - content-research-writer
+  - grill-me
+  - kb-search
+  - web-search
+  - kubernetes-ops
+  - argocd-ops
+  - registry-sync
   - proofreader
   - second-opinion
   - working-with-helm-templates
   
   # All commands
   - commit
-  - review
   - documentation
-  - test
   - kb
+  
+  # All tools
+  - github
   
   # Note: Subagents are included automatically as they're in the agent/subagents directory

@@ -111,7 +111,7 @@ from {package_name} import {main_class}
 
 For more examples, see the [User Guide](docs/USER_GUIDE.md).
 
-```
+```text
 
 ### Go Quick Start Variant
 
@@ -139,7 +139,7 @@ func main() {
 
 For more examples, see the [User Guide](docs/USER_GUIDE.md).
 
-```
+```text
 
 ### OpenSource Additional Sections
 
@@ -287,7 +287,7 @@ graph TD
 
 {Known limitations, planned improvements, technical debt}
 
-```
+```text
 
 ### AI Agent Architecture Additions
 
@@ -344,14 +344,14 @@ Key prompts used in the agent:
 
 ### Pattern 1: {Name}
 
-```
+```json
 {Prompt template with variables}
 ```
 
 **When Used**: {Context for this prompt}
 **Variables**: {Description of variables}
 
-```
+```text
 
 ### Microservice Architecture Additions
 
@@ -407,7 +407,7 @@ Response:
 - **Readiness**: `/health/ready` - Pod can accept traffic
 - **Startup**: `/health/startup` - Pod has initialized
 
-```
+```text
 
 ### Infrastructure Architecture Additions
 
@@ -448,7 +448,7 @@ terraform/
 │   └── networking/
 └── global/
 
-```
+```text
 
 ## Deployment Model
 
@@ -511,7 +511,7 @@ setting2: value2
 
 **Expected Output**:
 
-```
+```json
 {output}
 ```
 
@@ -569,7 +569,7 @@ A: {Answer}
 
 [OPENSOURCE_SUPPORT or INTERNAL_SUPPORT]
 
-```
+```text
 
 ### Python Installation Variant
 
@@ -596,7 +596,7 @@ cd {project}
 uv pip install -e .
 ```
 
-```
+```text
 
 ### Go Installation Variant
 
@@ -619,7 +619,7 @@ go install
 
 **Download binary**: [Releases]({releases_url})
 
-```
+```text
 
 ### AI Agent Specific Sections
 
@@ -683,7 +683,7 @@ tools:
     enabled: false
 ```
 
-```
+```text
 
 ### CLI Tool Specific Sections
 
@@ -721,7 +721,7 @@ tools:
 - `--verbose` - Enable verbose output
 - `--help` - Show help message
 
-```
+```text
 
 ---
 
@@ -845,7 +845,7 @@ Create a pull request on [GITHUB/GITLAB].
 
 ### Test Organization
 
-```
+```text
 tests/
 ├── unit/          # Fast, isolated tests
 ├── integration/   # Tests with external dependencies
@@ -884,7 +884,7 @@ pre-commit install
 
 ## Project Structure
 
-```
+```json
 {project}/
 ├── {source_dir}/       # Application source code
 │   ├── {module1}/      # Module description
@@ -973,7 +973,7 @@ docker run -p 8080:8080 {image_name}
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [API Documentation]({link if applicable})
 
-```
+```text
 
 ### Python Dev Setup Variant
 
@@ -1093,7 +1093,7 @@ kubectl rollout undo deployment/{deployment-name} -n {namespace}
 | Staging | {url} | {project} | Pre-production |
 | Production | {url} | {project} | Live system |
 
-```
+```text
 
 ### AI Agent Development Additions
 
@@ -1112,9 +1112,9 @@ async def my_tool(arg1: str, arg2: int) -> str:
     return result
 ```
 
-2. Register tool in `tools.py`
-3. Add tests in `tests/tools/test_my_tool.py`
-4. Document in User Guide
+1. Register tool in `tools.py`
+2. Add tests in `tests/tools/test_my_tool.py`
+3. Document in User Guide
 
 ### Testing MCP Servers
 
@@ -1136,7 +1136,7 @@ async def test_tool_integration():
     assert "expected" in result.output
 ```
 
-```
+```text
 
 ---
 
@@ -1366,7 +1366,7 @@ By contributing, you agree that your contributions will be licensed under the {L
 [For Internal]
 All contributions are proprietary to {COMPANY_NAME}.
 
-```
+```text
 
 ### Python Style Guidelines
 
@@ -1413,7 +1413,7 @@ def function_name(param1: str, param2: int) -> bool:
     pass
 ```
 
-```
+```text
 
 ### Go Style Guidelines
 
@@ -1445,7 +1445,7 @@ func FunctionName(param1 string, param2 int) (bool, error) {
 }
 ```
 
-```
+```text
 
 ### OpenSource Sections
 

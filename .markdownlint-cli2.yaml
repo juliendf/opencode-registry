@@ -1,0 +1,56 @@
+# markdownlint-cli2 configuration
+# https://github.com/DavidAnson/markdownlint-cli2
+
+# Ignore external reference files that we don't control
+ignores:
+  - "opencode/skills/mcp-builder/reference/**"
+
+config:
+  # --- Disabled globally ---
+
+  # MD013 - Line length: disabled because this repo is mostly AI-agent
+  # prompt files and documentation with naturally long prose lines.
+  MD013: false
+
+  # MD033 - No inline HTML: occasionally useful in markdown, not harmful.
+  MD033: false
+
+  # MD036 - No emphasis as heading: bold text is sometimes intentional
+  # emphasis, not a heading substitute.
+  MD036: false
+
+  # MD024 - No duplicate headings: repeated headings like "Examples" or
+  # "Usage" in different sections are perfectly valid.
+  MD024: false
+
+  # MD041 - First line heading: our opencode/ files use YAML frontmatter,
+  # and not every doc needs to start with an H1.
+  MD041: false
+
+  # MD060 - Table column style: cosmetic pipe-spacing nit; not worth
+  # mass-reformatting every table in the repo.
+  MD060: false
+
+  # --- Adjusted rules ---
+
+  # Allow multiple H1 headings (agent files with frontmatter often have
+  # section-level H1s).
+  MD025: false
+
+  # Ordered list prefix: use "ordered" style (1, 2, 3) not (1, 1, 1).
+  MD029:
+    style: "ordered"
+
+  # --- Kept enabled (defaults) ---
+  # MD009 - No trailing spaces
+  # MD012 - No multiple blank lines
+  # MD022 - Blanks around headings
+  # MD026 - No trailing punctuation in headings
+  # MD031 - Blanks around fences
+  # MD032 - Blanks around lists
+  # MD034 - No bare URLs
+  # MD035 - HR style
+  # MD040 - Fenced code language
+  # MD046 - Code block style
+  # MD047 - Single trailing newline
+  # MD058 - Blanks around tables

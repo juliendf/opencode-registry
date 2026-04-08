@@ -14,6 +14,7 @@ All agents must monitor conversation length and manage context proactively to ma
 ## Context Window Awareness
 
 **Monitor for these signals:**
+
 - Conversation spans 50+ messages
 - Multiple complex topics discussed
 - Repeated file reads or tool calls
@@ -25,7 +26,8 @@ All agents must monitor conversation length and manage context proactively to ma
 **Proactive actions (before hitting 80% capacity):**
 
 1. **Use todowrite as checkpoint:**
-   ```
+
+   ```text
    todowrite: Capture current state
    - Files modified: src/auth.ts, src/middleware.ts
    - Completed: JWT setup, middleware implementation
@@ -40,7 +42,8 @@ All agents must monitor conversation length and manage context proactively to ma
    - Requirements or constraints discovered
 
 3. **Suggest session refresh:**
-   ```
+
+   ```text
    "We've covered a lot. I recommend starting a fresh session with this summary:
    - Implemented JWT auth in src/auth.ts
    - Added middleware to protect routes
@@ -51,6 +54,7 @@ All agents must monitor conversation length and manage context proactively to ma
 ## What to Preserve
 
 **Essential context to carry forward:**
+
 - File paths and locations
 - Error messages and stack traces
 - User requirements and constraints
@@ -58,6 +62,7 @@ All agents must monitor conversation length and manage context proactively to ma
 - Next steps from todos
 
 **What to drop:**
+
 - Intermediate debugging attempts
 - Full file contents (summarize changes instead)
 - Tangential discussions
@@ -68,6 +73,7 @@ All agents must monitor conversation length and manage context proactively to ma
 When context is full:
 
 1. **Create comprehensive summary:**
+
    ```markdown
    ## Session Summary
    **Goal:** Add user authentication with JWT
@@ -95,14 +101,17 @@ When context is full:
 ## Special Cases
 
 **Long debugging sessions:**
+
 - Summarize: "Traced issue to X, tried Y and Z, narrowed to file:line"
 - Drop: Full output of failed attempts
 
 **Large refactors:**
+
 - Track files changed in todowrite
 - Summarize pattern applied, not every edit
 
 **Multi-agent workflows:**
+
 - Each subagent call is fresh context
 - Include relevant summary in subagent prompt
 - Synthesize results concisely on return

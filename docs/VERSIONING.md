@@ -38,7 +38,7 @@ Unlike monolithic versioning (where all components share one version), individua
 
 All components use **semantic versioning** (semver): `MAJOR.MINOR.PATCH`
 
-```
+```text
 1.2.3
 │ │ │
 │ │ └─ PATCH: Bug fixes, documentation updates
@@ -117,7 +117,8 @@ opencode-config update --all --dry-run
 ```
 
 **Output Example:**
-```
+
+```text
 Updates Available:
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━┓
 ┃ Component       ┃ Installed ┃ Available ┃ Status ┃
@@ -135,6 +136,7 @@ opencode-config update <component-id> --dry-run
 ```
 
 Example:
+
 ```bash
 opencode-config update build-code --dry-run
 ```
@@ -148,7 +150,8 @@ opencode-config list --installed
 ```
 
 **Output:**
-```
+
+```text
 Installed Components:
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━┓
 ┃ ID              ┃ Name      ┃ Version ┃ Installed ┃
@@ -179,6 +182,7 @@ opencode-config update <component-id>
 ```
 
 **Examples:**
+
 ```bash
 # Update general development agent
 opencode-config update build-code
@@ -207,6 +211,7 @@ opencode-config update build-code --dry-run
 Recommended workflow for updates:
 
 1. **Check for updates:**
+
    ```bash
    opencode-config update --all --dry-run
    ```
@@ -214,6 +219,7 @@ Recommended workflow for updates:
 2. **Review changes** in the preview table
 
 3. **Update selectively** or all at once:
+
    ```bash
    # Update specific components
    opencode-config update build-code
@@ -224,6 +230,7 @@ Recommended workflow for updates:
    ```
 
 4. **Verify installation:**
+
    ```bash
    opencode-config status
    ```
@@ -245,16 +252,19 @@ OpenCode Registry follows standard semver compatibility:
 ### Update Recommendations
 
 **PATCH Updates (x.x.X):**
+
 - Bug fixes and documentation improvements
 - **Safe to update immediately**
 - No breaking changes
 
 **MINOR Updates (x.X.x):**
+
 - New features and enhancements
 - **Generally safe to update**
 - Backward compatible with existing usage
 
 **MAJOR Updates (X.x.x):**
+
 - Breaking changes or major redesigns
 - **Review changelog before updating**
 - May require configuration changes
@@ -295,6 +305,7 @@ opencode-config list --installed
 ### 4. Read Release Notes
 
 Before major version updates (X.0.0), check:
+
 - Component changelog
 - Breaking changes
 - Migration guides
@@ -311,6 +322,7 @@ opencode-config update --all --dry-run
 ### 6. Stay Updated
 
 Update regularly to get:
+
 - ✅ Bug fixes and improvements
 - ✅ New features
 - ✅ Security patches

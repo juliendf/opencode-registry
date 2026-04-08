@@ -17,15 +17,15 @@ Use this skill when debugging or developing Helm charts locally.
 2. Use `helm template` to render manifests locally without deploying.
 3. Combine values files as needed, for example:
 
-```bash
-helm template -f values.yaml -f values-staging.yaml .
-```
+   ```bash
+   helm template -f values.yaml -f values-staging.yaml .
+   ```
 
 4. Save rendered output to a temporary file prefixed with `tmp`, for example:
 
-```bash
-helm template -f values.yaml . > tmp-output.yaml
-```
+   ```bash
+   helm template -f values.yaml . > tmp-output.yaml
+   ```
 
 5. Validate rendered manifests locally to catch syntax errors or missing values before deployment.
 6. If rendering fails, inspect the `charts/` directory and the relevant templates and values files to identify the issue.

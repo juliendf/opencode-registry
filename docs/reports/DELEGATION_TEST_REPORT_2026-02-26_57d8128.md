@@ -79,11 +79,13 @@ None.
 ### Test 5: build-infrastructure — EKS Cluster with Monitoring
 
 **Expected subagents (3):**
+
 - `subagents/03-infrastructure/terraform-expert`
 - `subagents/03-infrastructure/kubernetes-expert`
 - `subagents/03-infrastructure/observability-engineer`
 
 **Actually called (2):**
+
 - `subagents/03-infrastructure/terraform-expert` ✓
 - `subagents/03-infrastructure/observability-engineer` ✓
 
@@ -104,6 +106,7 @@ presence of required sections in the agent's response rather than
 subagent delegation.
 
 **Expected keywords:**
+
 - Goal
 - User Stories
 - Functional Requirements

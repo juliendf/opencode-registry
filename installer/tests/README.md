@@ -33,6 +33,7 @@ pytest tests/ --cov=opencode_config --cov-report=html
 ```
 
 View coverage report:
+
 ```bash
 open htmlcov/index.html
 ```
@@ -49,7 +50,7 @@ pytest -m "unit"
 
 ## Test Structure
 
-```
+```text
 tests/
 ├── conftest.py              # Shared fixtures and test configuration
 ├── test_config.py           # Configuration management tests
@@ -200,6 +201,7 @@ To add tests for CLI commands (currently 0% coverage):
 4. Verify console output
 
 Example:
+
 ```python
 from click.testing import CliRunner
 from opencode_config.cli import cli

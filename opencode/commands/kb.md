@@ -15,10 +15,12 @@ When the user runs this command, follow this workflow:
 ### 1. Resolve Output Directory
 
 Check `$ARGUMENTS`:
+
 - If `$ARGUMENTS` is not empty (e.g. `/kb docs/kb/`), use that as the output directory. Create the directory if it does not exist.
 - If `$ARGUMENTS` is empty (command was run as `/kb` with no arguments), use the current working directory.
 
 Example usage:
+
 - `/kb` → saves to current directory
 - `/kb docs/kb/` → saves to `docs/kb/` directory (created if needed)
 - `/kb ~/kb/` → saves to home directory's `kb/` folder
@@ -26,6 +28,7 @@ Example usage:
 ### 2. Analyze the Conversation
 
 Review the troubleshooting conversation to identify:
+
 - **All distinct problems encountered**: A session may surface multiple independent issues — treat each one separately
 - **Symptoms**: What error messages, behaviors, or observables were observed per problem?
 - **Investigation steps**: What commands, logs, or diagnostics were performed?
@@ -40,6 +43,7 @@ Review the troubleshooting conversation to identify:
 ### 3. Gather Environment Context
 
 Extract relevant environment information (shared across all problems in the session):
+
 - Cluster/environment name (e.g., EKS production, AKS dev)
 - Software versions (Kubernetes, applications, tools)
 - Namespace or project context
@@ -126,6 +130,7 @@ OPTIONAL_RELATED_SECTION
 ```
 
 Where:
+
 - `severity:` must be one of: `critical`, `high`, `medium`, `low` — pick the correct value, never write the full list
 - `> Confidence:` must be one of: `Confirmed`, `Suspected`, `Unknown` — pick one, never write all three
 - `OPTIONAL_BASH_BLOCK` — replace with a `bash` code block if workaround commands exist, remove entirely if not
@@ -160,65 +165,78 @@ kb_category: session-index
 ```
 
 Where:
+
 - `Severity` and `Time to Resolve` use the actual resolved values, not a list of options
 - `Discovered via` is the `#` of the problem that led to finding this one (e.g. `#1` if problem 2 was found while investigating problem 1), or `—` if it was independently reported
 
 ## Guidelines
 
 ### For the Title
+
 - Keep it short but descriptive
 - Include the key technology/component
 - Example: "Pod CrashLoopBackOff due to OOM in production"
 
 ### For TL;DR
+
 - One sentence maximum
 - Should help someone quickly decide if this article matches their issue
 - Capture: what broke, why it broke, and/or how it was fixed — in any format that works
 
 ### For Severity
+
 - `critical` — production down, data loss, security breach
 - `high` — major feature broken, significant user impact
 - `medium` — degraded performance, workaround available
 - `low` — cosmetic, minor inconvenience, no user impact
 
 ### For Root Cause confidence
+
 - `Confirmed` — root cause was proven (e.g. a config value was wrong, a bug was found)
 - `Suspected` — most likely cause based on evidence but not 100% proven
 - `Unknown` — issue was resolved (e.g. by restart) but cause was never identified
 
 ### For Time to Resolve
+
 - Estimate from the conversation timeline (e.g. `~20 min`, `~2 h`)
 - If not determinable from the conversation, omit the row from the table
 
 ### For Root Cause
+
 - Be specific about the technical cause
 - Include relevant configuration or code if applicable
 - Explain the chain of events if multiple factors contributed
 
 ### For Quick Fix / Workaround
+
 - Only include if a real workaround was discussed or implied in the session
 - Clearly mark it as temporary — it unblocks but does not fix
 - If none exists, write `None identified` — do not invent one
 - Keep it short: one paragraph max + commands if applicable
 
 ### For Resolution
+
 - Number each step clearly
 - Include actual commands with proper escaping
 - Be precise — someone should be able to follow these steps exactly
 
 ### For Verification
+
 - Provide concrete commands to verify the fix
 - Show expected output when possible
 
 ### For Prevention
+
 - Suggest monitoring or alerting to detect recurrence
 - Recommend automation or tooling improvements
 
 ### For Related
+
 - Only write this section if URLs, ticket numbers, or documentation references were explicitly mentioned during the session
 - If nothing was referenced, omit the section entirely — do not add placeholder text
 
 ### For Discovered via (session index only)
+
 - Use the `#` number of the problem that led to uncovering this one (e.g. `#1`)
 - Use `—` if the problem was independently reported or initiated
 - A problem can be discovered via another even if they have different root causes
@@ -275,7 +293,8 @@ When sensitive content is found, replace it with a generic placeholder — **nev
 | `<YOUR_VALUE>`  | Any other context-specific sensitive value |
 
 **Example transformation:**
-```
+
+```text
 # Before
 kubectl exec -n prod deploy/api -- env | grep DB_PASSWORD=s3cr3t!
 Logs path: /Users/myuser/debug.log
