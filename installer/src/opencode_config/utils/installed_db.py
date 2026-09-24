@@ -2,28 +2,32 @@
 Installation database (installed.json) management.
 """
 
+from __future__ import annotations
+
 import json
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, Any, List, Optional
 import platform
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
 
 
 class InstalledDB:
     """Manages the installed.json database."""
 
-    def __init__(self, db_path: Optional[Path] = None):
-        self.db_path = db_path or (Path.home() / ".config" / "opencode" / "opencode-registry-installed.json")
+    def __init__(self, db_path: Path | None = None):
+        self.db_path = db_path or (
+            Path.home() / ".config" / "opencode" / "opencode-registry-installed.json"
+        )
         self.data = self._load()
 
-    def _load(self) -> Dict[str, Any]:
+    def _load(self) -> dict[str, Any]:
         """Load database from file or create default."""
         if self.db_path.exists():
             with open(self.db_path, "r") as f:
                 return json.load(f)
         return self._create_default()
 
-    def _create_default(self) -> Dict[str, Any]:
+    def _create_default(self) -> dict[str, Any]:
         """Create default database structure."""
         return {
             "version": "1.0",
@@ -50,9 +54,9 @@ class InstalledDB:
 
     def _timestamp(self) -> str:
         """Get current timestamp in ISO format."""
-        return datetime.utcnow().isoformat() + "Z"
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    def add_component(self, component_type: str, component_id: str, metadata: Dict[str, Any]):
+    def add_component(self, component_type: str, component_id: str, metadata: dict[str, Any]):
         """Add a component to the database."""
         component_type_key = (
             f"{component_type}s" if not component_type.endswith("s") else component_type
@@ -77,7 +81,7 @@ class InstalledDB:
             self.data["installed"][component_type_key].pop(component_id, None)
         self.save()
 
-    def get_component(self, component_type: str, component_id: str) -> Optional[Dict[str, Any]]:
+    def get_component(self, component_type: str, component_id: str) -> dict[str, Any] | None:
         """Get component metadata from database."""
         component_type_key = (
             f"{component_type}s" if not component_type.endswith("s") else component_type
@@ -91,14 +95,14 @@ class InstalledDB:
                 return True
         return False
 
-    def get_installed_version(self, component_id: str) -> Optional[str]:
+    def get_installed_version(self, component_id: str) -> str | None:
         """Get the installed version of a component."""
         for component_type in self.data["installed"].values():
             if component_id in component_type:
                 return component_type[component_id].get("version", "unknown")
         return None
 
-    def get_all_installed(self) -> List[Dict[str, Any]]:
+    def get_all_installed(self) -> list[dict[str, Any]]:
         """Get all installed components."""
         components = []
         for component_type, items in self.data["installed"].items():
@@ -109,7 +113,7 @@ class InstalledDB:
         return components
 
     def log_action(
-        self, action: str, components: List[str], method: str, status: str, duration: str = "0s"
+        self, action: str, components: list[str], method: str, status: str, duration: str = "0s"
     ):
         """Log an installation action."""
         self.data["logs"]["installation"].append(
@@ -124,7 +128,7 @@ class InstalledDB:
         )
         self.save()
 
-    def add_bundle(self, bundle_name: str, components: List[str]):
+    def add_bundle(self, bundle_name: str, components: list[str]):
         """Add a bundle to the database."""
         self.data["bundles"][bundle_name] = {
             "name": bundle_name,
@@ -150,9 +154,10 @@ class InstalledDB:
 
     def sync_from_detected(
         self,
-        detected_components: Dict[str, List[str]],
+        detected_components: dict[str, list[str]],
         install_method: str = "copy",
-        component_versions: Optional[Dict[str, str]] = None,
+        component_versions: dict[str, str] | None = None,
+        component_fingerprints: dict[str, str] | None = None,
     ):
         """
         Sync database from detected components on disk.
@@ -161,8 +166,9 @@ class InstalledDB:
             detected_components: Dict mapping component types to lists of IDs
             install_method: Installation method used
             component_versions: Optional dict mapping component IDs to their versions
+            component_fingerprints: Optional source hashes keyed by component type and ID
         """
-        # Clear existing components
+        previous_components = self.data["installed"]
         self.data["installed"] = {"agents": {}, "subagents": {}, "skills": {}, "commands": {}}
 
         # Add all detected components
@@ -173,12 +179,24 @@ class InstalledDB:
                 if component_versions and comp_id in component_versions:
                     version = component_versions[comp_id]
 
-                self.data["installed"][comp_type][comp_id] = {
+                component = {
                     "id": comp_id,
                     "type": comp_type.rstrip("s"),
                     "version": version,
                     "installMethod": install_method,
                     "installedAt": self._timestamp(),
                 }
+                fingerprint_key = f"{comp_type.rstrip('s')}:{comp_id}"
+                fingerprint = (
+                    component_fingerprints.get(fingerprint_key) if component_fingerprints else None
+                )
+                if fingerprint:
+                    component["sourceFingerprint"] = fingerprint
+                else:
+                    previous = previous_components.get(comp_type, {}).get(comp_id, {})
+                    if previous.get("sourceFingerprint"):
+                        component["sourceFingerprint"] = previous["sourceFingerprint"]
+
+                self.data["installed"][comp_type][comp_id] = component
 
         self.save()

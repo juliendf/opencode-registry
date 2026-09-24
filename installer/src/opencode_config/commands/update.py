@@ -2,11 +2,13 @@
 Update installed components.
 """
 
-import click
 from pathlib import Path
+
+import click
 from rich.console import Console
-from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+
 from ..config import Config
 from ..utils.copy import CopyManager
 from ..utils.installed_db import InstalledDB
@@ -22,10 +24,15 @@ console = Console()
 @click.option(
     "--dry-run", "-n", is_flag=True, help="Show what would be updated without making changes"
 )
-def update(component_id: str, all: bool, dry_run: bool):
+@click.option(
+    "--inherit-model",
+    is_flag=True,
+    help="Remove model selectors so components inherit the active session model",
+)
+def update(component_id: str, all: bool, dry_run: bool, inherit_model: bool):
     """Update installed components to latest available versions.
 
-    Re-copies files from registry and re-applies model tier configuration.
+    Re-copies the registry package when updates are found, applying configured tiers unless inheritance is requested.
 
     COMPONENT_ID is the unique identifier for the component to update.
     """
@@ -100,6 +107,8 @@ def update(component_id: str, all: bool, dry_run: bool):
         comp_id = component["id"]
         comp_type = component["type"]
         installed_version = component.get("version", "unknown")
+        if comp_id not in on_disk:
+            continue
 
         # Find component in registry and get available version
         available_version = None
@@ -112,13 +121,10 @@ def update(component_id: str, all: bool, dry_run: bool):
                 available_version = manifest.version
 
         elif comp_type == "subagent":
-            subagent_dir = opencode_dir / "agents" / "subagents"
-            for category_dir in subagent_dir.glob("*/"):
-                subagent_file = category_dir / f"{comp_id}.md"
-                if subagent_file.exists():
-                    manifest = ManifestParser.create_from_md(subagent_file, "subagent")
-                    available_version = manifest.version
-                    break
+            subagent_file = opencode_dir / "agents" / "subagents" / f"{comp_id}.md"
+            if subagent_file.exists():
+                manifest = ManifestParser.create_from_md(subagent_file, "subagent")
+                available_version = manifest.version
 
         elif comp_type == "skill":
             skill_file = opencode_dir / "skills" / comp_id / "SKILL.md"
@@ -132,24 +138,37 @@ def update(component_id: str, all: bool, dry_run: bool):
                 manifest = ManifestParser.create_from_md(command_file, "command")
                 available_version = manifest.version
 
-        # Check if update available
-        if available_version and installed_version != "unknown":
+        version_changed = False
+        if (
+            available_version
+            and installed_version
+            and installed_version != "N/A"
+            and available_version != "N/A"
+        ):
             try:
-                if is_newer_version(available_version, installed_version):
-                    updates_available.append(
-                        {
-                            "id": comp_id,
-                            "type": comp_type,
-                            "installed": installed_version,
-                            "available": available_version,
-                        }
-                    )
-            except Exception:
-                pass
+                version_changed = is_newer_version(available_version, installed_version)
+            except (AttributeError, TypeError, ValueError) as error:
+                console.print(
+                    f"[yellow]Warning:[/yellow] Could not compare versions for {comp_id}: {error}"
+                )
+
+        source_fingerprint = copy_manager.get_component_fingerprint(comp_type, comp_id)
+        installed_fingerprint = component.get("sourceFingerprint")
+        source_changed = bool(source_fingerprint) and source_fingerprint != installed_fingerprint
+        if version_changed or source_changed:
+            updates_available.append(
+                {
+                    "id": comp_id,
+                    "type": comp_type,
+                    "installed": installed_version,
+                    "available": available_version or "N/A",
+                    "source_changed": source_changed,
+                }
+            )
 
     # Display results
     total_changes = len(missing_components) + len(updates_available)
-    
+
     if total_changes == 0:
         console.print("[green]✓[/green] All components are up to date and present!")
         return
@@ -163,7 +182,7 @@ def update(component_id: str, all: bool, dry_run: bool):
 
     # Show version updates
     if updates_available:
-        table = Table(title=f"Version Updates Available ({len(updates_available)})")
+        table = Table(title=f"Updates Available ({len(updates_available)})")
         table.add_column("Component", style="cyan")
         table.add_column("Type", style="magenta")
         table.add_column("Installed", style="yellow")
@@ -181,9 +200,10 @@ def update(component_id: str, all: bool, dry_run: bool):
 
     # Perform update — re-copy and re-apply model tiers
     console.print("[cyan]Updating components...[/cyan]")
-    console.print(
-        "[dim]Model tiers will be re-applied from current configuration[/dim]\n"
-    )
+    if inherit_model:
+        console.print("[dim]Model selectors will be removed for this update[/dim]\n")
+    else:
+        console.print("[dim]Model tiers will be re-applied from current configuration[/dim]\n")
 
     target_dir = Path(config.target_dir).expanduser()
     copy_manager = CopyManager(registry_path, target_dir, config)
@@ -195,7 +215,9 @@ def update(component_id: str, all: bool, dry_run: bool):
 
         # Uninstall then reinstall to pick up registry changes + re-apply model tiers
         copy_manager.uninstall_package("opencode", dry_run=False)
-        success = copy_manager.install_package("opencode", dry_run=False)
+        success = copy_manager.install_package(
+            "opencode", dry_run=False, inherit_model=inherit_model
+        )
 
         if success:
             detected_after = copy_manager.detect_installed_components()
@@ -212,13 +234,11 @@ def update(component_id: str, all: bool, dry_run: bool):
                                 f, "agent"
                             ).version
                     elif comp_type == "subagent":
-                        for cat in (opencode_dir / "agents" / "subagents").glob("*/"):
-                            f = cat / f"{cid}.md"
-                            if f.exists():
-                                component_versions[cid] = ManifestParser.create_from_md(
-                                    f, "subagent"
-                                ).version
-                                break
+                        f = opencode_dir / "agents" / "subagents" / f"{cid}.md"
+                        if f.exists():
+                            component_versions[cid] = ManifestParser.create_from_md(
+                                f, "subagent"
+                            ).version
                     elif comp_type == "skill":
                         f = opencode_dir / "skills" / cid / "SKILL.md"
                         if f.exists():
@@ -232,8 +252,13 @@ def update(component_id: str, all: bool, dry_run: bool):
                                 f, "command"
                             ).version
 
-            db.sync_from_detected(detected_after, "copy", component_versions)
-            
+            db.sync_from_detected(
+                detected_after,
+                "copy",
+                component_versions,
+                component_fingerprints=copy_manager.get_component_fingerprints(detected_after),
+            )
+
             # Log all affected components
             affected = [m["id"] for m in missing_components] + [u["id"] for u in updates_available]
             db.log_action("update", affected, "copy", "success")
@@ -244,7 +269,7 @@ def update(component_id: str, all: bool, dry_run: bool):
             parts.append(f"restored {len(missing_components)} missing")
         if updates_available:
             parts.append(f"updated {len(updates_available)}")
-        
+
         summary = " and ".join(parts) if parts else "updated 0"
         console.print(f"[green]✓[/green] Successfully {summary} component(s)!")
     else:

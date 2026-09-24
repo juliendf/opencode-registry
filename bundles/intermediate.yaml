@@ -3,19 +3,22 @@ description: "Extended collection for developers working on diverse projects"
 components:
   # Primary agents
   - ask-me-anything
-  - plan-design
-  - plan-architecture
+  - plan
   - debug
   - review
-  - build-code
+  - build
   
   # Skills
   - project-docs
   - mcp-builder
   - proofreader
   - second-opinion
+  - python-pro
+  - typescript-pro
+  - react-specialist
+  - debugging-guide
   
   # Commands
   - commit
-  - review
+  - documentation
   - kb

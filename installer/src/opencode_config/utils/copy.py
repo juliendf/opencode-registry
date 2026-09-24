@@ -2,14 +2,19 @@
 File copying with template processing for component installation.
 """
 
+from __future__ import annotations
+
+import hashlib
+import re
 import shutil
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 from rich.console import Console
 
 from ..config import Config
-from .template import TemplateEngine
 from .manifest import ManifestParser
+from .template import TemplateEngine
 
 console = Console()
 
@@ -32,7 +37,11 @@ class CopyManager:
         self.template_engine = TemplateEngine(config)
 
     def install_package(
-        self, package_name: str, dry_run: bool = False, model_override: Optional[str] = None
+        self,
+        package_name: str,
+        dry_run: bool = False,
+        model_override: str | None = None,
+        inherit_model: bool = False,
     ) -> bool:
         """
         Copy package files, processing templates.
@@ -41,11 +50,15 @@ class CopyManager:
             package_name: Name of package directory (e.g., 'opencode')
             dry_run: If True, simulate without making changes
             model_override: Optional model to override tier resolution
+            inherit_model: Remove selectors from agent and command frontmatter
 
         Returns:
             True if successful, False otherwise
         """
         package_path = self.registry_path / package_name
+
+        if model_override and inherit_model:
+            raise ValueError("model_override cannot be used with inherit_model")
 
         if not package_path.exists():
             console.print(f"[red]Error:[/red] Package directory not found: {package_path}")
@@ -81,16 +94,20 @@ class CopyManager:
 
                     # Check for conflicts
                     if target_path.exists() and not self._can_overwrite(target_path):
-                        console.print(
-                            f"[yellow]Warning:[/yellow] {target_path} exists, skipping"
-                        )
+                        console.print(f"[yellow]Warning:[/yellow] {target_path} exists, skipping")
                         continue
 
                     # Process file
                     try:
-                        self._copy_and_process_file(item, target_path, model_override)
+                        self._copy_and_process_file(
+                            item,
+                            target_path,
+                            model_override,
+                            inherit_model=inherit_model,
+                            relative_path=rel_path,
+                        )
                         copied_count += 1
-                    except Exception as e:
+                    except (OSError, TypeError, ValueError) as e:
                         console.print(f"[red]Error copying {rel_path}:[/red] {e}")
                         success = False
 
@@ -134,10 +151,6 @@ class CopyManager:
                         target_path.unlink()
                         removed_count += 1
 
-        # Clean up empty directories
-        if not dry_run:
-            self._cleanup_empty_dirs(self.target_dir)
-
         if dry_run:
             console.print(f"\n[dim]Would remove {removed_count} files[/dim]")
         else:
@@ -145,7 +158,7 @@ class CopyManager:
 
         return True
 
-    def detect_installed_components(self) -> Dict[str, List[str]]:
+    def detect_installed_components(self) -> dict[str, list[str]]:
         """
         Detect installed components by scanning target directory.
 
@@ -167,23 +180,19 @@ class CopyManager:
                 if item.is_file() and item.suffix == ".md":
                     installed["agents"].append(item.stem)
 
-            # Check for subagents directory
+            # Check for subagents directory (flat structure)
             subagent_dir = agent_dir / "subagents"
             if subagent_dir.exists() and subagent_dir.is_dir():
-                for category_dir in subagent_dir.iterdir():
-                    if category_dir.is_dir():
-                        for subagent_file in category_dir.glob("*.md"):
-                            if not subagent_file.name.startswith("."):
-                                installed["subagents"].append(subagent_file.stem)
+                for subagent_file in subagent_dir.glob("*.md"):
+                    if not subagent_file.name.startswith("."):
+                        installed["subagents"].append(subagent_file.stem)
 
         # Check skill directory
         skill_dir = self.target_dir / "skills"
         if skill_dir.exists():
             for item in skill_dir.iterdir():
-                if item.is_dir() and not item.name.startswith("."):
-                    # Check if SKILL.md exists
-                    if (item / "SKILL.md").exists():
-                        installed["skills"].append(item.name)
+                if item.is_dir() and not item.name.startswith(".") and (item / "SKILL.md").exists():
+                    installed["skills"].append(item.name)
 
         # Check command directory
         command_dir = self.target_dir / "commands"
@@ -194,7 +203,76 @@ class CopyManager:
 
         return installed
 
-    def get_installed_metadata(self, component_path: Path) -> Dict[str, Any]:
+    def get_component_fingerprint(
+        self, component_type: str, component_id: str, package_name: str = "opencode"
+    ) -> str | None:
+        """Hash registry source files and model-tier resolution for one component."""
+        package_path = self.registry_path / package_name
+        if component_type == "agent":
+            component_path = package_path / "agents" / f"{component_id}.md"
+            files = [component_path] if component_path.is_file() else []
+            fingerprint_root = package_path
+        elif component_type == "subagent":
+            component_path = package_path / "agents" / "subagents" / f"{component_id}.md"
+            files = [component_path] if component_path.is_file() else []
+            fingerprint_root = package_path
+        elif component_type == "skill":
+            component_path = package_path / "skills" / component_id
+            files = (
+                sorted(
+                    path
+                    for path in component_path.rglob("*")
+                    if path.is_file()
+                    and not any(
+                        part.startswith(".") or part == "__pycache__" for part in path.parts
+                    )
+                )
+                if component_path.is_dir()
+                else []
+            )
+            fingerprint_root = component_path
+        elif component_type == "command":
+            component_path = package_path / "commands" / f"{component_id}.md"
+            files = [component_path] if component_path.is_file() else []
+            fingerprint_root = package_path
+        else:
+            return None
+
+        if not files:
+            return None
+
+        digest = hashlib.sha256()
+        for path in files:
+            digest.update(path.relative_to(fingerprint_root).as_posix().encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(path.read_bytes())
+            digest.update(b"\0")
+
+        if component_type != "skill":
+            frontmatter = ManifestParser.parse_frontmatter(component_path)
+            tier = frontmatter.get("model_tier") if isinstance(frontmatter, dict) else None
+            if tier:
+                configured_model = self.config.get_model_for_tier(tier) or "<inherit>"
+                digest.update(f"tier:{tier}:{configured_model}".encode())
+
+        return digest.hexdigest()
+
+    def get_component_fingerprints(
+        self, detected_components: dict[str, list[str]], package_name: str = "opencode"
+    ) -> dict[str, str]:
+        """Return source fingerprints keyed by singular type and component ID."""
+        fingerprints = {}
+        for component_type_plural, component_ids in detected_components.items():
+            component_type = component_type_plural.rstrip("s")
+            for component_id in component_ids:
+                fingerprint = self.get_component_fingerprint(
+                    component_type, component_id, package_name
+                )
+                if fingerprint:
+                    fingerprints[f"{component_type}:{component_id}"] = fingerprint
+        return fingerprints
+
+    def get_installed_metadata(self, component_path: Path) -> dict[str, Any]:
         """
         Extract metadata from installed component.
 
@@ -213,29 +291,59 @@ class CopyManager:
 
         return {}
 
+    def _tier_configured(self, tier: str) -> bool:
+        """
+        Check if a model tier has been explicitly configured by the user.
+
+        Args:
+            tier: Tier name (high, medium, low, free)
+
+        Returns:
+            True if the tier has a configured model, False otherwise
+        """
+        return self.template_engine.config.get_model_for_tier(tier) is not None
+
     def _copy_and_process_file(
-        self, source: Path, dest: Path, model_override: Optional[str] = None
-    ):
+        self,
+        source: Path,
+        dest: Path,
+        model_override: str | None = None,
+        inherit_model: bool = False,
+        relative_path: Path | None = None,
+    ) -> None:
         """
         Copy file and process templates if applicable.
 
         Model-aware markdown files can use ``model_tier`` as a placeholder.
-        During install that line is replaced with ``model: <resolved-value>``
-        where supported so the installed file is clean and opencode-compatible.
+        During install:
+        - If ``model_override`` is provided: replace with ``model: <override>``
+        - If the tier IS configured: resolve to ``model: <resolved>``
+        - If the tier is NOT configured: remove the line entirely (inherit model)
 
         Args:
             source: Source file path
             dest: Destination file path
             model_override: Optional literal model string; skips tier resolution
+            inherit_model: Strip selectors from agent and command frontmatter
+            relative_path: Source path relative to the installed package
         """
         if not self.template_engine.should_process_file(str(source)):
             shutil.copy2(source, dest)
             return
 
-        import re
-
         with open(source, "r", encoding="utf-8") as f:
             content = f.read()
+
+        if (
+            inherit_model
+            and relative_path
+            and relative_path.parts
+            and relative_path.parts[0] in {"agents", "commands"}
+        ):
+            content = self._remove_model_selectors(content)
+            with open(dest, "w", encoding="utf-8") as f:
+                f.write(content)
+            return
 
         tier_pattern = re.compile(r'^model_tier:\s*["\']?(\w+)["\']?\s*$', re.MULTILINE)
 
@@ -247,11 +355,15 @@ class CopyManager:
             else:
                 content = content.replace("---\n", f"---\nmodel: {model_override}\n", 1)
         else:
-            # Resolve model_tier → model via configured tiers
+            # Resolve model_tier → model via configured tiers.
+            # When tier not configured: remove line (inherit caller model)
             def resolve_tier(match: re.Match) -> str:
                 tier = match.group(1)
-                resolved = self.template_engine.resolve_model(tier)
-                return f"model: {resolved}"
+                if self._tier_configured(tier):
+                    resolved = self.template_engine.resolve_model(tier)
+                    return f"model: {resolved}"
+                else:
+                    return ""  # Remove the line — model inheritance
 
             content = tier_pattern.sub(resolve_tier, content)
 
@@ -263,6 +375,41 @@ class CopyManager:
 
         with open(dest, "w", encoding="utf-8") as f:
             f.write(content)
+
+    @staticmethod
+    def _remove_model_selectors(content: str) -> str:
+        """Remove top-level model selector keys while preserving body and nested metadata."""
+        opening = re.match(r"\A---\r?\n", content)
+        if opening is None:
+            return content
+
+        closing = re.search(r"(?m)^---[ \t]*\r?$", content[opening.end() :])
+        if closing is None:
+            return content
+
+        frontmatter_end = opening.end() + closing.start()
+        frontmatter = content[opening.end() : frontmatter_end]
+        selector_fields = {"model", "model_tier", "variant"}
+        cleaned_lines = []
+        skip_nested_value = False
+        for line in frontmatter.splitlines(keepends=True):
+            if not line.strip():
+                if not skip_nested_value:
+                    cleaned_lines.append(line)
+                continue
+            if line[0].isspace():
+                if not skip_nested_value:
+                    cleaned_lines.append(line)
+                continue
+
+            key, separator, _ = line.partition(":")
+            normalized_key = key.strip().strip("\"'")
+            skip_nested_value = bool(separator) and normalized_key in selector_fields
+            if not skip_nested_value:
+                cleaned_lines.append(line)
+
+        cleaned_frontmatter = "".join(cleaned_lines)
+        return content[: opening.end()] + cleaned_frontmatter + content[frontmatter_end:]
 
     def _can_overwrite(self, path: Path) -> bool:
         """
@@ -277,17 +424,3 @@ class CopyManager:
         # For now, allow overwrite (user should backup if needed)
         # Future: could check if file was modified by user
         return True
-
-    def _cleanup_empty_dirs(self, base_dir: Path):
-        """
-        Remove empty directories recursively.
-
-        Args:
-            base_dir: Base directory to clean
-        """
-        for dirpath in sorted(base_dir.rglob("*"), reverse=True):
-            if dirpath.is_dir() and not any(dirpath.iterdir()):
-                try:
-                    dirpath.rmdir()
-                except OSError:
-                    pass

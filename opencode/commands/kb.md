@@ -1,7 +1,6 @@
 ---
 description: Create a Knowledge Base article from troubleshooting session to document the problem, root cause, and resolution for future reference.
 model_tier: "low"
-version: "1.3.0"
 ---
 
 # Knowledge Base Article Generator

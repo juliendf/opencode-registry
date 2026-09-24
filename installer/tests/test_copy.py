@@ -198,16 +198,20 @@ class TestUninstallPackage:
         copy_manager.uninstall_package("opencode", dry_run=True)
         assert (target_dir / "agents" / "keepme.md").exists()
 
-    def test_uninstall_cleans_empty_dirs(self, copy_manager, registry, target_dir):
-        """After uninstall, empty dirs should be removed."""
+    def test_uninstall_preserves_empty_global_and_custom_dirs(
+        self, copy_manager, registry, target_dir
+    ):
+        """Uninstall removes registry files but leaves unrelated directories intact."""
         agent = registry / "opencode" / "agents" / "cleanup.md"
         agent.write_text(
             "---\nname: Cleanup\ndescription: c\ntype: agent\n---\n# Cleanup\n"
         )
+        custom_empty_dir = target_dir / "agents" / "custom-empty"
+        custom_empty_dir.mkdir(parents=True)
         copy_manager.install_package("opencode")
         copy_manager.uninstall_package("opencode")
-        # agents/ dir should be gone since it's empty
-        assert not (target_dir / "agents").exists()
+        assert (target_dir / "agents").is_dir()
+        assert custom_empty_dir.is_dir()
 
 
 # ---------------------------------------------------------------------------
@@ -238,8 +242,8 @@ class TestDetectInstalledComponents:
         result = copy_manager.detect_installed_components()
         assert "_shared" not in result["agents"]
 
-    def test_detects_subagents(self, copy_manager, target_dir):
-        subagents_dir = target_dir / "agents" / "subagents" / "01-core"
+    def test_detects_flat_subagents(self, copy_manager, target_dir):
+        subagents_dir = target_dir / "agents" / "subagents"
         subagents_dir.mkdir(parents=True)
         (subagents_dir / "backend-architect.md").write_text("# Backend\n")
 

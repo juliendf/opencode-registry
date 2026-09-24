@@ -4,7 +4,6 @@ description: Shared communication style and engagement model guidelines for spec
 type: shared-config
 mode: subagent
 hidden: true
-version: "1.0.0"
 ---
 
 # Communication Style & Engagement Model

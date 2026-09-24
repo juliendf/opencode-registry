@@ -28,8 +28,8 @@ opencode-config list --type subagent
 opencode-config list --type skill
 
 # Show component details
-opencode-config info plan-design
-opencode-config info kubernetes-expert
+opencode-config info plan
+opencode-config info infrastructure-engineer
 ```
 
 ### Install Components
@@ -45,6 +45,9 @@ opencode-config install --group advanced
 
 # Install to custom location
 opencode-config install --group basic --target /custom/path
+
+# Install without model selectors; agents inherit active session model
+opencode-config install --group advanced --inherit-model
 
 # Install with explicit model override (all components use this model)
 opencode-config install --group basic --model "github-copilot/claude-sonnet-4.5"
@@ -84,7 +87,10 @@ opencode-config update --all --dry-run
 opencode-config update --all
 
 # Update specific component
-    opencode-config update build-code
+opencode-config update build
+
+# Use session model for the update copy
+opencode-config update --all --inherit-model
 
 # Sync database from disk
 opencode-config sync
@@ -92,6 +98,8 @@ opencode-config sync
 # Preview sync
 opencode-config sync --dry-run
 ```
+
+When update detects a missing or changed component, it currently re-copies the full registry package. A custom file not present in registry source remains untouched; local edits to registry-managed files can be overwritten. `--inherit-model` applies to every agent/command copied during that update. To force conversion when no update is pending, use `install --inherit-model`.
 
 ### Uninstall
 
@@ -123,9 +131,9 @@ opencode-config config --registry /path/to/registry
 
 | Bundle | Components | Description |
 |--------|-----------|-------------|
-| `basic` | 5 | Essential agents and skills for getting started |
-| `intermediate` | 10+ | Extended collection for common workflows |
-| `advanced` | 59 | Complete ecosystem with all components |
+| `basic` | 4 | Essential agents and skill for getting started |
+| `intermediate` | 16 | Extended collection for common workflows |
+| `advanced` | 58 | Complete ecosystem with all components |
 
 **Note:** Individual component installation is planned for a future release. Currently, use bundles to install components.
 
@@ -213,11 +221,10 @@ opencode-config install --group basic
 
 | Type | Count | Location |
 |------|-------|----------|
-| **Primary Agents** | 7 | `agents/*.md` |
-| **Subagents** | 43 | `agents/subagents/**/*.md` |
-| **Skills** | 6 | `skills/*/` |
+| **Primary Agents** | 5 | `agents/*.md` |
+| **Subagents** | 10 | `agents/subagents/*.md` |
+| **Skills** | 40+ | `skills/*/` |
 | **Commands** | 3 | `commands/*.md` |
-| **Total** | **59** | — |
 
 ## ⚠️ Important Notes
 
@@ -270,5 +277,5 @@ opencode-config status --help
 opencode-config list                           # Browse components
 opencode-config install --group basic          # Install essentials
 opencode-config status                         # Verify installation
-opencode-config info kubernetes-expert         # Learn about a component
+opencode-config info infrastructure-engineer         # Learn about a component
 ```

@@ -93,10 +93,10 @@ class TestManifestParser:
         assert frontmatter is None
 
     def test_extract_version_agent(self):
-        """Test version extraction for agents."""
+        """Agents no longer use frontmatter versions."""
         frontmatter = {"version": "1.5.0", "name": "Test"}
         version = ManifestParser._extract_version(frontmatter, "agent")
-        assert version == "1.5.0"
+        assert version == "N/A"
 
     def test_extract_version_skill(self):
         """Test version extraction for skills."""
@@ -108,13 +108,13 @@ class TestManifestParser:
         """Test version extraction for skills without metadata."""
         frontmatter = {"name": "Test"}
         version = ManifestParser._extract_version(frontmatter, "skill")
-        assert version == "1.0.0"  # Default
+        assert version == "N/A"
 
-    def test_extract_version_default(self):
-        """Test version extraction with missing version field."""
+    def test_extract_version_agent_without_version(self):
+        """Agents without frontmatter versions report N/A."""
         frontmatter = {"name": "Test"}
         version = ManifestParser._extract_version(frontmatter, "agent")
-        assert version == "1.0.0"  # Default
+        assert version == "N/A"
 
     def test_create_from_md_agent(self, mock_agent_md):
         """Test creating manifest from agent markdown file."""
@@ -124,7 +124,7 @@ class TestManifestParser:
         assert manifest.type == "agent"
         assert manifest.name == "Test Agent"
         assert manifest.description == "A test agent for unit testing"
-        assert manifest.version == "1.2.3"
+        assert manifest.version == "N/A"
         assert manifest.author == "Test Author"
         assert manifest.tags == ["test", "mock"]
         assert len(manifest.sources) == 1

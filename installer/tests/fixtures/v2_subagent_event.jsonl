@@ -1,0 +1,2 @@
+{"type":"tool_use","part":{"type":"tool","tool":"subagent","state":{"status":"completed","input":{"agent":"subagents/infrastructure-engineer","description":"fixture-description","prompt":"fixture-prompt"},"output":"fixture-output"}}}
+{"type":"text","part":{"type":"text","text":"fixture-response"}}

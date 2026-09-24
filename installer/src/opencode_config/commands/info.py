@@ -18,7 +18,7 @@ console = Console()
 def info(component_id: str):
     """Show detailed information about a component.
 
-    COMPONENT_ID is the unique identifier for the component (e.g., build-code, mcp-builder).
+    COMPONENT_ID is the unique identifier for the component (e.g., build, kubernetes-patterns).
     """
     config = Config()
     db = InstalledDB()
@@ -29,9 +29,9 @@ def info(component_id: str):
         console.print("[cyan]Usage:[/cyan]")
         console.print("  opencode-config info <component-id>\n")
         console.print("[cyan]Examples:[/cyan]")
-        console.print("  opencode-config info build-code")
-        console.print("  opencode-config info mcp-builder")
-        console.print("  opencode-config info backend-architect\n")
+        console.print("  opencode-config info build")
+        console.print("  opencode-config info kubernetes-patterns")
+        console.print("  opencode-config info aws-patterns\n")
         console.print(
             "[dim]Tip: Run 'opencode-config list' to see all available component IDs[/dim]"
         )
@@ -58,13 +58,10 @@ def info(component_id: str):
 
     # Check subagents
     if not manifest:
-        subagent_dir = opencode_dir / "agents" / "subagents"
-        for category_dir in subagent_dir.glob("*/"):
-            subagent_file = category_dir / f"{component_id}.md"
-            if subagent_file.exists():
-                manifest = ManifestParser.create_from_md(subagent_file, "subagent")
-                component_path = subagent_file
-                break
+        subagent_file = opencode_dir / "agents" / "subagents" / f"{component_id}.md"
+        if subagent_file.exists():
+            manifest = ManifestParser.create_from_md(subagent_file, "subagent")
+            component_path = subagent_file
 
     # Check skills
     if not manifest:

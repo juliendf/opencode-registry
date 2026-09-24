@@ -44,10 +44,42 @@ installer/src/opencode_config/
 └── utils/              # Shared utilities
 
 opencode/               # Component library
-├── agents/             # Primary agents & subagents
-├── skills/             # Skills (SKILL.md workflows)
-└── commands/           # Custom commands
+├── agents/             # Primary agents (5)
+│   ├── ask-me-anything.md
+│   ├── plan.md
+│   ├── build.md
+│   ├── debug.md
+│   ├── review.md
+│   └── subagents/      # Specialist subagents (10, flat)
+│       ├── infrastructure-engineer.md
+│       ├── data-engineer.md
+│       ├── ml-engineer.md
+│       ├── mlops-engineer.md
+│       ├── ai-engineer.md
+│       ├── penetration-tester.md
+│       ├── security-auditor.md
+│       ├── mobile-developer.md
+│       ├── cli-developer.md
+│       └── fullstack-developer.md
+├── skills/             # Skills (40+) - knowledge injection
+│   ├── python-pro/
+│   ├── typescript-pro/
+│   ├── aws-patterns/
+│   ├── kubernetes-patterns/
+│   └── ...
+└── commands/           # Custom commands (3)
+    ├── commit.md
+    ├── documentation.md
+    └── kb.md
 ```
+
+## Organization Philosophy
+
+**Primary Agents (5):** Override built-in opencode agents. Handle broad categories (planning, coding, debugging, review, general knowledge).
+
+**Subagents (10):** Invoke with V2 `subagent` tool and IDs prefixed by `subagents/`. Use for autonomous execution, not knowledge lookup.
+
+**Skills (40+):** Inject knowledge into current context with V2 `skill` tool and exact skill ID. Load when domain expertise is needed without spawning a child session.
 
 ## Code Style
 
@@ -106,13 +138,14 @@ if not path.exists():
 name: "Component Name"
 description: "Brief description"
 type: "agent|subagent|skill|command"
-version: "1.0.0"
-model_tier: "free|low|medium|high"
+model_tier: "medium"  # Optional, remove to inherit caller model
 ---
 ```
 
 **Notes:**
 - `model_tier` is optional. Valid values: `high`, `medium`, `low`, `free`
+- `version:` field removed in v1.0 — tracked by installer database instead
+- `install --inherit-model` and `update --inherit-model` remove model selectors for that invocation only; update recopies the full registry package when any change is detected
 
 **Markdown style:**
 - ATX headers (`#`)
@@ -158,10 +191,24 @@ model_for_high = config.get_model_for_tier("high")
 ```
 
 **Component structure:**
+
+Agents (primary or subagent):
 ```
 opencode/agents/my-agent.md
-opencode/agents/subagents/01-core/
+opencode/agents/subagents/my-subagent.md
+```
+
+Skills:
+```
 opencode/skills/skill-name/SKILL.md
+```
+
+Skills require this frontmatter:
+```yaml
+---
+name: skill-name
+description: When to trigger and what this skill covers
+---
 ```
 
 **Adding to bundles:**
