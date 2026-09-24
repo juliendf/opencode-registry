@@ -116,7 +116,9 @@ def run_wizard(cfg: Config):
     """
     console.print("\n[bold cyan]Model Tier Configuration Wizard[/bold cyan]\n")
     console.print(
-        "Configure models for each complexity tier. Press Enter to keep current value.\n"
+        "Configure models for each complexity tier.\n"
+        "Leave a tier empty to skip it — components with that tier\n"
+        "will inherit the model you manually select in OpenCode.\n"
     )
     console.print("[dim]Browse available models at https://models.dev/ or run 'opencode models'[/dim]\n")
 

@@ -44,15 +44,15 @@ opencode-config sync
 
 ### What is OpenCode Registry?
 
-A curated collection of 59 AI agents, subagents, skills, and commands with a CLI tool to install and manage them.
+A curated collection of agents, subagents, skills, and commands with a CLI tool to install and manage them.
 
 ### What's the difference between agents, subagents, skills, and commands?
 
 | Type | Use | How |
 |------|-----|-----|
 | **Primary Agents** | Core AI personas | Press **Tab** to switch |
-| **Subagents** | Specialized experts | Use **@mention** or auto-invoked |
-| **Skills** | Multi-step workflows | Loaded automatically |
+| **Subagents** | Independent execution agents | Invoked with V2 `subagent` tool and full ID such as `subagents/infrastructure-engineer` |
+| **Skills** | Knowledge and reusable workflows | Loaded by agents with V2 `skill` tool and ID such as `python-pro` |
 | **Commands** | Common tasks | Type **/command** |
 
 ### How much does it cost?
@@ -67,7 +67,7 @@ Free and open-source under MIT License.
 
 - **Python** 3.8+
 - **Git**
-- **OpenCode** 1.2.5+ - [Download](https://opencode.ai) or [OpenCode Zen](https://zen.opencode.ai)
+- **OpenCode V2** - [V2 CLI guide](https://opencode.ai/v2/docs/cli)
 
 ### How do I install?
 
@@ -110,9 +110,9 @@ opencode-config config --target /path/to/directory
 
 ### Which bundle should I start with?
 
-- **basic** (5 components) - Essential agents and a starter skill set
-- **intermediate** (10+) - Common workflows
-- **advanced** (59) - Everything
+- **basic** (4 components) - Essential agents and skill
+- **intermediate** (16) - Common workflows
+- **advanced** (58) - Complete registry catalog
 
 Start with `basic`, add more as needed.
 
@@ -126,7 +126,7 @@ opencode-config update --all --dry-run
 opencode-config update --all
 
 # Update specific
-opencode-config update build-code
+opencode-config update build
 ```
 
 ### How do I uninstall?
@@ -160,6 +160,15 @@ opencode-config models --set low "github-copilot/claude-haiku-4.5"
 ### What's the "free" tier for?
 
 Testing, CI/CD, or environments without paid model access.
+
+### How do I make agents inherit the active session model?
+
+Pass `--inherit-model` on each install or update command. Install always recopies the catalog. Update triggers on detected missing/source/version changes and currently recopies the full registry package; custom files outside the registry remain untouched, while local edits to registry-managed files are overwritten. The flag is not persisted and leaves skill files unchanged. To force a full conversion, run install with the flag.
+
+```bash
+opencode-config install --group advanced --inherit-model
+opencode-config update --all --inherit-model
+```
 
 ---
 
@@ -265,8 +274,8 @@ ERROR: file:///path/to/opencode-registry does not appear to be a Python project
    ```
 
 2. Use correct component ID:
-   - `build-code.md` → `build-code`
-   - Skills: `mcp-builder/` → `mcp-builder`, `proofreader/` → `proofreader`
+    - `build.md` → `build`
+    - Skills: `mcp-builder/` → `mcp-builder`, `proofreader/` → `proofreader`
 
 ---
 

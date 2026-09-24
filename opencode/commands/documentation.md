@@ -1,7 +1,6 @@
 ---
 description: Review and update project documentation to ensure it's accurate, clear, and comprehensive.
 model_tier: "free"
-version: "1.0.0"
 ---
 
 # Documentation Review and Update

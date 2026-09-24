@@ -4,7 +4,6 @@ description: Guidelines for managing conversation context and session length acr
 type: shared-config
 mode: all
 hidden: true
-version: "1.0.0"
 ---
 
 # Context Management Guidelines

@@ -13,7 +13,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-@click.version_option(version="0.2.0", prog_name="opencode-config")
+@click.version_option(version="1.0.0", prog_name="opencode-config")
 def main():
     """
     OpenCode Registry - Component management for OpenCode agents, skills, and commands.

@@ -33,7 +33,7 @@ cd opencode-registry
 
 Components go in these directories:
 - **Agents:** `opencode/agents/`
-- **Subagents:** `opencode/agents/subagents/<category>/`
+- **Subagents:** `opencode/agents/subagents/`
 - **Skills:** `opencode/skills/<skill-name>/`
 - **Commands:** `opencode/commands/`
 
@@ -46,7 +46,6 @@ All components should have YAML frontmatter with metadata:
 name: "Component Name"
 description: "Brief description"
 type: "agent|subagent|skill|command"
-version: "1.0.0"
 author: "Your Name"
 tags: ["tag1", "tag2"]
 ---
@@ -55,18 +54,6 @@ tags: ["tag1", "tag2"]
 
 Component content here...
 ```
-
-### Categories for Subagents
-
-When adding subagents, use these categories:
-- `01-core` - Backend, API, microservices, GraphQL, fullstack
-- `02-languages` - Python, TypeScript, Go, React, Bash, SQL, Vue
-- `03-infrastructure` - Kubernetes, Terraform, AWS, GCP, Azure, GitOps
-- `04-quality-and-security` - Testing, security, performance, debugging
-- `05-data-ai` - ML, data engineering, AI, database optimization
-- `06-developer-experience` - CLI development, MCP, DX optimization
-- `07-specialized-domains` - Mobile, payments, technical writing
-- `09-meta-orchestration` - Workflow orchestration, context management
 
 ## 🧪 Testing Your Changes
 

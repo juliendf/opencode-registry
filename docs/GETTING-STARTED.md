@@ -6,10 +6,10 @@ A step-by-step guide to installing and using OpenCode Registry for the first tim
 
 `opencode-registry` requires a working OpenCode setup:
 
-- **OpenCode 1.2.5 or later** - The AI assistant platform
+- **OpenCode V2** - The AI coding assistant
   - [Download from opencode.ai](https://opencode.ai)
   - Or use [OpenCode Zen (cloud version)](https://zen.opencode.ai)
-  - See [installation guide](https://opencode.ai/docs/)
+  - See the [V2 CLI guide](https://opencode.ai/v2/docs/cli)
   - Check your version: `opencode --version`
 
 - **At least one usable model backend configured in OpenCode**
@@ -81,7 +81,7 @@ cd ..
 
 **Expected output:**
 ```
-opencode-config, version 0.2.0
+opencode-config, version 1.0.0
 ```
 
 **Troubleshooting:**
@@ -105,18 +105,17 @@ opencode-config list --type skill      # Show only skills
 opencode-config list --type command    # Show only commands
 
 # Get details about a specific component
-    opencode-config info build-code
+opencode-config info plan
 opencode-config info mcp-builder
 ```
 
 **Note:** The CLI automatically detects the registry location when run from the repository directory (including git worktrees).
 
 **What you'll see:**
-- 7 primary agents for different development roles
-- 43 specialized subagents organized by domain
-- 6 skills for complex workflows
+- 5 primary agents for different development roles
+- 10 specialist subagents organized by domain
+- 40+ skills for expertise and workflows
 - 3 commands for common operations
-- **Total: 59 components**
 
 ---
 
@@ -126,9 +125,9 @@ OpenCode Registry offers three installation bundles:
 
 | Bundle | Components | Best For |
 |--------|-----------|----------|
-| **basic** | 5 essential | First-time users, minimal setup |
-| **intermediate** | 10+ components | Regular users, common workflows |
-| **advanced** | All 59 components | Power users, complete ecosystem |
+| **basic** | 4 components | First-time users, minimal setup |
+| **intermediate** | 16 components | Regular users, common workflows |
+| **advanced** | 58 components | Power users, complete ecosystem |
 
 **Preview a bundle before installing:**
 
@@ -143,10 +142,10 @@ opencode-config install --group basic --dry-run
 
 ### First-Run Experience
 
-When installing for the first time, you'll be guided through model tier configuration:
+If model tiers are not yet configured, you'll be guided through model tier configuration (optional). You can skip this — components will inherit the calling agent's model.
 
 ```bash
-# Install the basic bundle
+# Install the basic bundle with configured tier behavior (default)
 opencode-config install --group basic
 
 # You'll see:
@@ -166,8 +165,17 @@ The wizard helps you configure which model to use for each complexity tier:
 - Model tiers were configured in `~/.config/opencode/opencode-registry-config.json`
 - Component files were **copied** to `~/.config/opencode/` with your model tier configuration applied
 - Model-aware component frontmatter was resolved for your setup where supported during installation
+- Skills were copied without rewriting their `SKILL.md` entrypoints
 - Installation was tracked in `~/.config/opencode/opencode-registry-installed.json`
 - You can now use these components with OpenCode
+
+To make every installed agent/command inherit the active session model, even when tiers are configured, use:
+
+```bash
+opencode-config install --group advanced --inherit-model
+```
+
+This flag is per invocation and skips the tier wizard. It removes top-level `model`, `model_tier`, and `variant` from installed agent/command frontmatter while preserving prompt bodies and skill files.
 
 ---
 
@@ -189,7 +197,7 @@ ls ~/.config/opencode/skills/
 ```
 
 **You should see:**
-- Copied `.md` files with correct `model:` values written in
+- Copied `.md` files with resolved `model:` values when configured tiers are used, or no model selectors when installed with `--inherit-model`
 - Components marked as installed with timestamps
 
 ---
@@ -211,7 +219,7 @@ opencode-config models --set low "github-copilot/claude-haiku-4.5"
 opencode-config models --list
 ```
 
-After changing tiers, re-run `opencode-config update --all` to apply the new models to all installed files.
+After changing tiers, run `opencode-config update --all` to apply them. Update runs when it detects missing components, changed source fingerprints, or semantic-version changes; when triggered, current installer recopies the full registry package. Files outside registry source remain untouched, but local edits to registry-managed files are overwritten. `update --all --inherit-model` removes selectors from every agent/command copied in that run. To force conversion regardless of pending updates, run `opencode-config install --group advanced --inherit-model`. Flags are not saved as settings.
 
 ---
 
@@ -225,7 +233,7 @@ opencode-config install --group intermediate
 opencode-config update --all --dry-run
 
 # Update specific component
-opencode-config update build-code
+opencode-config update build
 ```
 
 ---
@@ -239,12 +247,13 @@ Your System
 ├── ~/opencode-registry/              # The registry (source)
 │   ├── opencode/                     # All components live here
 │   │   ├── agents/
+│   │   │   └── subagents/           # 10 flat execution agents
 │   │   ├── skills/
 │   │   └── commands/
 │   └── installer/                    # The CLI tool
 │
 ├── ~/.config/opencode/               # Installation target (copied files)
-│   ├── agents/         copied from registry, model resolved
+│   ├── agents/         copied from registry; tier-resolved by default
 │   ├── skills/         copied from registry
 │   └── commands/       copied from registry
 │   ├── opencode-registry-config.json     # Your settings + model tiers
@@ -257,27 +266,28 @@ Your System
 
 | Component Type | Count | How You Use It | Who Calls It | Example |
 |----------------|-------|----------------|--------------|---------|
-| **Primary Agent** | 7 | Press **Tab** to switch | You (in OpenCode) | Switch to `build-code` agent |
-| **Subagent** | 43 | Use **@mention** or invoked automatically | Primary agents or you | `@python-pro optimize this code` |
-| **Skill** | 6 | Loaded by agents automatically | Agents/subagents | Agent loads `mcp-builder` or `working-with-helm-templates` when needed |
+| **Primary Agent** | 5 | Press **Tab** to switch | You (in OpenCode) | Switch to `build` agent |
+| **Subagent** | 10 | Launched through V2 `subagent` tool | Primary agents | `subagent` with `agent: "subagents/infrastructure-engineer"` |
+| **Skill** | 40+ | Loaded through V2 `skill` tool | Agents | `skill` with `id: "python-pro"` |
 | **Command** | 3 | Type **/** in OpenCode | You (in OpenCode) | `/commit` to create git commit |
 
 **In short:**
-- **Agents & Subagents** = AI assistants (Tab for primary, @ for specialized)
-- **Skills** = Reusable workflows (AI-driven, loaded automatically)
+- **Agents** = AI assistants (Tab to switch, one active at a time)
+- **Subagents** = Specialized execution agents with their own context and tools (V2 `subagent`)
+- **Skills** = Knowledge and workflows injected into context when loaded with V2 `skill`
 - **Commands** = User shortcuts (you type /, instant execution)
 
-**Learn more:** [Agents](https://opencode.ai/docs/agents/), [Skills](https://opencode.ai/docs/skills/), [Commands](https://opencode.ai/docs/commands/)
+**Learn more:** [V2 Agents](https://opencode.ai/v2/docs/agents), [V2 Skills](https://opencode.ai/v2/docs/skills), [V2 Commands](https://opencode.ai/v2/docs/commands)
 
 ---
 
 ### How It Works
 
 1. **Registry (Read-Only)**: The `opencode-registry/` directory contains all components
-2. **Installation**: CLI **copies** files from the registry to `~/.config/opencode/` and applies model-tier resolution where supported
+2. **Installation**: CLI **copies** files from registry to `~/.config/opencode/` and resolves configured tiers by default; explicit `--inherit-model` strips selectors
 3. **Tracking**: Database tracks what's installed and when
 4. **Model Tiers**: First install triggers wizard; subsequent installs use saved config
-5. **Updates**: Pull latest changes from git, then run `update --all` — model tier config is re-applied automatically
+5. **Updates**: Run `update --all` to re-apply configured tiers or `update --all --inherit-model` for one-time session-model inheritance
 6. **Auto-Detection**: Registry path is automatically detected from your current directory
 
 **Git Worktree Support:** The CLI works seamlessly with git worktrees. When you run commands from a worktree, it automatically detects the correct registry location without requiring manual configuration updates.
@@ -306,7 +316,7 @@ opencode-config update --all --dry-run
 opencode-config update --all
 
 # Update specific component
-opencode-config update build-code
+opencode-config update build
 ```
 
 ### Uninstalling Components

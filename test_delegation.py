@@ -1,30 +1,20 @@
 #!/usr/bin/env python3
 """
-OpenCode Agentic Delegation Test Suite
-Tests that primary agents correctly delegate to specialist subagents.
+OpenCode Registry — V2 Delegation Test Suite
 
-One test case per primary agent:
-  - ask-me-anything
-  - review
-  - debug
-  - build-code
-  - build-infrastructure
-  - plan-architecture
-  - plan-design  (output-based: validates spec sections, no subagent delegation)
+Tests that primary agents correctly use V2 subagents and skills and produce expected outputs:
+- 5 primary agents (build, plan, debug, review, ask-me-anything)
+- 10 subagents (flat structure)
+- Skills loaded via the V2 skill tool
 
 Usage:
     python test_delegation.py                  # Interactive test selection
-    python test_delegation.py -v               # Show agent response + task call details
-    python test_delegation.py -t "Test 1"      # Run a specific test by name
-    python test_delegation.py --list           # List all test cases
-
-How it works:
-    1. Runs `opencode run --agent <agent> --format json "<prompt>"`
-    2. Parses the JSON event stream for `tool_use` events where tool == "task"
-    3. Extracts `subagent_type` from each task call
-    4. Asserts that all expected subagents were called (delegation tests)
-       OR that all expected keywords appear in the agent's text response (output tests)
+    python test_delegation.py -v               # Show agent response + tool calls
+    python test_delegation.py -t "Test 1"      # Run specific test
+    python test_delegation.py --list           # List all tests
 """
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -32,8 +22,6 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
-from typing import Optional
-
 
 # ANSI colors
 GREEN = "\033[92m"
@@ -51,9 +39,11 @@ class TestCase:
     agent: str
     prompt: str
     description: str = ""
-    # Delegation test: assert these subagents were called via task()
+    # Delegation test: assert these subagents were called
     expected_subagents: list[str] = field(default_factory=list)
-    # Output test: assert these keywords appear in the agent's text response
+    # Knowledge test: assert these skills were loaded
+    expected_skills: list[str] = field(default_factory=list)
+    # Output test: assert these keywords appear in agent's text response
     expected_output_keywords: list[str] = field(default_factory=list)
 
 
@@ -64,49 +54,166 @@ class TestResult:
     called_subagents: list[str] = field(default_factory=list)
     missing_subagents: list[str] = field(default_factory=list)
     unexpected_subagents: list[str] = field(default_factory=list)
+    called_skills: list[str] = field(default_factory=list)
+    missing_skills: list[str] = field(default_factory=list)
     missing_keywords: list[str] = field(default_factory=list)
-    error: Optional[str] = None
+    error: str | None = None
     duration: float = 0.0
     raw_output: str = ""
-    agent_response: str = ""  # final text output from the agent
+    agent_response: str = ""
 
 
 # ---------------------------------------------------------------------------
-# Test Cases — one per primary agent
+# Test Cases — Restructured V2 Architecture
 # ---------------------------------------------------------------------------
 
 TEST_CASES = [
     # -------------------------------------------------------------------------
-    # Test 1 — ask-me-anything
+    # Test 1 — build → output-based (infra config generation, no subagent needed)
     # -------------------------------------------------------------------------
     TestCase(
-        name="Test 1: ask-me-anything — Multi-Cloud Architecture Strategy",
-        agent="ask-me-anything",
-        description="Triggers aws-specialist + microservices-architect + terraform-expert in parallel",
+        name="build-infra",
+        agent="build",
+        description="Generates K8s/Terraform configs using relevant skills",
         prompt=(
-            "I am designing a new distributed system from scratch using microservices. "
-            "I need advice on: 1) microservices patterns like service discovery, circuit breaker, "
-            "and saga pattern for distributed transactions, 2) whether to use AWS EKS or ECS "
-            "for deployment, and 3) how to structure Terraform modules and tfstate backend "
-            "for a multi-environment setup."
+            "Create a simple Kubernetes deployment YAML file for a Node.js API "
+            "running on port 3000. The deployment should have 3 replicas. "
+            "Write the file to k8s-deployment.yaml and show me the contents."
         ),
-        expected_subagents=[
-            "subagents/03-infrastructure/aws-specialist",
-            "subagents/01-core/microservices-architect",
-            "subagents/03-infrastructure/terraform-expert",
+        expected_output_keywords=[
+            "apiVersion",
+            "Deployment",
+            "replicas",
+            "container",
         ],
     ),
 
     # -------------------------------------------------------------------------
-    # Test 2 — review
+    # Test 2 — review → security review (code analysis, no tool execution)
     # -------------------------------------------------------------------------
     TestCase(
-        name="Test 2: review — Inline Code Security Review",
+        name="review-security",
         agent="review",
-        description="Triggers python-pro + security-auditor + sql-pro from an inline snippet",
+        description="Security review of JWT implementation → review agent handles directly",
         prompt=(
-            "Please review this hypothetical snippet for OWASP vulnerabilities, async "
-            "Python best practices, and SQL query issues:\n\n"
+            "Review this JWT authentication implementation for security issues:\n\n"
+            "```python\n"
+            "import jwt\n"
+            "from fastapi import FastAPI, HTTPException\n"
+            "app = FastAPI()\n"
+            "SECRET = 'hardcoded-secret-123'\n\n"
+            "@app.post('/login')\n"
+            "def login(credentials: dict):\n"
+            "    token = jwt.encode({'user': credentials['user']}, SECRET, algorithm='HS256')\n"
+            "    return {'token': token}\n\n"
+            "@app.get('/protected')\n"
+            "def protected(token: str):\n"
+            "    payload = jwt.decode(token, SECRET, algorithms=['HS256'])\n"
+            "    return {'user': payload['user']}\n"
+            "```\n\n"
+            "Identify vulnerabilities and suggest fixes."
+        ),
+        expected_output_keywords=[
+            "hardcoded",
+            "secret",
+            "HS256",
+            "vulnerability",
+        ],
+    ),
+
+    # -------------------------------------------------------------------------
+    # Test 3 — debug → infrastructure-engineer (K8s pod crash investigation)
+    # -------------------------------------------------------------------------
+    TestCase(
+        name="debug-k8s",
+        agent="debug",
+        description="Inspect K8s pod crash with infrastructure execution subagent",
+        prompt=(
+            "The auth-service pod in namespace production keeps crashing with "
+            "OOMKilled status. Use kubectl to check logs, describe the pod, "
+            "and identify the memory issue. Then fix the deployment manifest."
+        ),
+        expected_subagents=["subagents/infrastructure-engineer"],
+    ),
+
+    # -------------------------------------------------------------------------
+    # Test 4 — build → data-engineer (pipeline execution)
+    # -------------------------------------------------------------------------
+    TestCase(
+        name="build-spark",
+        agent="build",
+        description="Execute Spark job on cluster → needs spark-submit, delegates",
+        prompt=(
+            "I have a Spark job jar file. Submit it to the YARN cluster using "
+            "spark-submit with 4 executors and 2G memory each. Monitor the job "
+            "until completion and check the output in HDFS."
+        ),
+        expected_subagents=["subagents/data-engineer"],
+    ),
+
+    # -------------------------------------------------------------------------
+    # Test 5 — build → penetration-tester (security scan execution)
+    # -------------------------------------------------------------------------
+    TestCase(
+        name="build-pentest",
+        agent="build",
+        description="Run authorized penetration test tools via subagent",
+        prompt=(
+            "Our staging API is at https://staging-api.example.com. "
+            "Run nmap to check open ports, then test for SQL injection and "
+            "JWT vulnerabilities. Report findings with severity ratings."
+        ),
+        expected_subagents=["subagents/penetration-tester"],
+    ),
+
+    # -------------------------------------------------------------------------
+    # Test 6 — plan — Output-based functional spec (no subagent delegation)
+    # -------------------------------------------------------------------------
+    TestCase(
+        name="plan-spec",
+        agent="plan",
+        description="Output-based: validates functional-spec sections",
+        prompt=(
+            "Write a functional specification for real-time order tracking. "
+            "Include: Goal, Users & Context, User Stories, Functional Requirements, "
+            "Acceptance Criteria, Out of Scope, Open Questions, and Assumptions."
+        ),
+        expected_output_keywords=[
+            "Goal",
+            "User Stories",
+            "Functional Requirements",
+            "Acceptance Criteria",
+        ],
+    ),
+
+    # -------------------------------------------------------------------------
+    # Test 7 — ask-me-anything → Output-based (no subagent delegation expected)
+    # -------------------------------------------------------------------------
+    TestCase(
+        name="ask-architecture",
+        agent="ask-me-anything",
+        description="Output-based: compares architectures (read-only)",
+        prompt=(
+            "Compare AWS Lambda vs Kubernetes for a microservices architecture. "
+            "When should I use serverless vs containers?"
+        ),
+        expected_output_keywords=[
+            "Lambda",
+            "Kubernetes",
+            "serverless",
+            "containers",
+        ],
+    ),
+
+    # -------------------------------------------------------------------------
+    # Test 8 — review — Code quality review (output-based)
+    # -------------------------------------------------------------------------
+    TestCase(
+        name="review-code",
+        agent="review",
+        description="Output-based: security review of Python code",
+        prompt=(
+            "Review this code for security and quality issues:\n\n"
             "```python\n"
             "import sqlite3\n"
             "from fastapi import FastAPI\n"
@@ -115,127 +222,26 @@ TEST_CASES = [
             "async def get_user(name: str):\n"
             "    conn = sqlite3.connect('users.db')\n"
             "    cursor = conn.cursor()\n"
-            "    cursor.execute(f'SELECT * FROM users WHERE username = \"{name}\"')\n"
+            '    cursor.execute(f\'SELECT * FROM users WHERE username = "{name}"\')\n'
             "    return cursor.fetchall()\n"
             "```\n\n"
-            "Specifically: 1) security vulnerabilities in the FastAPI endpoint, "
-            "2) async Python correctness, "
-            "3) rewrite the SQL query using proper parameterized queries, CTEs, and window functions."
-        ),
-        expected_subagents=[
-            "subagents/02-languages/python-pro",
-            "subagents/04-quality-and-security/security-auditor",
-            "subagents/02-languages/sql-pro",
-        ],
-    ),
-
-    # -------------------------------------------------------------------------
-    # Test 3 — debug
-    # -------------------------------------------------------------------------
-    TestCase(
-        name="Test 3: debug — Cross-Stack Performance Debugging",
-        agent="debug",
-        description="Triggers database-optimizer + react-specialist for a N+1 + rendering scenario",
-        prompt=(
-            "I need expert help fixing two production bugs: "
-            "1) PostgreSQL N+1 query issue causing slow API responses, "
-            "2) React components rendering bottleneck on the dashboard page."
-        ),
-        expected_subagents=[
-            "subagents/05-data-ai/database-optimizer",
-            "subagents/02-languages/react-specialist",
-        ],
-    ),
-
-    # -------------------------------------------------------------------------
-    # Test 4 — build-code
-    # -------------------------------------------------------------------------
-    TestCase(
-        name="Test 4: build-code — Full-Stack Auth Feature",
-        agent="build-code",
-        description="Triggers react-specialist + python-pro + security-auditor for a JWT login page",
-        prompt=(
-            "We need a new authentication system. Please provide implementation guidance for all three domains: "
-            "1) React login page with JWT token handling (React specialist), "
-            "2) Python backend with FastAPI, async/await, pydantic validation (Python expert), "
-            "3) OWASP security best practices for the full stack (security auditor). "
-            "Include Python-specific patterns, async handler design, and security integration."
-        ),
-        expected_subagents=[
-            "subagents/02-languages/react-specialist",
-            "subagents/02-languages/python-pro",
-            "subagents/04-quality-and-security/security-auditor",
-        ],
-    ),
-
-    # -------------------------------------------------------------------------
-    # Test 5 — build-infrastructure
-    # -------------------------------------------------------------------------
-    TestCase(
-        name="Test 5: build-infrastructure — EKS Cluster with Monitoring",
-        agent="build-infrastructure",
-        description="Triggers terraform-expert + kubernetes-expert + observability-engineer",
-        prompt=(
-            "Set up a production-ready EKS cluster using Terraform modules. The cluster "
-            "needs autoscaling node groups, and we want Prometheus and Grafana deployed "
-            "via Helm for monitoring and alerting."
-        ),
-        expected_subagents=[
-            "subagents/03-infrastructure/terraform-expert",
-            "subagents/03-infrastructure/kubernetes-expert",
-            "subagents/03-infrastructure/observability-engineer",
-        ],
-    ),
-
-    # -------------------------------------------------------------------------
-    # Test 6 — plan-architecture
-    # -------------------------------------------------------------------------
-    TestCase(
-        name="Test 6: plan-architecture — E-Commerce Platform Design",
-        agent="plan-architecture",
-        description="Triggers microservices-architect + database-optimizer + aws-specialist",
-        prompt=(
-            "Design the architecture for a new e-commerce platform. It needs to handle "
-            "high traffic with a microservices backend, a PostgreSQL database with "
-            "optimized query patterns, and should be deployed on AWS. Provide technology "
-            "choices with trade-off analysis."
-        ),
-        expected_subagents=[
-            "subagents/01-core/microservices-architect",
-            "subagents/05-data-ai/database-optimizer",
-            "subagents/03-infrastructure/aws-specialist",
-        ],
-    ),
-
-    # -------------------------------------------------------------------------
-    # Test 7 — plan-design  (output-based — no subagent delegation expected)
-    # -------------------------------------------------------------------------
-    TestCase(
-        name="Test 7: plan-design — Order Tracking Functional Spec",
-        agent="plan-design",
-        description="Output-based: validates spec sections present in response (no delegation)",
-        prompt=(
-            "Please write a complete functional specification for the following feature. "
-            "All context you need is provided below — skip clarifying questions and go "
-            "straight to writing the spec.\n\n"
-            "Feature: Real-time order tracking for customers.\n"
-            "Users: End consumers shopping on our e-commerce site.\n"
-            "Goal: Customers should be able to see the current status of each order, "
-            "get notified by email when the status changes, and view a full order history.\n"
-            "Out of scope: payment processing, returns, and admin dashboards.\n"
-            "Constraints: must work on mobile browsers; no native app required.\n"
-            "Success metric: 80% of customers check order status without contacting support.\n\n"
-            "Produce the full spec now with all required sections: Goal, Users & Context, "
-            "User Stories, Functional Requirements, Acceptance Criteria, Out of Scope, "
-            "Open Questions, and Assumptions."
+            "Check for: SQL injection, async correctness, error handling."
         ),
         expected_output_keywords=[
-            "Goal",
-            "User Stories",
-            "Functional Requirements",
-            "Acceptance Criteria",
-            "Out of Scope",
+            "SQL injection",
+            "parameterized",
+            "security",
         ],
+    ),
+    TestCase(
+        name="ask-python-skill",
+        agent="ask-me-anything",
+        description="Loads Python knowledge skill for a read-only typing question",
+        prompt=(
+            "Do not edit files. Before answering, load the python-pro skill. "
+            "Then give one concise recommendation for typing a Python repository API."
+        ),
+        expected_skills=["python-pro"],
     ),
 ]
 
@@ -253,7 +259,9 @@ def run_opencode(agent: str, prompt: str, timeout: int = 300) -> tuple[str, int]
         prompt,
     ]
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, check=False
+        )
         return result.stdout + result.stderr, result.returncode
     except subprocess.TimeoutExpired as e:
         output = (e.stdout or b"").decode("utf-8", errors="replace")
@@ -261,8 +269,8 @@ def run_opencode(agent: str, prompt: str, timeout: int = 300) -> tuple[str, int]
         return output, 1
 
 
-def parse_task_calls(raw_output: str) -> list[str]:
-    """Parse JSON event stream and return list of subagent_type values from task tool calls."""
+def parse_subagent_calls(raw_output: str) -> list[str]:
+    """Return child-agent IDs from V2 subagent and compatible V1 task events."""
     called = []
     for line in raw_output.splitlines():
         line = line.strip()
@@ -273,18 +281,67 @@ def parse_task_calls(raw_output: str) -> list[str]:
         except json.JSONDecodeError:
             continue
 
+        if not isinstance(event, dict):
+            continue
+
         part = event.get("part", {})
-        if part.get("type") == "tool" and part.get("tool") == "task":
-            state = part.get("state", {})
-            subagent = state.get("input", {}).get("subagent_type")
-            if subagent:
-                called.append(subagent)
+        if not isinstance(part, dict) or part.get("type") != "tool":
+            continue
+
+        tool = part.get("tool")
+        if tool not in {"subagent", "task"}:
+            continue
+
+        state = part.get("state", {})
+        call_input = state.get("input", {}) if isinstance(state, dict) else {}
+        if not isinstance(call_input, dict):
+            continue
+
+        agent_id = call_input.get("agent" if tool == "subagent" else "subagent_type")
+        if agent_id:
+            called.append(agent_id)
+
+    return called
+
+
+def parse_task_calls(raw_output: str) -> list[str]:
+    """Backward-compatible alias for parsing child-agent tool calls."""
+    return parse_subagent_calls(raw_output)
+
+
+def parse_skill_calls(raw_output: str) -> list[str]:
+    """Return skill IDs from V2 skill tool events."""
+    called = []
+    for line in raw_output.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+
+        if not isinstance(event, dict):
+            continue
+
+        part = event.get("part", {})
+        if not isinstance(part, dict) or part.get("type") != "tool" or part.get("tool") != "skill":
+            continue
+
+        state = part.get("state", {})
+        call_input = state.get("input", {}) if isinstance(state, dict) else {}
+        if not isinstance(call_input, dict):
+            continue
+
+        skill_id = call_input.get("id")
+        if skill_id:
+            called.append(skill_id)
 
     return called
 
 
 def parse_agent_response(raw_output: str) -> str:
-    """Concatenate all text parts from the JSON event stream into the agent's final response."""
+    """Concatenate all text parts from the JSON event stream."""
     chunks = []
     for line in raw_output.splitlines():
         line = line.strip()
@@ -294,7 +351,7 @@ def parse_agent_response(raw_output: str) -> str:
             event = json.loads(line)
         except json.JSONDecodeError:
             continue
-        if event.get("type") == "text":
+        if isinstance(event, dict) and event.get("type") == "text":
             text = event.get("part", {}).get("text", "")
             if text:
                 chunks.append(text)
@@ -304,31 +361,35 @@ def parse_agent_response(raw_output: str) -> str:
 def run_test(test: TestCase, verbose: bool = False) -> TestResult:
     """Execute a single test case and return its result."""
     start = time.time()
-    raw_output, _ = run_opencode(test.agent, test.prompt)
+    raw_output, _rc = run_opencode(test.agent, test.prompt)
     duration = time.time() - start
 
     agent_response = parse_agent_response(raw_output)
 
-    # --- Delegation test ---
-    if test.expected_subagents:
-        called = parse_task_calls(raw_output)
+    # --- Tool-use tests (subagent and skill calls) ---
+    if test.expected_subagents or test.expected_skills:
+        called = parse_subagent_calls(raw_output)
+        called_skills = parse_skill_calls(raw_output)
         expected_set = set(test.expected_subagents)
         called_set = set(called)
         missing = sorted(expected_set - called_set)
         unexpected = sorted(called_set - expected_set)
-        passed = len(missing) == 0
+        missing_skills = sorted(set(test.expected_skills) - set(called_skills))
+        passed = not missing and not missing_skills
         return TestResult(
             test=test,
             passed=passed,
             called_subagents=sorted(called_set),
             missing_subagents=missing,
             unexpected_subagents=unexpected,
+            called_skills=sorted(set(called_skills)),
+            missing_skills=missing_skills,
             duration=duration,
             raw_output=raw_output if verbose else "",
             agent_response=agent_response if verbose else "",
         )
 
-    # --- Output test ---
+    # --- Output test (keyword matching) ---
     if test.expected_output_keywords:
         response_lower = agent_response.lower()
         missing_kw = [kw for kw in test.expected_output_keywords if kw.lower() not in response_lower]
@@ -352,16 +413,17 @@ def run_test(test: TestCase, verbose: bool = False) -> TestResult:
 
 def print_header():
     print(f"\n{BOLD}{'='*60}{RESET}")
-    print(f"{BOLD}  OpenCode Agentic Delegation Test Suite{RESET}")
+    print(f"{BOLD}  OpenCode Registry — V2 Delegation Test Suite{RESET}")
     print(f"{BOLD}{'='*60}{RESET}\n")
 
 
 def print_test_start(test: TestCase, index: int, total: int):
-    mode = "output" if test.expected_output_keywords else "delegation"
+    mode = "output" if test.expected_output_keywords else "tool-use"
     print(f"{CYAN}{BOLD}[{index}/{total}] {test.name}{RESET}")
     print(f"  {DIM}Agent : {test.agent}  [{mode}]{RESET}")
-    if test.expected_subagents:
-        print(f"  {DIM}Expect: {', '.join(test.expected_subagents)}{RESET}")
+    if test.expected_subagents or test.expected_skills:
+        expected_tools = test.expected_subagents + test.expected_skills
+        print(f"  {DIM}Expect: {', '.join(expected_tools)}{RESET}")
     else:
         print(f"  {DIM}Expect: keywords → {', '.join(test.expected_output_keywords)}{RESET}")
     print(f"  {DIM}Running...{RESET}", end="", flush=True)
@@ -378,7 +440,7 @@ def print_test_result(result: TestResult, verbose: bool = False):
     status = f"{GREEN}PASSED{RESET}" if result.passed else f"{RED}FAILED{RESET}"
     print(f"\r  {status} ({duration_str})")
 
-    # Always show which subagents were actually called for delegation tests
+    # Show subagent calls for delegation tests
     if result.test.expected_subagents:
         for s in result.called_subagents:
             marker = GREEN + "✓" + RESET if s in result.test.expected_subagents else YELLOW + "~" + RESET
@@ -386,36 +448,60 @@ def print_test_result(result: TestResult, verbose: bool = False):
         for s in result.missing_subagents:
             print(f"    {RED}✗{RESET} {s}  {DIM}(not called){RESET}")
 
-    if not result.passed:
-        if result.missing_keywords:
-            print(f"  {RED}Missing keywords in response:{RESET}")
-            for kw in result.missing_keywords:
-                print(f"    {RED}✗{RESET} {kw!r}")
+    if result.test.expected_skills:
+        for skill_id in result.called_skills:
+            marker = GREEN + "✓" + RESET if skill_id in result.test.expected_skills else YELLOW + "~" + RESET
+            print(f"    {marker} skill:{skill_id}")
+        for skill_id in result.missing_skills:
+            print(f"    {RED}✗{RESET} skill:{skill_id}  {DIM}(not loaded){RESET}")
+
+    if not result.passed and result.missing_keywords:
+        print(f"  {RED}Missing keywords in response:{RESET}")
+        for kw in result.missing_keywords:
+            print(f"    {RED}✗{RESET} {kw!r}")
 
     if verbose and result.raw_output:
         if result.agent_response:
             print(f"\n  {CYAN}--- Agent response ---{RESET}")
-            for line in result.agent_response.splitlines():
-                print(f"  {line}")
+            # Truncate long responses
+            lines = result.agent_response.splitlines()
+            if len(lines) > 20:
+                for line in lines[:10]:
+                    print(f"  {line}")
+                print(f"  {DIM}... ({len(lines) - 20} lines omitted) ...{RESET}")
+                for line in lines[-10:]:
+                    print(f"  {line}")
+            else:
+                for line in lines:
+                    print(f"  {line}")
 
         if result.test.expected_subagents:
-            print(f"\n  {DIM}--- Task calls ---{RESET}")
-            task_calls_found = False
+            print(f"\n  {DIM}--- Subagent calls ---{RESET}")
+            subagent_calls_found = False
             for line in result.raw_output.splitlines():
                 line = line.strip()
                 if not line:
                     continue
                 try:
                     event = json.loads(line)
+                    if not isinstance(event, dict):
+                        continue
                     part = event.get("part", {})
-                    if part.get("tool") == "task":
+                    if not isinstance(part, dict):
+                        continue
+                    if part.get("tool") in {"task", "subagent"}:
                         tool_input = part.get("state", {}).get("input", {})
-                        print(f"  {DIM}task({json.dumps(tool_input, indent=4)}){RESET}")
-                        task_calls_found = True
+                        print(f"  {DIM}{part['tool']}({json.dumps(tool_input, indent=4)}){RESET}")
+                        subagent_calls_found = True
                 except json.JSONDecodeError:
                     pass
-            if not task_calls_found:
-                print(f"  {DIM}(no task calls made){RESET}")
+            if not subagent_calls_found:
+                print(f"  {DIM}(no subagent calls made){RESET}")
+
+        if result.test.expected_skills:
+            print(f"\n  {DIM}--- Skill calls ---{RESET}")
+            for skill_id in result.called_skills:
+                print(f'  {DIM}skill({json.dumps({"id": skill_id})}){RESET}')
 
     print()
 
@@ -427,6 +513,7 @@ def print_summary(results: list[TestResult]):
 
     # --- Delegation summary ---
     delegation_results = [r for r in results if r.test.expected_subagents]
+    skill_results = [r for r in results if r.test.expected_skills]
     all_expected: list[tuple[str, str]] = []
     for r in delegation_results:
         for s in r.test.expected_subagents:
@@ -442,7 +529,7 @@ def print_summary(results: list[TestResult]):
     # --- Output summary ---
     output_results = [r for r in results if r.test.expected_output_keywords]
 
-    col = 52
+    col = 40
 
     print(f"{BOLD}{'='*60}{RESET}")
     print(f"{BOLD}  {passed_tests}/{total_tests} tests passed{RESET}  ({total_time:.1f}s total)")
@@ -465,12 +552,23 @@ def print_summary(results: list[TestResult]):
             print(f"    {DIM}(none){RESET}")
         print()
 
-        print(f"  {YELLOW}{BOLD}Unexpected subagents called ({len(extra_called)}){RESET}")
+        print(f"  {YELLOW}{BOLD}Unexpected subagents ({len(extra_called)}){RESET}")
         if extra_called:
             for s, t in extra_called:
                 print(f"    {YELLOW}~{RESET}  {s:<{col}}  {DIM}{t}{RESET}")
         else:
             print(f"    {DIM}(none){RESET}")
+        print()
+
+    if skill_results:
+        expected_skills = [skill for r in skill_results for skill in r.test.expected_skills]
+        loaded_skills = [skill for r in skill_results for skill in r.called_skills]
+        missing_skills = [skill for r in skill_results for skill in r.missing_skills]
+        print(f"  {GREEN}{BOLD}Skills loaded ({len(expected_skills) - len(missing_skills)}/{len(expected_skills)}){RESET}")
+        for skill_id in loaded_skills:
+            print(f"    {GREEN}✓{RESET}  {skill_id}")
+        for skill_id in missing_skills:
+            print(f"    {RED}✗{RESET}  {skill_id} (not loaded)")
         print()
 
     if output_results:
@@ -495,7 +593,13 @@ def prompt_select_tests() -> list[TestCase]:
     print(f"\n{BOLD}Select tests to run:{RESET}")
     print(f"  {DIM}0. All tests{RESET}")
     for i, t in enumerate(TEST_CASES, 1):
-        mode = "[output]" if t.expected_output_keywords else "[delegation]"
+        mode = (
+            "[output]"
+            if t.expected_output_keywords
+            else "[skill]"
+            if t.expected_skills
+            else "[subagent]"
+        )
         print(f"  {i}. {t.name}  {DIM}{mode}{RESET}")
         print(f"     {DIM}{t.description}{RESET}")
 
@@ -533,12 +637,12 @@ def prompt_select_tests() -> list[TestCase]:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Test OpenCode agentic delegation workflow"
+        description="Test OpenCode V2 skill/subagent usage and output quality"
     )
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
-        help="Show agent response text and raw task() call details",
+        help="Show agent response text and raw subagent/skill call details",
     )
     parser.add_argument(
         "-t", "--test",
@@ -555,7 +659,13 @@ def main():
     if args.list:
         print(f"\n{BOLD}Available test cases:{RESET}")
         for i, t in enumerate(TEST_CASES, 1):
-            mode = "[output]" if t.expected_output_keywords else "[delegation]"
+            mode = (
+                "[output]"
+                if t.expected_output_keywords
+                else "[skill]"
+                if t.expected_skills
+                else "[subagent]"
+            )
             print(f"  {i}. {t.name}  {DIM}{mode}{RESET}")
             print(f"     {DIM}Agent: {t.agent}{RESET}")
             print(f"     {DIM}{t.description}{RESET}")

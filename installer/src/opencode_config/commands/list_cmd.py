@@ -48,16 +48,14 @@ def list_components(type: str, tag: str, installed: bool):
                 if not tag or tag in manifest.tags:
                     components.append(manifest)
 
-    # Subagents
+    # Subagents (flat structure)
     subagent_dir = opencode_dir / "agents" / "subagents"
     if subagent_dir.exists():
-        for category_dir in subagent_dir.iterdir():
-            if category_dir.is_dir():
-                for md_file in category_dir.glob("*.md"):
-                    manifest = ManifestParser.create_from_md(md_file, "subagent")
-                    if not type or manifest.type == type:
-                        if not tag or tag in manifest.tags:
-                            components.append(manifest)
+        for md_file in subagent_dir.glob("*.md"):
+            manifest = ManifestParser.create_from_md(md_file, "subagent")
+            if not type or manifest.type == type:
+                if not tag or tag in manifest.tags:
+                    components.append(manifest)
 
     # Skills
     skill_dir = opencode_dir / "skills"

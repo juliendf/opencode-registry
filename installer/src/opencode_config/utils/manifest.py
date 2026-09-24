@@ -77,17 +77,17 @@ class ManifestParser:
         """Extract version from frontmatter.
 
         For skills: check metadata.version
-        For others: check top-level version field
+        For agents/subagents/commands: version removed in v1.0 — return N/A
         """
         if component_type == "skill":
             # Skills store version in metadata
             metadata = frontmatter.get("metadata", {})
             if isinstance(metadata, dict):
-                return metadata.get("version", "1.0.0")
-            return "1.0.0"
+                return metadata.get("version", "N/A")
+            return "N/A"
         else:
-            # Agents, subagents, commands use top-level version field
-            return frontmatter.get("version", "1.0.0")
+            # Agents, subagents, commands no longer have version in frontmatter
+            return "N/A"
 
     @staticmethod
     def validate(manifest: ComponentManifest) -> List[str]:

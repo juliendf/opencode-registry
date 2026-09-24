@@ -2,10 +2,12 @@
 Install components.
 """
 
-import click
 from pathlib import Path
+
+import click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
+
 from ..config import Config
 from ..utils.copy import CopyManager
 from ..utils.installed_db import InstalledDB
@@ -16,55 +18,37 @@ console = Console()
 TIERS = ["high", "medium", "low", "free"]
 
 
-def _check_model_tiers(config: Config, db: InstalledDB) -> bool:
+def _check_model_tiers(config: Config, db: InstalledDB):
     """
-    Ensure all model tiers are configured before installing.
+    Ensure model tiers are configured before installing (advisory only).
 
-    - First run (nothing installed yet): launch the interactive wizard automatically.
-    - Subsequent runs with missing tiers: print the commands to fix it and abort.
-
-    Returns True if all tiers are configured and install can proceed.
+    - First run: launch wizard automatically but never block install.
+    - Subsequent runs with missing tiers: print notice, proceed anyway.
+    - Unconfigured tiers: model_tier line removed at install, inherits caller model.
     """
     missing = [t for t in TIERS if not config.get_model_for_tier(t)]
     if not missing:
-        return True
+        return
 
     is_first_run = not db.get_all_installed()
 
     if is_first_run:
         console.print(
-            "[cyan]Welcome![/cyan] Before installing, let's configure which models "
-            "to use for each complexity tier.\n"
+            "[cyan]Welcome![/cyan] Model tiers are optional. "
+            "Configure now or skip — components will inherit the calling agent's model.\n"
         )
         run_wizard(config)
         # Re-check after wizard
         missing = [t for t in TIERS if not config.get_model_for_tier(t)]
         if not missing:
             console.print()
-            return True
-        # User skipped some — fall through to error below
+            return
 
-    console.print("[yellow]Model tiers are not fully configured.[/yellow]")
     console.print(
-        "Components use tiers ([cyan]high[/cyan] / [cyan]medium[/cyan] / [cyan]low[/cyan] / [cyan]free[/cyan]) "
-        "to select a model. Run the following to configure them:\n"
+        "[dim]Some model tiers not configured. "
+        "Components will inherit the calling agent's model. "
+        "Run 'opencode-config models --wizard' to configure later.[/dim]\n"
     )
-    console.print("[dim]Browse available models at https://models.dev/ or run 'opencode models'[/dim]\n")
-    examples = {
-        "high":   "github-copilot/claude-sonnet-4.5",
-        "medium": "github-copilot/claude-sonnet-4",
-        "low":    "github-copilot/claude-haiku-4.5",
-        "free":   "github-copilot/gpt-4o-mini",
-    }
-    for tier in missing:
-        console.print(
-            f"  opencode-config models --set {tier} [dim]{examples[tier]}[/dim]"
-        )
-    console.print(
-        "\n[dim]Or configure all tiers at once:[/dim]"
-        "\n  opencode-config models --wizard"
-    )
-    return False
 
 
 @click.command()
@@ -73,8 +57,23 @@ def _check_model_tiers(config: Config, db: InstalledDB) -> bool:
 @click.option("--dry-run", "-n", is_flag=True, help="Preview changes without installing")
 @click.option("--target", "-t", help="Custom installation target directory")
 @click.option("--model", "-m", help="Override model for component installation")
-def install(component_id: str, group: str, dry_run: bool, target: str, model: str):
+@click.option(
+    "--inherit-model",
+    is_flag=True,
+    help="Remove model selectors so components inherit the active session model",
+)
+def install(
+    component_id: str,
+    group: str,
+    dry_run: bool,
+    target: str,
+    model: str,
+    inherit_model: bool,
+):
     """Install a component or bundle."""
+    if model and inherit_model:
+        raise click.UsageError("--model cannot be used with --inherit-model")
+
     config = Config()
     db = InstalledDB()
 
@@ -85,13 +84,14 @@ def install(component_id: str, group: str, dry_run: bool, target: str, model: st
 
     if not registry_path:
         console.print("[red]Error:[/red] Could not find registry. Run from registry directory.")
-        console.print("[dim]Tip: Set registry path with 'opencode-config config --registry /path/to/registry'[/dim]")
+        console.print(
+            "[dim]Tip: Set registry path with 'opencode-config config --registry /path/to/registry'[/dim]"
+        )
         return
 
-    # Check model tiers are configured (skip if user supplies --model override)
-    if not model and not dry_run:
-        if not _check_model_tiers(config, db):
-            return
+    # Model tiers are optional — wizard runs on first install but never blocks
+    if not model and not inherit_model and not dry_run:
+        _check_model_tiers(config, db)
 
     # Only save registry path if it was explicitly set by user, not auto-detected
     # This allows auto-detection to work with git worktrees
@@ -113,6 +113,10 @@ def install(component_id: str, group: str, dry_run: bool, target: str, model: st
     console.print(f"[dim]Registry path: {registry_path}[/dim]")
     if model:
         console.print(f"[dim]Model override: {model}[/dim]")
+    if inherit_model:
+        console.print(
+            "[dim]Model selectors will be removed; components inherit the active session model[/dim]"
+        )
     console.print()
 
     if dry_run:
@@ -142,7 +146,12 @@ def install(component_id: str, group: str, dry_run: bool, target: str, model: st
         ) as progress:
             progress.add_task(f"Installing bundle '{group}'...", total=None)
 
-            success = copy_manager.install_package("opencode", dry_run=dry_run, model_override=model)
+            success = copy_manager.install_package(
+                "opencode",
+                dry_run=dry_run,
+                model_override=model,
+                inherit_model=inherit_model,
+            )
 
             if success and not dry_run:
                 db.set_install_method(install_method)
@@ -152,7 +161,11 @@ def install(component_id: str, group: str, dry_run: bool, target: str, model: st
 
                 # Detect and sync actual installed components
                 detected = copy_manager.detect_installed_components()
-                db.sync_from_detected(detected, install_method)
+                db.sync_from_detected(
+                    detected,
+                    install_method,
+                    component_fingerprints=copy_manager.get_component_fingerprints(detected),
+                )
 
                 db.log_action("install", [group], install_method, "success")
 
@@ -195,7 +208,12 @@ def install(component_id: str, group: str, dry_run: bool, target: str, model: st
     ) as progress:
         progress.add_task(f"Installing '{component_id}'...", total=None)
 
-        success = copy_manager.install_package("opencode", dry_run=dry_run, model_override=model)
+        success = copy_manager.install_package(
+            "opencode",
+            dry_run=dry_run,
+            model_override=model,
+            inherit_model=inherit_model,
+        )
 
         if success and not dry_run:
             db.set_install_method(install_method)
@@ -204,7 +222,11 @@ def install(component_id: str, group: str, dry_run: bool, target: str, model: st
 
             # Detect and sync actual installed components
             detected = copy_manager.detect_installed_components()
-            db.sync_from_detected(detected, install_method)
+            db.sync_from_detected(
+                detected,
+                install_method,
+                component_fingerprints=copy_manager.get_component_fingerprints(detected),
+            )
 
             db.log_action("install", [component_id], install_method, "success")
 

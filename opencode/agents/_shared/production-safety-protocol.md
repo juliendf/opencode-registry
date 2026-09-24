@@ -4,7 +4,6 @@ description: Shared production environment safety protocol for infrastructure ag
 type: shared-config
 mode: subagent
 hidden: true
-version: "1.0.0"
 ---
 
 # Production Environment Safety Protocol

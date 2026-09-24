@@ -1,7 +1,6 @@
 ---
 description: Create well-formatted commits with conventional commit messages
 model_tier: "free"
-version: "1.0.0"
 ---
 
 # Commit Command

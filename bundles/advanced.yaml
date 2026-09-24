@@ -1,28 +1,84 @@
 name: "Advanced OpenCode Setup"
 description: "Complete OpenCode ecosystem with all agents, subagents, and skills"
 components:
-  # All primary agents
+  # Primary agents
   - ask-me-anything
-  - plan-design
-  - plan-architecture
+  - plan
   - debug
   - review
-  - build-code
-  - build-infrastructure
-  
-  # All skills
-  - project-docs
-  - mcp-builder
+  - build
+
+  # Subagents
+  - infrastructure-engineer
+  - data-engineer
+  - ml-engineer
+  - mlops-engineer
+  - ai-engineer
+  - penetration-tester
+  - security-auditor
+  - mobile-developer
+  - cli-developer
+  - fullstack-developer
+
+  # Skills - Languages
+  - python-pro
+  - typescript-pro
+  - react-specialist
+  - vue-expert
+  - golang-pro
+  - sql-pro
+  - bash-expert
+
+  # Skills - Architecture
+  - api-designer
+  - backend-architect
+  - graphql-architect
+  - microservices-architect
+  - cloud-architect
+
+  # Skills - Infrastructure
+  - aws-patterns
+  - azure-patterns
+  - gcp-patterns
+  - terraform-patterns
+  - kubernetes-patterns
+  - sre-patterns
+  - observability-patterns
+  - network-patterns
+  - gitops-patterns
+  - platform-patterns
+  - crossplane-patterns
+  - devops-patterns
+
+  # Skills - Data & AI
+  - database-patterns
+
+  # Skills - Quality & Security
+  - debugging-guide
+  - performance-engineering
+  - test-automation
+
+  # Skills - Developer Experience
+  - dx-optimization
+  - mcp-developer
+  - working-with-helm-templates
+
+  # Skills - Business & Planning
+  - payment-integration
+  - technical-writing
+
+  # Skills - Meta
+  - context-manager
+  - workflow-patterns
+
+  # Skills - Content & Writing
   - content-research-writer
+  - project-docs
   - proofreader
   - second-opinion
-  - working-with-helm-templates
-  
-  # All commands
+  - mcp-builder
+
+  # Commands
   - commit
-  - review
   - documentation
-  - test
   - kb
-  
-  # Note: Subagents are included automatically as they're in the agent/subagents directory
